@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<module >
+  <public>
+		<component priority="0" singleton="true" supportAlias="true" remote="true" tx="CMT"  active="true">
+			<interface>nc.itf.oa.IoaqueryList</interface>
+      <implementation>nc.imp.oa.impl.QueryList</implementation>
+    </component>
+    <component priority="0" singleton="true" supportAlias="true" remote="true" tx="CMT"  active="true">
+			<interface>nc.itf.oa.IBasDMO</interface>
+      <implementation>nc.imp.oa.bas.BasDMO</implementation>
+    </component> 
+    <component priority="0" singleton="true" remote = "true" tx = "CMT"  supportAlias="true">      
+      	<interface>nc.itf.mbSyn.IQueryList</interface>
+        <implementation>nc.impl.mbSyn.QueryList</implementation>
+     </component> 
+     <component priority="0" singleton="true" remote = "true" tx = "CMT"  supportAlias="true">      
+      	<interface>nc.itf.mbSyn.IMbSys</interface>
+        <implementation>nc.impl.mbSyn.MbSyn</implementation>
+     </component> 
+     
+     <component priority="0" singleton="true" remote = "true" tx = "CMT"  supportAlias="true">      
+      	<interface>nc.itf.mbSyn.IServiceUtil</interface>
+        <implementation>nc.impl.mbSyn.ServiceUtil_C</implementation>
+     </component> 
+     
+   </public>
+</module>
+
