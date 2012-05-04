@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<module >
+  <public>
+  <component priority="0" singleton="true" supportAlias="true" remote="true" tx="CMT"  active="true">
+			<interface>nc.itf.hskaoqin.all.IBasDMO</interface>
+      <implementation>nc.imp.hskaoqin.all.BasDMO</implementation>
+    </component>
+		<component priority="0" singleton="true" supportAlias="true" remote="true" tx="CMT"  active="true">
+			<interface>nc.itf.hskaoqin.all.IKaoQin</interface>
+      <implementation>nc.imp.hskaoqin.all.KaoQin</implementation>
+    </component>
+   </public>
+</module>
+
