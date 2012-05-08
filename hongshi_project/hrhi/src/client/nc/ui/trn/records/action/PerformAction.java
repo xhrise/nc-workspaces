@@ -24,6 +24,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
 import nc.hr.utils.ResHelper;
 import nc.impl.mbSyn.MbSynImpl;
+import nc.impl.mbSyn.ServiceUtilImpl;
 import nc.itf.hi.HIDelegator;
 import nc.itf.hr.bd.ICorpWorkout;
 import nc.itf.hr.cm.IHrcmPsnChanged;
@@ -207,15 +208,13 @@ public class PerformAction extends RdsBaseAction {
 					// billVOS[0].getPk_psndocs()[0]).get(0);
 
 					try {
-						IServiceUtil util = (IServiceUtil) NCLocator
-								.getInstance().lookup(
-										IServiceUtil.class.getName());
+						IServiceUtil util = new ServiceUtilImpl();
 						Long accid = util.getAccountId("");
 					} catch (Exception e1) {
 						JOptionPane
 								.showMessageDialog(
 										null,
-										"连接A8服务器失败，调配操作继续执行，本次同步A8操作被截断！恢复该人员信息并连接上服务器后再次进行此操作即可同步信息至A8！",
+										e1.getMessage(),
 										"提示", JOptionPane.OK_OPTION);
 
 						afterExecute();

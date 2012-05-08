@@ -23,6 +23,11 @@
         <implementation>nc.impl.mbSyn.ServiceUtil_C</implementation>
      </component> 
      
+     <component priority="0" singleton="true" remote = "true" tx = "CMT"  supportAlias="true">      
+      	<interface>nc.itf.mbSyn.IServiceAddress</interface>
+        <implementation>nc.impl.mbSyn.ServiceAddress</implementation>
+     </component> 
+     
    </public>
 </module>
 
