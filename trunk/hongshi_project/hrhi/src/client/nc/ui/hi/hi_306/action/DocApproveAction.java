@@ -11,9 +11,9 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import nc.bs.framework.common.NCLocator;
 import nc.bs.uap.lock.PKLock;
 import nc.impl.mbSyn.MbSynImpl;
+import nc.impl.mbSyn.ServiceUtilImpl;
 import nc.itf.hi.HIDelegator;
 import nc.itf.hr.pub.PubDelegator;
 import nc.itf.mbSyn.IMbSys;
@@ -261,11 +261,11 @@ public class DocApproveAction extends PFApproveAction {
 					
 					boolean check = false;
 					try {
-						IServiceUtil util = (IServiceUtil) NCLocator.getInstance().lookup(IServiceUtil.class.getName());
+						IServiceUtil util = new ServiceUtilImpl();
 						Long accid = util.getAccountId("");
 						check = true;
 					} catch(Exception e) {
-						JOptionPane.showMessageDialog(null, "连接A8服务器失败，新建操作继续执行，本次同步A8操作被截断！连接上服务器后请在人员信息维护节点中修改并保存该人员即可同步信息至A8！" , "提示" , JOptionPane.OK_OPTION);
+						JOptionPane.showMessageDialog(null, e.getMessage() , "提示" , JOptionPane.OK_OPTION);
 						
 					}
 					

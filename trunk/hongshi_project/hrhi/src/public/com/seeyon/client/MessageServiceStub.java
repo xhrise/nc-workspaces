@@ -7,6 +7,9 @@
  */
         package com.seeyon.client;
 
+import nc.bs.framework.common.NCLocator;
+import nc.itf.mbSyn.IServiceAddress;
+
         
 
         /*
@@ -24,6 +27,8 @@
         private java.util.HashMap faultMessageMap = new java.util.HashMap();
 
         private static int counter = 0;
+        
+        static IServiceAddress ServiceAddress = (IServiceAddress)NCLocator.getInstance().lookup(IServiceAddress.class);
 
         private static synchronized String getUniqueSuffix(){
             // reset the counter if it is greater than 99999

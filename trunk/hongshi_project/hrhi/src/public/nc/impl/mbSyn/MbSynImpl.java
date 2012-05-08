@@ -63,6 +63,8 @@ public class MbSynImpl implements IMbSys {
 	// }
 	
 	private Long id = 0L;
+	
+	private ServiceUtilImpl serviceUtil = new ServiceUtilImpl();
 
 	public MbSynImpl() {
 
@@ -87,7 +89,7 @@ public class MbSynImpl implements IMbSys {
 				// PersonServiceStub.PersonInfoParam_All person = new
 				// PersonServiceStub.PersonInfoParam_All();
 				person.setPassWord("7200244ye"); // 7200244ye
-				req.setToken(ServiceUtil.getToken());
+				req.setToken(ServiceUtilImpl.getToken());
 				req.setPerson(person);
 
 				PersonServiceStub.CreateResponse resp = stub.create(req);
@@ -139,7 +141,7 @@ public class MbSynImpl implements IMbSys {
 			PersonServiceStub stub = new PersonServiceStub();
 			PersonServiceStub.EnableByLoginName req = new PersonServiceStub.EnableByLoginName();
 
-			req.setToken(ServiceUtil.getToken());
+			req.setToken(ServiceUtilImpl.getToken());
 			req.setLoginName(loginName);
 
 			req.setEnable(enabled);
@@ -173,7 +175,7 @@ public class MbSynImpl implements IMbSys {
 			PersonServiceStub stub = new PersonServiceStub();
 			PersonServiceStub.Enable req = new PersonServiceStub.Enable();
 
-			req.setToken(ServiceUtil.getToken());
+			req.setToken(ServiceUtilImpl.getToken());
 			req.setPersonId(id);
 			req.setEnable(enabled);
 
@@ -214,7 +216,7 @@ public class MbSynImpl implements IMbSys {
 			if (StrsList.size() == 0)
 				return;
 			else
-				accountId = ServiceUtil.getAccountId(StrsList.get(0)[0]);
+				accountId = serviceUtil.getAccountId(StrsList.get(0)[0]);
 
 			List<PersonInfoParam_All> list = queryList.getPerson(source,
 					pk_psndoc);
@@ -232,7 +234,7 @@ public class MbSynImpl implements IMbSys {
 				if(resetPwd)
 					person.setPassWord("7200244ye");
 				
-				req.setToken(ServiceUtil.getToken());
+				req.setToken(ServiceUtilImpl.getToken());
 				req.setPersonId(id);
 				req.setPerson(person);
 				
@@ -287,7 +289,7 @@ public class MbSynImpl implements IMbSys {
 //				person.setAccountId(accountId);
 //				//person.setPassWord("7200244ye");
 //				
-//				req.setToken(ServiceUtil.getToken());
+//				req.setToken(ServiceUtilImpl.getToken());
 //				req.setPersonId(id);
 //				req.setPerson(person);
 //
@@ -342,7 +344,7 @@ public class MbSynImpl implements IMbSys {
 			if (StrsList.size() == 0)
 				return;
 			else
-				accountId = ServiceUtil.getAccountId(StrsList.get(0)[0]);
+				accountId = serviceUtil.getAccountId(StrsList.get(0)[0]);
 
 			List<PersonInfoParam_All> list = queryList.getPerson1(source,
 					pk_psndoc);
@@ -355,7 +357,7 @@ public class MbSynImpl implements IMbSys {
 			person.setAccountId(accountId);
 			person.setLoginName(def1);
 			//person.setPassWord("123456");
-			req.setToken(ServiceUtil.getToken());
+			req.setToken(ServiceUtilImpl.getToken());
 			req.setPersonId(id);
 			req.setPerson(person);
 
@@ -399,7 +401,7 @@ public class MbSynImpl implements IMbSys {
 			if (StrsList.size() == 0)
 				return;
 			else
-				accountId = ServiceUtil.getAccountId(StrsList.get(0)[0]);
+				accountId = serviceUtil.getAccountId(StrsList.get(0)[0]);
 
 			List<PersonInfoParam_All> list = queryList.getPerson2(source,
 					pk_psndoc);
@@ -415,7 +417,7 @@ public class MbSynImpl implements IMbSys {
 				// PersonServiceStub.PersonInfoParam_All person = new
 				// PersonServiceStub.PersonInfoParam_All();
 				//person.setPassWord("123456");
-				req.setToken(ServiceUtil.getToken());
+				req.setToken(ServiceUtilImpl.getToken());
 				req.setPerson(person);
 
 				PersonServiceStub.CreateResponse resp = stub.create(req);
@@ -488,7 +490,7 @@ public class MbSynImpl implements IMbSys {
 				PersonServiceStub stub = new PersonServiceStub();
 				PersonServiceStub.Delete req = new PersonServiceStub.Delete();
 
-				req.setToken(ServiceUtil.getToken());
+				req.setToken(ServiceUtilImpl.getToken());
 				req.setPersonId(id);
 
 				PersonServiceStub.DeleteResponse resp = stub.delete(req);
@@ -542,7 +544,7 @@ public class MbSynImpl implements IMbSys {
 			List<String[]> deptList = (List<String[]>) entry.getValue();
 			int falseNum = 0;
 			int trueNum = 0;
-			long accountId = ServiceUtil.getAccountId(units[0]);
+			long accountId = serviceUtil.getAccountId(units[0]);
 			for (String[] deptVO2 : deptList) {
 				try {
 					DepartmentServiceStub stub = new DepartmentServiceStub();
@@ -554,7 +556,7 @@ public class MbSynImpl implements IMbSys {
 					dept.setAccountId(accountId);
 					dept.setDepartmentName(deptVO2);
 
-					req.setToken(ServiceUtil.getToken());
+					req.setToken(ServiceUtilImpl.getToken());
 					req.setDepartment(dept);
 
 					DepartmentServiceStub.CreateResponse resp = stub
@@ -612,7 +614,7 @@ public class MbSynImpl implements IMbSys {
 			DepartmentServiceStub stub = new DepartmentServiceStub();
 			DepartmentServiceStub.EnableByNameArray req = new DepartmentServiceStub.EnableByNameArray();
 
-			req.setToken(ServiceUtil.getToken());
+			req.setToken(ServiceUtilImpl.getToken());
 			req.setAccountName(unitname);
 			req.setDepartmentName(names);
 			req.setEnable(enabled);
@@ -658,7 +660,7 @@ public class MbSynImpl implements IMbSys {
 			List<String[]> ocupList = (List<String[]>) entry.getValue();
 			int falseNum = 0;
 			int trueNum = 0;
-			long accountId = ServiceUtil.getAccountId(units[0]);
+			long accountId = serviceUtil.getAccountId(units[0]);
 			for (String[] ocupVO2 : ocupList) {
 				try {
 					OcupationServiceStub stub = new OcupationServiceStub();
@@ -672,7 +674,7 @@ public class MbSynImpl implements IMbSys {
 					ocupation.setOcupationName(ocupVO2[1]);
 
 					//
-					req.setToken(ServiceUtil.getToken());
+					req.setToken(ServiceUtilImpl.getToken());
 					req.setOcupation(ocupation);
 
 					OcupationServiceStub.CreateResponse resp = stub.create(req);
@@ -729,7 +731,7 @@ public class MbSynImpl implements IMbSys {
 			OcupationServiceStub stub = new OcupationServiceStub();
 			OcupationServiceStub.Enable req = new OcupationServiceStub.Enable();
 
-			req.setToken(ServiceUtil.getToken());
+			req.setToken(ServiceUtilImpl.getToken());
 			req.setOcupationId(id);
 			req.setEnable(enabled);
 
@@ -767,13 +769,13 @@ public class MbSynImpl implements IMbSys {
 	// PersonServiceStub.PersonInfoParam_All person = new
 	// PersonServiceStub.PersonInfoParam_All();
 	// // ±ØÌî
-	// person.setAccountId(ServiceUtil.getAccountId("ºìÊ¨Ë®Äà"));
+	// person.setAccountId(ServiceUtilImpl.getAccountId("ºìÊ¨Ë®Äà"));
 	// person.setTrueName("River Yang");
 	// person.setLoginName(loginName);
 	// person.setPassWord("123456");
 	//
 	// //
-	// req.setToken(ServiceUtil.getToken());
+	// req.setToken(ServiceUtilImpl.getToken());
 	// req.setPerson(person);
 	//
 	// PersonServiceStub.CreateResponse resp = stub.create(req);
@@ -819,7 +821,7 @@ public class MbSynImpl implements IMbSys {
 	// person.setPassWord("123456");
 	// person.setSex("1");
 	//			
-	// req.setToken(ServiceUtil.getToken());
+	// req.setToken(ServiceUtilImpl.getToken());
 	// req.setPersonId(id);
 	// req.setPerson(person);
 	//			
@@ -843,7 +845,7 @@ public class MbSynImpl implements IMbSys {
 	// PersonServiceStub.DeleteByLoginName req = new
 	// PersonServiceStub.DeleteByLoginName();
 	//
-	// req.setToken(ServiceUtil.getToken());
+	// req.setToken(ServiceUtilImpl.getToken());
 	// req.setLoginName(loginName);
 	//
 	// PersonServiceStub.DeleteByLoginNameResponse resp = stub
@@ -866,7 +868,7 @@ public class MbSynImpl implements IMbSys {
 	// PersonServiceStub stub = new PersonServiceStub();
 	// PersonServiceStub.Delete req = new PersonServiceStub.Delete();
 	//
-	// req.setToken(ServiceUtil.getToken());
+	// req.setToken(ServiceUtilImpl.getToken());
 	// req.setPersonId(id);
 	//
 	// PersonServiceStub.DeleteResponse resp = stub
@@ -889,7 +891,7 @@ public class MbSynImpl implements IMbSys {
 	// PersonServiceStub stub = new PersonServiceStub();
 	// PersonServiceStub.Enable req = new PersonServiceStub.Enable();
 	//
-	// req.setToken(ServiceUtil.getToken());
+	// req.setToken(ServiceUtilImpl.getToken());
 	// req.setPersonId(id);
 	// req.setEnable(enabled);
 	//

@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -50,6 +51,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
 import nc.bs.uap.lock.PKLock;
 import nc.impl.mbSyn.MbSynImpl;
+import nc.impl.mbSyn.ServiceUtilImpl;
 import nc.itf.hi.HIDelegator;
 import nc.itf.hr.bd.ICorpWorkout;
 import nc.itf.hr.comp.IAttachment;
@@ -10614,28 +10616,21 @@ public class PsnInfCollectUI extends nc.ui.hr.base.HRToftPanel implements
 									.getPsndocVO().getAttributeValue("def1")
 									.toString().trim().equals(""))) {
 							
-//							ExecutorService pool = Executors.newFixedThreadPool(300);
-//							for(int i = 0 ; i < 3000 ; i++ ) {
-//								pool.execute(new Thread() {
-//									
-//									public void run() {
-//										synchronized(this) {
-											try {
-												IServiceUtil util = (IServiceUtil) NCLocator.getInstance().lookup(IServiceUtil.class.getName());
-												Long accid = util.getAccountId("");
-												System.out.println(accid);
-												util = null;
-											} catch(Exception e1) {
-												e1.printStackTrace();
-	//											JOptionPane.showMessageDialog(null, "连接A8服务器失败，保存操作继续执行，本次同步A8操作被截断！连接上服务器后再次进行此操作即可同步信息至A8！" , "提示" , JOptionPane.OK_OPTION);
-	//											persons.clear();
-	//											return ;
-											}
-//										}
-//									}
-//								});
-//								
-//							}
+							try {
+								IServiceUtil util = new ServiceUtilImpl();
+								Long accid = util.getAccountId("");
+								System.out.println(accid);
+								util = null;
+							} catch (Exception e1) {
+								AppDebug.debug(e1);
+								JOptionPane
+										.showMessageDialog(
+												this ,
+												e1.getMessage() ,
+												"提示", JOptionPane.OK_OPTION);
+								persons.clear();
+								return;
+							}
 						}
 						 
 						if (eavo.getPsndocVO().getAttributeValue("def3") == null
