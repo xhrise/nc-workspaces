@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="proxy">
+  <public>
+    <component name="nc.itf.uapws.BusEJB" priority="0" singleton="true" remote="true" tx="CMT" supportAlias="true">
+      <interface>nc.uap.ws.Bus</interface>
+      <implementation>nc.impl.uapws.BusEJB</implementation>
+      <property name="bus">
+        <ref>Bus</ref>
+      </property>
+    </component>
+  </public>
+  <private />
+</module>
+
