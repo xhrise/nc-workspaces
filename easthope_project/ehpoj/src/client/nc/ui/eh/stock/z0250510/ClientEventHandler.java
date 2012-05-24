@@ -1,0 +1,365 @@
+package nc.ui.eh.stock.z0250510;
+
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import nc.bs.framework.common.NCLocator;
+import nc.itf.uap.IUAPQueryBS;
+import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.eh.dlg.CADlg;
+import nc.ui.eh.dlg.ValidDlg;
+import nc.ui.eh.uibase.AbstractSPEventHandler;
+import nc.ui.pub.beans.UIDialog;
+import nc.ui.pub.pf.PfUtilClient;
+import nc.ui.trade.businessaction.IPFACTION;
+import nc.ui.trade.button.IBillButton;
+import nc.ui.trade.controller.IControllerBase;
+import nc.ui.trade.manage.BillManageUI;
+import nc.vo.eh.stock.z0250505.StockInBVO;
+import nc.vo.eh.stock.z0250505.StockInVO;
+import nc.vo.framework.rsa.Encode;
+import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.sm.cmenu.GlorgbookExtVO;
+import nc.vo.trade.pub.IBillStatus;
+import nc.vo.trade.pub.IExAggVO;
+import nc.vo.uap.rbac.UserRoleVO;
+
+public class ClientEventHandler extends AbstractSPEventHandler {
+
+	public static ClientUI clientui = null;
+	
+	public ClientEventHandler(BillManageUI billUI, IControllerBase control) {
+		super(billUI, control);
+	}
+	
+	@Override 
+    protected void onBoCard() throws Exception {
+
+ 		super.onBoCard();
+   	 
+	   	System.out.println("onBoCard !");
+	   	
+	   	AggregatedValueObject modelVo = getBufferData().getCurrentVOClone();
+		if(modelVo != null) {
+			StockInVO sivo = (StockInVO)modelVo.getParentVO();
+			String vapproveid = sivo.getVapproveid();
+	    	if(vapproveid == null)
+	    		vapproveid = "";
+	    	
+	    	String pk_user = ClientUI.getCE().getUser().getPrimaryKey();
+	    	
+	    	if((sivo.getVbillstatus() == 1 || sivo.getVbillstatus() == 0) && vapproveid.equals(pk_user)) {
+	    		getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
+	    	} else {
+	    		getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+	    	}
+		}
+		
+		getBillUI().updateButtonUI();
+    }
+	
+	
+	
+	@Override
+    protected void onBoRefresh() throws Exception {
+
+		super.onBoRefresh();
+
+		System.out.println("onBoRefresh !");
+
+		AggregatedValueObject modelVo = getBufferData().getCurrentVOClone();
+		if (modelVo != null) {
+			StockInVO sivo = (StockInVO) modelVo
+					.getParentVO();
+			String vapproveid = sivo.getVapproveid();
+			if (vapproveid == null)
+				vapproveid = "";
+
+			String pk_user = ClientUI.getCE().getUser()
+					.getPrimaryKey();
+
+			if ((sivo.getVbillstatus() == 1 || sivo.getVbillstatus() == 0)
+					&& vapproveid.equals(pk_user)) {
+				getButtonManager().getButton(IBillButton.CancelAudit)
+						.setEnabled(true);
+			} else {
+				getButtonManager().getButton(IBillButton.CancelAudit)
+						.setEnabled(false);
+			}
+		}
+
+		getBillUI().updateButtonUI();
+	}
+    
+   @Override
+   protected void onBoCancelAudit() throws Exception {
+   	System.out.println("CancelAudit !"); 
+   	
+	IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
+	
+   	AggregatedValueObject modelVo = getBufferData().getCurrentVOClone();
+   	setCheckManAndDate(modelVo);
+   	
+   	String rowids = "";
+   	StockInBVO[] cavo = (StockInBVO[])modelVo.getChildrenVO();
+	
+	if(cavo.length > 0) {
+    	for(StockInBVO bvo : cavo) {
+    		rowids += "'" + bvo.getPk_in_b() + "',";
+    	}
+	}
+	
+	if(rowids.length() > 0)
+		rowids = rowids.substring(0 , rowids.length() - 1);
+   	
+   	GlorgbookExtVO extVO = (GlorgbookExtVO)ClientUI.getCE().getValue("pk_glorgbook");
+   	String pk_user = ClientUI.getCE().getUser().getPrimaryKey();
+   	StockInVO sivo = (StockInVO)modelVo.getParentVO();
+   	String vapproveid = sivo.getVapproveid();
+   	if(vapproveid == null)
+   		vapproveid = "";
+   	
+   	if((sivo.getVbillstatus() == 1 || sivo.getVbillstatus() == 0) && vapproveid.equals(pk_user)) {
+	    	String billno = sivo.getBillno();
+	    	
+	    	int fkrq_M = sivo.getIndate().getMonth();
+	    	int fkrq_Y = sivo.getIndate().getYear();
+	    	String pk_corp = sivo.getPk_corp();
+	    	
+	    	
+	    	
+	    	StringBuffer sb = new StringBuffer();
+	    	sb.append("select jz_flag from eh_period where pk_corp = '"+pk_corp+"' and nyear = '"+fkrq_Y+"' and nmonth = '"+fkrq_M+"'");
+	    	String jz_flag = iUAPQueryBS.executeQuery(sb.toString(), new ColumnProcessor("jz_flag")) == null ? "" : iUAPQueryBS.executeQuery(sb.toString(),new ColumnProcessor("jz_flag")).toString();
+			if(jz_flag != null)
+				if(jz_flag.equals("Y"))
+					throw new Exception ("当月已结帐，禁止操作! ");
+			
+			
+			sb = new StringBuffer();
+			
+			// vsourcebillid 通过入库单主表PK判断
+			sb.append(" select count(h.pk_corp) counts from eh_arap_stockinvoices_b b left join eh_arap_stockinvoice h on b.pk_stockinvoice = h.pk_stockinvoice ");
+			sb.append(" where h.pk_corp = '"+pk_corp+"' and b.vsourcebillid = '"+sivo.getPk_in()+"' and h.dmakedate >= '"+sivo.getDmakedate().toString()+"' and  nvl(h.dr,0)=0  and nvl(b.dr,0)=0");
+			String rkdcount = iUAPQueryBS.executeQuery(sb.toString(), new ColumnProcessor("counts")) == null ? "" : iUAPQueryBS.executeQuery(sb.toString(),new ColumnProcessor("counts")).toString();
+			if(rkdcount != null) 
+				if(Integer.valueOf(rkdcount) > 0)
+					throw new Exception ("此单据已生成发票，禁止操作! ");
+	    	
+			sb = new StringBuffer();
+			
+			// vsourcebillrowid 通过入库单子表行PK判断
+			sb.append(" select count(fk.pk_corp) counts from eh_arap_fk_b fk_b left join eh_arap_fk fk on fk_b.pk_fk = fk.pk_fk ");
+			sb.append(" where vsourcebillrowid in ("+rowids+") and fk.pk_corp = '"+pk_corp+"' and fk.dmakedate >= '"+sivo.getDmakedate().toString()+"'  and nvl(fk.dr,0)=0 and nvl(fk_b.dr,0)=0");
+			
+			String rkbcount = iUAPQueryBS.executeQuery(sb.toString(), new ColumnProcessor("counts")) == null ? "" : iUAPQueryBS.executeQuery(sb.toString(),new ColumnProcessor("counts")).toString();
+			if(rkbcount != null) 
+				if(Integer.valueOf(rkbcount) > 0)
+					throw new Exception ("此单据已做付款，禁止操作! ");
+			
+	    	sb = new StringBuffer();
+	    	
+	    	sb.append(" select count(fin.pk_finindex) counts from dap_finindex fin left join dap_rtvouch rt ");
+	    	sb.append(" on fin.pk_corp = rt.pk_corp and fin.pk_rtvouch = rt.pk_voucher ");
+	    	sb.append(" where rt.year >= " + fkrq_Y + " and rt.period >= " + fkrq_M + " and fin.pk_corp = '"+pk_corp+"' and fin.billcode = '"+billno+"'  and nvl(fin.dr,0)=0 and nvl(rt.dr,0)=0");
+	    	
+	    	
+			String count = iUAPQueryBS.executeQuery(sb.toString(), new ColumnProcessor("counts")) == null ? "" : iUAPQueryBS.executeQuery(sb.toString(),new ColumnProcessor("counts")).toString();
+			if(count != null) 
+				if(Integer.valueOf(count) > 0)
+					throw new Exception ("当月已生成凭证，禁止操作! ");
+			
+			sb = new StringBuffer();
+			sb.append(" select count(explanation) counts from gl_voucher ");
+			sb.append(" where pk_corp = '"+pk_corp+"' and year= "+fkrq_Y+" and period = "+fkrq_M+" ");
+			sb.append(" and explanation in ('本月耗用原辅料','本月耗用包装','本月分配工资','本月耗用燃料','本月耗用电费','本月分配制造费用') ");
+			sb.append(" and nvl(dr,0)=0  and pk_system='XX' ");
+			
+			
+			count = iUAPQueryBS.executeQuery(sb.toString(),
+					new ColumnProcessor("counts")) == null ? "" : iUAPQueryBS
+					.executeQuery(sb.toString(), new ColumnProcessor("counts"))
+					.toString();
+//			if (count != null)
+//				if (Integer.valueOf(count) > 0)
+//					throw new Exception("当月已生成成本凭证，禁止操作! ");
+			
+			Object counts = iUAPQueryBS.executeQuery("select count(1) from eh_validoperate where pk_button = (select pk_button from eh_buttons where buttonname = '弃审') and nvl(dr,0) = 0 ", new ColumnProcessor());
+			if(Integer.valueOf(counts.toString()) > 0) {
+				counts = iUAPQueryBS.executeQuery("select count(1) from eh_validoperate where pk_button = (select pk_button from eh_buttons where buttonname = '弃审') and nvl(dr,0) = 0 and isenable = 'N'", new ColumnProcessor());
+				if(Integer.valueOf(counts.toString()) == 0) {
+					// 添加DIALOG add by river for 2011-12-22
+					ValidDlg validdlg = new ValidDlg((ClientUI)getBillUI());
+					if(validdlg.showModal() == UIDialog.ID_OK) {
+						// 添加对DIALOG中的信息的验证
+						String txtUser = validdlg.getTxtUser().getText();
+						String txtPass = new String(validdlg.getTxtPass().getPassword());
+						
+						
+						Encode encode = new Encode();
+						txtPass = encode.encode(txtPass);
+						
+						Object obj = iUAPQueryBS.executeQuery(" select count(1) from sm_user where user_code = '"+txtUser+"'", new ColumnProcessor());
+						if(obj == null || Integer.valueOf(obj.toString()) == 0) {
+							try { iUAPQueryBS.executeQuery("insert into eh_validoperate_log( pk_log , cuserid , pk_corp , operatedate , type , pk_bill , billno , remark , validuser , validpass) values (generatepk('"+pk_corp+"') , '"+pk_user+"' , '"+pk_corp+"' , '"+ClientUI.getCE().getDate().toString()+"' , 'CancelAudit' , '"+sivo.getPk_in()+"' , '"+sivo.getBillno()+"' , '认证失败，登录名不存在！' , '"+txtUser+"' , '"+txtPass+"')", null); } catch (Exception e) {};
+							
+							throw new Exception("认证失败，登录名不存在！ ");
+						
+						}
+						obj = iUAPQueryBS.executeQuery(" select authen_type from sm_user where user_code = '"+txtUser+"' and user_password = '"+txtPass+"'", new ColumnProcessor());
+						Object cuserid = iUAPQueryBS.executeQuery(" select cuserid from sm_user where user_code = '"+txtUser+"'", new ColumnProcessor());
+						
+						if(cuserid == null)
+							cuserid = "";
+						
+						if(obj == null) {
+							try { iUAPQueryBS.executeQuery("insert into eh_validoperate_log( pk_log , cuserid , pk_corp , operatedate , type , pk_bill , billno , remark  , validuser , validpass , validcuserid) values (generatepk('"+pk_corp+"') , '"+pk_user+"' , '"+pk_corp+"' , '"+ClientUI.getCE().getDate().toString()+"' , 'CancelAudit' , '"+sivo.getPk_in()+"' , '"+sivo.getBillno()+"' , '认证失败，密码错误！' , '"+txtUser+"' , '"+txtPass+"' , '"+cuserid+"')", null); } catch (Exception e) {e.printStackTrace();};
+							throw new Exception("认证失败，密码错误！ ");
+						
+						}
+						
+						if(obj != null)
+							if("ncca".equals(obj.toString().trim())) {
+								CADlg cadlg = new CADlg((ClientUI)getBillUI());
+								if(cadlg.showModal() == UIDialog.ID_OK) {
+									String txtValid = new String(cadlg.getTxtValid().getPassword()); // 获取界面上输入的CA认证码
+									
+									/**
+									 *   在这里添加CA认证的代码
+									 */
+									
+									txtValid = encode.encode(txtPass);
+								} else {
+									try { iUAPQueryBS.executeQuery("insert into eh_validoperate_log( pk_log , cuserid , pk_corp , operatedate , type , pk_bill , billno , remark , validuser , validpass , validcuserid) values (generatepk('"+pk_corp+"') , '"+pk_user+"' , '"+pk_corp+"' , '"+ClientUI.getCE().getDate().toString()+"' , 'CancelAudit' , '"+sivo.getPk_in()+"' , '"+sivo.getBillno()+"' , '操作被取消' , '"+txtUser+"' , '"+txtPass+"' , '"+cuserid+"')", null); } catch (Exception e) {};
+									return ;
+								}
+							}
+						
+						obj = iUAPQueryBS.executeQuery("select pk_role from eh_validoperate where pk_button = (select pk_button from eh_buttons where buttonname = '弃审') and nvl(dr,0) = 0 and isenable = 'Y'", new ColumnProcessor());
+						obj = iUAPQueryBS.executeQuery("select count(1) from sm_user_role where cuserid = ( select cuserid from sm_user where user_code = '"+txtUser+"' and user_password = '"+txtPass+"' )and pk_role in ("+obj+") and pk_corp = '"+pk_corp+"'", new ColumnProcessor());
+						if(obj == null || Integer.valueOf(obj.toString()) == 0) {
+							
+							try { iUAPQueryBS.executeQuery("insert into eh_validoperate_log( pk_log , cuserid , pk_corp , operatedate , type , pk_bill , billno , remark , validuser , validpass , validcuserid) values (generatepk('"+pk_corp+"') , '"+pk_user+"' , '"+pk_corp+"' , '"+ClientUI.getCE().getDate().toString()+"' , 'CancelAudit' , '"+sivo.getPk_in()+"' , '"+sivo.getBillno()+"' , '注意：该用户没有配置按钮权限！ ' , '"+txtUser+"' , '"+txtPass+"' , '"+cuserid+"')", null); } catch (Exception e) {};
+							throw new Exception("认证失败，用户无此权限！ ");
+						
+						}
+						
+						try {iUAPQueryBS.executeQuery("update eh_validoperate set opeatefield = 'Y' where  pk_button = (select pk_button from eh_buttons where buttonname = '弃审') and dr = 0", null); } catch (Exception e) {}
+						
+						try { iUAPQueryBS.executeQuery("insert into eh_validoperate_log( pk_log , cuserid , pk_corp , operatedate , type , pk_bill , billno , remark  , validuser , validpass , validcuserid) values (generatepk('"+pk_corp+"') , '"+pk_user+"' , '"+pk_corp+"' , '"+ClientUI.getCE().getDate().toString()+"' , 'CancelAudit' , '"+sivo.getPk_in()+"' , '"+sivo.getBillno()+"' , 'TRUE' , '"+txtUser+"' , '"+txtPass+"' , '"+cuserid+"')", null); } catch (Exception e) {};
+						
+					} else {
+						try { iUAPQueryBS.executeQuery("insert into eh_validoperate_log( pk_log , cuserid , pk_corp , operatedate , type , pk_bill , billno , remark  , validuser , validpass ) values (generatepk('"+pk_corp+"') , '"+pk_user+"' , '"+pk_corp+"' , '"+ClientUI.getCE().getDate().toString()+"' , 'CancelAudit' , '"+sivo.getPk_in()+"' , '"+sivo.getBillno()+"' , '操作被取消')", null); } catch (Exception e) {};
+						return ;
+	   	
+					}
+					}
+				}
+				if(JOptionPane.showConfirmDialog((ClientUI)getBillUI(), "确定要执行弃审操作吗？ ", "提示", JOptionPane.YES_NO_OPTION) == 0) {
+			    	// 进行弃审操作
+			    	super.onBoCancelAudit();
+			    	
+		   	
+			    	// 弃审后进行自动驳回制单人的操作
+			    	// 获得数据
+			    	modelVo = getBufferData().getCurrentVOClone();
+			    	setCheckManAndDate(modelVo);
+					
+					// 如果状态一致则退出
+					if (checkVOStatus(modelVo, new int[] { IBillStatus.CHECKPASS })) {
+						System.out.println("无效的鼠标处理机制");
+						return;
+					}
+					beforeOnBoAction(IBillButton.Audit, modelVo);
+					
+					StringBuffer sql = new StringBuffer();
+					sql.append(" insert into eh_unapprove (pk_corp , vbillno , pk_bill , ts,billtablename , billname , OPERATER , REMARK) ");
+					sql.append(" values('"+sivo.getPk_corp()+"' , '"+sivo.getBillno()+"' , '"+sivo.getPk_in()+"' , to_char(sysdate , 'yyyy-mm-dd HH24-mi-ss') , 'eh_stock_in' , '采购入库单' , '"+pk_user+"' , 'TRUE')");
+					try {
+						iUAPQueryBS.executeQuery(sql.toString(), null);
+					} catch(Exception e) {}
+					
+					// *******************
+					// AggregatedValueObject retVo = (AggregatedValueObject) getBusinessAction().approve(modelVo, getUIController().getBillType(),getBillUI()._getDate().toString(),getBillUI().getUserObject());
+					
+					AggregatedValueObject retVo = (AggregatedValueObject) nc.ui.pub.pf.PfUtilClient_EH.runAction(null, IPFACTION.APPROVE, getUIController().getBillType(), getBillUI()._getDate().toString(), modelVo, getBillUI().getUserObject(), null, null, null);
+			
+					if (PfUtilClient.isSuccess()) {
+			
+						afterOnBoAction(IBillButton.Audit, retVo);
+						CircularlyAccessibleValueObject[] childVos = getChildVO(retVo);
+						if (childVos == null)
+							modelVo.setParentVO(retVo.getParentVO());
+						else
+							modelVo = retVo;
+						// 更新列表
+						getBufferData().setVOAt(getBufferData().getCurrentRow(), modelVo);
+						getBufferData().setCurrentRow(getBufferData().getCurrentRow());
+					}
+			    	
+					super.onBoRefresh();
+				} else {
+					StringBuffer sql = new StringBuffer();
+					sql.append(" insert into eh_unapprove (pk_corp , vbillno , pk_bill , ts,billtablename , billname,  OPERATER , REMARK) ");
+					sql.append(" values('"+sivo.getPk_corp()+"' , '"+sivo.getBillno()+"' , '"+sivo.getPk_in()+"' , to_char(sysdate , 'yyyy-mm-dd HH24-mi-ss') , 'eh_stock_in' , '采购入库单' , '"+pk_user+"' , 'FALSE')");
+					try {
+						iUAPQueryBS.executeQuery(sql.toString(), null);
+					} catch(Exception e) {}
+			}
+   	} else {
+   		throw new Exception ("当前人员无可弃审的操作!");
+   	}
+   	
+   	getBillUI().updateButtonUI();
+   	
+   }
+   
+   @Override
+	public void onBoAudit() throws Exception {
+		super.onBoAudit();
+		
+		AggregatedValueObject modelVo = getBufferData().getCurrentVOClone();
+		if (modelVo != null) {
+			StockInVO sivo = (StockInVO) modelVo
+					.getParentVO();
+			String vapproveid = sivo.getVapproveid();
+			if (vapproveid == null)
+				vapproveid = "";
+	
+			String pk_user = ClientUI.getCE().getUser()
+					.getPrimaryKey();
+	
+			if ((sivo.getVbillstatus() == 1 || sivo.getVbillstatus() == 0)
+					&& vapproveid.equals(pk_user)) {
+				getButtonManager().getButton(IBillButton.CancelAudit)
+						.setEnabled(true);
+			} else {
+				getButtonManager().getButton(IBillButton.CancelAudit)
+						.setEnabled(false);
+			}
+		}
+	
+		getBillUI().updateButtonUI();
+	}
+    
+    private void setCheckManAndDate(AggregatedValueObject vo) throws Exception {
+		// 放入审批日期、审批人
+		vo.getParentVO().setAttributeValue(getBillField().getField_CheckDate(),
+				getBillUI()._getDate());
+		vo.getParentVO().setAttributeValue(getBillField().getField_CheckMan(),
+				getBillUI()._getOperator());
+	}
+    
+    private CircularlyAccessibleValueObject[] getChildVO(
+			AggregatedValueObject retVo) {
+		CircularlyAccessibleValueObject[] childVos = null;
+		if (retVo instanceof IExAggVO)
+			childVos = ((IExAggVO) retVo).getAllChildrenVO();
+		else
+			childVos = retVo.getChildrenVO();
+		return childVos;
+	}
+
+}
