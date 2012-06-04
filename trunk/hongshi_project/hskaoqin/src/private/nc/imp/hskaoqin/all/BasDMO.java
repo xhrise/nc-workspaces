@@ -38,7 +38,7 @@ public class BasDMO extends DataManageObject implements IBasDMO {
 	
 	private void initConnection(String datasource) throws Exception {
 		
-		if(driverName == null || "".equals(driverName)) {
+//		if(driverName == null || "".equals(driverName)) {
 			File file = new File("Ufida/datasource/"+datasource+".properties");
 			
 			try {
@@ -59,7 +59,7 @@ public class BasDMO extends DataManageObject implements IBasDMO {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			} 
-		}
+//		}
 	}
 	
 	private Connection getSqlConn(String datasource) throws Exception {
