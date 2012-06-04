@@ -28,11 +28,11 @@ public class KaoQin implements IKaoQin {
 			allnum=datavos.size();
 			if (allnum>0) {
 				//在NC考勤中查询当前日期内是否有数据，有就删除后再插入，没有直接插入
-				String selectsql="select count(pk_importdata) num from tbm_importdata where calendartime>='20"+starTime+" 00:00:00' and calendartime<='20"+endTime+" 23:59:59'";
+				String selectsql="select count(pk_importdata) num from tbm_importdata where calendartime>='20"+starTime+" 00:00:00' and calendartime<='20"+endTime+" 23:59:59' and pk_corp = (select pk_corp from bd_corp where unitcode = '"+sourceName+"') ";
 				int numaI=Integer.parseInt(dmo.getStr(selectsql, ORACLEDATASOURCE));
 				
 				if (numaI>0) {
-					String deletesql="delete from tbm_importdata where calendartime>='20"+starTime+" 00:00:00' and calendartime<='20"+endTime+" 23:59:59'";
+					String deletesql="delete from tbm_importdata where calendartime>='20"+starTime+" 00:00:00' and calendartime<='20"+endTime+" 23:59:59' and pk_corp = (select pk_corp from bd_corp where unitcode = '"+sourceName+"')";
 					if (dmo.executeSql(deletesql, ORACLEDATASOURCE)==true) {
 						for (int i = 0; i < allnum; i++) {
 							String pk_psndoc = "";
