@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+	<public>
+		<component name="tcService" remote="true" active="true" singleton="true" supportAlias="true" tx="CMT">
+			<interface>nc.itf.tc.imp.IQueryList</interface>
+			<implementation>nc.imp.tc.imp.QueryList</implementation>
+			<extension class="nc.uap.ws.deploy.OxbWSExtensionProcessor">
+				<wsdl>/nc/itf/tc/imp/IQueryList.wsdl</wsdl>
+				<address>/tcService</address>
+			</extension>
+		</component>
+		<component>
+			<interface>nc.itf.tc.imp.IQueryList</interface>
+			<implementation>nc.imp.tc.imp.QueryList</implementation>
+			<extension class="nc.uap.ws.deploy.OxbWSExtensionProcessor">
+				<wsdl>/nc/itf/tc/imp/IQueryList.wsdl</wsdl>
+				<address>/nc.itf.tc.imp.IQueryList</address>
+			</extension>
+		</component>
+</public>
+	<private>
+	</private>
+</module>

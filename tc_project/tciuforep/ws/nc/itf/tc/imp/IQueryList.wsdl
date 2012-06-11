@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+jaxb:version="2.0"
+xmlns:ns0="http://imp.tc.itf.nc/IQueryList"
+targetNamespace="http://imp.tc.itf.nc/IQueryList">
+
+<jaxws:bindings>
+	<jaxws:package name="nc.itf.tc.imp"/>
+</jaxws:bindings>
+
+<wsdl:types>
+   <xsd:schema xmlns:ns="http://imp.tc.itf.nc/IQueryList"
+			attributeFormDefault="unqualified"
+			elementFormDefault="unqualified"
+			targetNamespace="http://imp.tc.itf.nc/IQueryList" jaxb:version="2.0">
+	<xsd:annotation>
+    	<xsd:appinfo>
+   			<jaxb:schemaBindings>
+    			<jaxb:package name="nc.itf.tc.imp"/>
+    		</jaxb:schemaBindings>
+   		</xsd:appinfo>
+   	</xsd:annotation>
+	<xsd:element name="importXMLRep">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+				<xsd:element name="string1"  minOccurs="0" nillable="true" type="xsd:string"/>
+				<xsd:element name="string2"  minOccurs="0" nillable="true" type="xsd:string"/>
+				<xsd:element name="string3"  minOccurs="0" nillable="true" type="xsd:string"/>
+				<xsd:element name="string4"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="importXMLRepResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="testText">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="testTextResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+   </xsd:schema>
+</wsdl:types>
+    <wsdl:message name="importXMLRepRequest">
+        <wsdl:part name="parameters"  element="ns0:importXMLRep"/>
+    </wsdl:message>
+    <wsdl:message name="importXMLRepResponse">
+        <wsdl:part name="parameters"  element="ns0:importXMLRepResponse"/>
+    </wsdl:message>
+    <wsdl:message name="testTextRequest">
+        <wsdl:part name="parameters"  element="ns0:testText"/>
+    </wsdl:message>
+    <wsdl:message name="testTextResponse">
+        <wsdl:part name="parameters"  element="ns0:testTextResponse"/>
+    </wsdl:message>
+
+    <wsdl:portType name="IQueryListPortType">
+        <wsdl:operation name="importXMLRep">
+            <wsdl:input message="ns0:importXMLRepRequest" wsaw:Action="urn:importXMLRep"/>
+            <wsdl:output message="ns0:importXMLRepResponse" wsaw:Action="urn:importXMLRepResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="testText">
+            <wsdl:input message="ns0:testTextRequest" wsaw:Action="urn:testText"/>
+            <wsdl:output message="ns0:testTextResponse" wsaw:Action="urn:testTextResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    
+    
+    <wsdl:binding name="IQueryListSOAP11Binding" type="ns0:IQueryListPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="importXMLRep">
+            <soap:operation soapAction="urn:importXMLRep" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="testText">
+            <soap:operation soapAction="urn:testText" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="IQueryList">
+        <wsdl:port name="IQueryListSOAP11port_http" binding="ns0:IQueryListSOAP11Binding">
+            <soap:address location="http://localhost/uapws/service/IQueryList"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
