@@ -7,6 +7,7 @@ import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.ehpta.hq010201.StorContractVO;
+import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.lang.UFBoolean;
 
 /**
@@ -21,6 +22,12 @@ public class EventHandler extends ManageEventHandler {
 
 	public EventHandler(BillManageUI billUI, IControllerBase control) {
 		super(billUI, control);
+	}
+	
+	@Override
+	protected void onBoCard() throws Exception {
+		super.onBoCard();
+		
 	}
 
 	protected void onBoElse(int intBtn) throws Exception {
@@ -47,7 +54,9 @@ public class EventHandler extends ManageEventHandler {
 			
 		}
 		
+		Integer currRow = getBufferData().getCurrentRow();
 		updateBuffer();
+		getBufferData().setCurrentRow(currRow);
 		
 	}
 
