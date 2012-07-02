@@ -1,5 +1,7 @@
 package nc.ui.ehpta.hq010201;
 
+import nc.ui.ehpta.pub.btn.DisabledBtn;
+import nc.ui.ehpta.pub.btn.EnabledBtn;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
@@ -32,7 +34,7 @@ public class ClientUICtrl extends AbstractManageController {
 				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
 				IBillButton.Cancel, IBillButton.Delete, IBillButton.Refresh,
 				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
-				IBillButton.ApproveInfo, IBillButton.Return };
+				IBillButton.ApproveInfo , EnabledBtn.NO , DisabledBtn.NO , IBillButton.Return };
 
 	}
 
@@ -40,7 +42,7 @@ public class ClientUICtrl extends AbstractManageController {
 		return new int[] { IBillButton.Query, IBillButton.Add,
 				IBillButton.Edit, IBillButton.Delete, IBillButton.Refresh,
 				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
-				IBillButton.ApproveInfo, IBillButton.Card
+				IBillButton.ApproveInfo , EnabledBtn.NO , DisabledBtn.NO , IBillButton.Card
 
 		};
 
