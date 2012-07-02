@@ -58,6 +58,15 @@ public class StorContractVO extends SuperVO {
 	public UFDate sdate;
 	public String def3;
 	public String def9;
+	public String storaddr;
+	
+	public String getStoraddr() {
+		return storaddr;
+	}
+
+	public void setStoraddr(String storaddr) {
+		this.storaddr = storaddr;
+	}
 
 	public String getPk_billtype() {
 		return pk_billtype;
@@ -91,9 +100,6 @@ public class StorContractVO extends SuperVO {
 		this.vbillno = vbillno;
 	}
 
-	public void setTs(UFDateTime ts) {
-		this.ts = ts;
-	}
 
 	/**
 	 * 属性def5的Getter方法.

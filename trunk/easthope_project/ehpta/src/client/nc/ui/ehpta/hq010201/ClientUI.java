@@ -1,8 +1,13 @@
 package nc.ui.ehpta.hq010201;
 
+import nc.bs.framework.common.NCLocator;
+import nc.itf.uap.IUAPQueryBS;
+import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.btn.DisabledBtn;
 import nc.ui.ehpta.pub.btn.EnabledBtn;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.beans.UIRefPane;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
@@ -13,9 +18,12 @@ import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFBoolean;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
+
+import com.ufida.iufo.pub.tools.AppDebug;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -35,7 +43,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	 * 
 	 */
 	private static final long serialVersionUID = 4315846814431299564L;
+	
+	private final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
 
+	private AggregatedValueObject nowAggVO = null;
+	
 	protected AbstractManageController createController() {
 		return new ClientUICtrl();
 	}
@@ -165,6 +177,58 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			if (item != null)
 				item.setValue(values[i]);
 		}
+	}
+	
+	@Override
+	public void afterEdit(BillEditEvent e) {
+		super.afterEdit(e);
+		
+		try {
+			if("pk_stordoc".equals(e.getKey())) {
+				
+				UIRefPane storRef = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
+				Object storaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK() + "'" , new ColumnProcessor());
+				getBillCardPanel().getHeadItem("storaddr").setValue(storaddr);
+			
+			}
+		} catch(Exception ex) {
+			AppDebug.debug(ex);
+		}
+	}
+	
+	@Override
+	public void afterUpdate() {
+		super.afterUpdate();
+		
+		updateButtonState();
+	}
+	
+	private void updateButtonState() {
+		
+		UFBoolean ty_flag = (UFBoolean) nowAggVO.getParentVO().getAttributeValue("ty_flag");
+		
+		try {
+			if(ty_flag.booleanValue()) {
+				getButtonManager().getButton(DisabledBtn.NO).setEnabled(false);
+				getButtonManager().getButton(EnabledBtn.NO).setEnabled(true);
+			} else {
+				getButtonManager().getButton(EnabledBtn.NO).setEnabled(false);
+				getButtonManager().getButton(DisabledBtn.NO).setEnabled(true);
+			}
+		} catch(Exception e ) {
+			AppDebug.debug(e);
+		}
+		
+		updateButtons();
+	
+	}
+	
+	@Override
+	protected int getExtendStatus(AggregatedValueObject vo) {
+		
+		nowAggVO = vo;
+		
+		return super.getExtendStatus(vo);
 	}
 	
 }
