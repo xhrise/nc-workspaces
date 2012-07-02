@@ -1,5 +1,7 @@
 package nc.ui.ehpta.hq010201;
 
+import nc.ui.ehpta.pub.btn.DisabledBtn;
+import nc.ui.ehpta.pub.btn.EnabledBtn;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
@@ -92,6 +94,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			btnVo3.setBtnCode(null);
 			addPrivateButton(btnVo3);
 		}
+		
+		// ÃÌº”Õ£”√∞¥≈•
+		addPrivateButton(new DisabledBtn().getButtonVO());
+		addPrivateButton(new EnabledBtn().getButtonVO());
 	}
 
 	/**
@@ -160,5 +166,5 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				item.setValue(values[i]);
 		}
 	}
-
+	
 }
