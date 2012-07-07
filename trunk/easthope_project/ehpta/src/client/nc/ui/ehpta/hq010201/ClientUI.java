@@ -1,6 +1,12 @@
 package nc.ui.ehpta.hq010201;
 
+import java.awt.Color;
+import java.awt.Component;
+
+import javax.swing.table.TableColumn;
+
 import nc.bs.framework.common.NCLocator;
+import nc.bs.logging.Logger;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.btn.DisabledBtn;
@@ -9,13 +15,13 @@ import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
-import nc.ui.pub.bill.BillListPanel;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
+import nc.ui.trade.buffer.BillUIBuffer;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
@@ -198,7 +204,6 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				UIRefPane storRef = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
 				Object storaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK() + "'" , new ColumnProcessor());
 				getBillCardPanel().getHeadItem("storaddr").setValue(storaddr);
-			
 			}
 		} catch(Exception ex) {
 			AppDebug.debug(ex);
@@ -240,7 +245,50 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		
 		nowAggVO = vo;
 		
+		TableColumn column = null;
+		for (int i = 0; i < getBillListPanel().getHeadTable().getColumnCount(); i++) {
+			column = getBillListPanel().getHeadTable().getColumn(getBillListPanel().getHeadTable().getColumnName(i));
+			column.setCellRenderer(new RowRenderer(getBufferData()));
+		}
+
+		
 		return super.getExtendStatus(vo);
 	}
+	
+	class RowRenderer extends javax.swing.table.DefaultTableCellRenderer {
+		private static final long serialVersionUID = 1L;
+
+		private BillUIBuffer buffData = null;
+		
+		public RowRenderer() {
+			super();
+		}
+		
+		public RowRenderer(BillUIBuffer _buffData) {
+			super();
+			
+			buffData = _buffData;
+		}
+
+		public Color colorDark = new Color(236, 244, 244);
+
+		public Color colorLight = Color.white;
+
+		public Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+			try {
+					AggregatedValueObject aggVO = buffData.getVOByRowNo(row);
+					if(Integer.valueOf(aggVO.getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) 
+						setBackground(colorDark);
+					else
+						setBackground(colorLight);
+			} catch(Exception e) {
+				Logger.debug(e);
+			}
+			
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
+	}
+
 	
 }
