@@ -3,6 +3,7 @@ package nc.ui.ehpta.hq010201;
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import nc.bs.framework.common.NCLocator;
@@ -248,9 +249,13 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		TableColumn column = null;
 		for (int i = 0; i < getBillListPanel().getHeadTable().getColumnCount(); i++) {
 			column = getBillListPanel().getHeadTable().getColumn(getBillListPanel().getHeadTable().getColumnName(i));
+			
+			if("Í£ÓÃ±êÖ¾".equals(column.getHeaderValue()))
+					continue;
+			
 			column.setCellRenderer(new RowRenderer(getBufferData()));
+			
 		}
-
 		
 		return super.getExtendStatus(vo);
 	}
@@ -275,14 +280,20 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 		public Color colorLight = Color.white;
 
-		public Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+//			if (row % 2 == 0)
+//				setBackground(colorLight);
+//			else
+//				setBackground(colorDark);
 
 			try {
 				AggregatedValueObject aggVO = buffData.getVOByRowNo(row);
 				if(Integer.valueOf(aggVO.getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) 
-					setBackground(colorDark);
-				else
 					setBackground(colorLight);
+				else
+					setBackground(colorDark);
+				
 			} catch(Exception e) {
 				Logger.debug(e);
 			}
