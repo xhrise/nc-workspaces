@@ -50,11 +50,11 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isShowCardRowNo() {
-		return false;
+		return true;
 	}
 
 	public boolean isShowCardTotal() {
-		return false;
+		return true;
 	}
 
 	public String getBillType() {
@@ -111,11 +111,11 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isShowListRowNo() {
-		return false;
+		return true;
 	}
 
 	public boolean isShowListTotal() {
-		return false;
+		return true;
 	}
 
 }
