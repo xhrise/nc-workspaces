@@ -9,6 +9,7 @@ import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
+import nc.ui.pub.bill.BillListPanel;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
 import nc.ui.trade.base.IBillOperate;
@@ -110,6 +111,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		// ÃÌº”Õ£”√∞¥≈•
 		addPrivateButton(new DisabledBtn().getButtonVO());
 		addPrivateButton(new EnabledBtn().getButtonVO());
+		
 	}
 
 	/**
@@ -153,8 +155,14 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 
 	protected void initSelfData() {
+		getButtonManager().getButton(EnabledBtn.NO).setEnabled(false);
+		getButtonManager().getButton(DisabledBtn.NO).setEnabled(false);
+		
+		getBillListPanel().setMultiSelect(true);
+		getBillCardPanel().setBodyMultiSelect(true);
+		
 	}
-
+	
 	public void setDefaultData() throws Exception {
 		BillField fileDef = BillField.getInstance();
 		
@@ -177,6 +185,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			if (item != null)
 				item.setValue(values[i]);
 		}
+		
 	}
 	
 	@Override
@@ -204,6 +213,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 	
 	private void updateButtonState() {
+		
+		if(nowAggVO == null || nowAggVO.getParentVO() == null)
+			return ;
 		
 		UFBoolean ty_flag = (UFBoolean) nowAggVO.getParentVO().getAttributeValue("ty_flag");
 		
