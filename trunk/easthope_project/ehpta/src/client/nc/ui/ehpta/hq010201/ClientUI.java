@@ -256,7 +256,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 	
 	class RowRenderer extends javax.swing.table.DefaultTableCellRenderer {
-		private static final long serialVersionUID = 1L;
+
+		private static final long serialVersionUID = -7116902044700587819L;
 
 		private BillUIBuffer buffData = null;
 		
@@ -277,11 +278,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		public Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
 			try {
-					AggregatedValueObject aggVO = buffData.getVOByRowNo(row);
-					if(Integer.valueOf(aggVO.getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) 
-						setBackground(colorDark);
-					else
-						setBackground(colorLight);
+				AggregatedValueObject aggVO = buffData.getVOByRowNo(row);
+				if(Integer.valueOf(aggVO.getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) 
+					setBackground(colorDark);
+				else
+					setBackground(colorLight);
 			} catch(Exception e) {
 				Logger.debug(e);
 			}
