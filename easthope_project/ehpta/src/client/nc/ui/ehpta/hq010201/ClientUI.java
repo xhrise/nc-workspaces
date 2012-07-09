@@ -162,12 +162,16 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 
 	protected void initSelfData() {
+
+		getBillListPanel().setParentMultiSelect(true);
+
 		getButtonManager().getButton(EnabledBtn.NO).setEnabled(false);
 		getButtonManager().getButton(DisabledBtn.NO).setEnabled(false);
 		
 		getBillListPanel().setMultiSelect(true);
 		getBillCardPanel().setBodyMultiSelect(true);
 		
+
 	}
 	
 	public void setDefaultData() throws Exception {
@@ -203,7 +207,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			if("pk_stordoc".equals(e.getKey())) {
 				
 				UIRefPane storRef = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
-				Object storaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK() + "'" , new ColumnProcessor());
+				Object storaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK()
+						+ "'" , new ColumnProcessor());
 				getBillCardPanel().getHeadItem("storaddr").setValue(storaddr);
 			}
 		} catch(Exception ex) {
