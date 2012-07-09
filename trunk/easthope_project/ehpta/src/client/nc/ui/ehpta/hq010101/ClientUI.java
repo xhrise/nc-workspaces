@@ -11,7 +11,9 @@ import nc.ui.pub.bill.BillCardBeforeEditListener;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.bill.BillItemEvent;
+import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.trade.manage.ManageEventHandler;
+import nc.vo.bd.warehouseinfo.StordocVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.lang.UFBoolean;
@@ -130,12 +132,14 @@ public class ClientUI extends AbstractClientUI  {
 				trans = (UIRefPane)getBillCardPanel().getBodyItem(e.getKey()).getComponent();
 				Object fayunaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc='"+trans.getRefPK()+"'", new ColumnProcessor());
 				getBillCardPanel().setBodyValueAt(fayunaddr, e.getRow(), "shipaddr");
-	
+				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "sendpk");
+				
 			}else if("pk_arrive".equals(e.getKey())){
 				trans = (UIRefPane)getBillCardPanel().getBodyItem(e.getKey()).getComponent();
 				Object daohuoaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc='"+trans.getRefPK()+"'", new ColumnProcessor());
 				getBillCardPanel().setBodyValueAt(daohuoaddr, e.getRow(), "arriveaddr");
-			
+				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "arrivepk");
+				
 			}else if("shippingprice".equals(e.getKey()) || "shippingprice_a".equals(e.getKey())){
 				
 				UFDouble shipp_a = new UFDouble(getBillCardPanel().getBodyValueAt(e.getRow(), "shippingprice_a") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow(), "shippingprice_a").toString());
