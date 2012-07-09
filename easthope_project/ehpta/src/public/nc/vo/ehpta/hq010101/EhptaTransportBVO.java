@@ -42,6 +42,8 @@ public class EhptaTransportBVO extends SuperVO {
 	public UFDouble shippingprice;
 	public UFDouble nhcyprice;
 	public UFDouble dieselprice;
+	public String sendpk;
+	public String arrivepk;
 
 	public static final String PK_CORP = "pk_corp";
 	public static final String PK_SEND = "pk_send";
@@ -64,6 +66,22 @@ public class EhptaTransportBVO extends SuperVO {
 	public static final String PK_TRANSPORT = "pk_transport";
 	public static final String SHIPADDR = "shipaddr";
 	public static final String ARRIVEADDR = "arriveaddr";
+	
+	public String getSendpk() {
+		return sendpk;
+	}
+
+	public void setSendpk(String sendpk) {
+		this.sendpk = sendpk;
+	}
+
+	public String getArrivepk() {
+		return arrivepk;
+	}
+
+	public void setArrivepk(String arrivepk) {
+		this.arrivepk = arrivepk;
+	}
 
 	public String getShipaddr() {
 		return shipaddr;
