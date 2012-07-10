@@ -1,7 +1,6 @@
 package nc.ui.ehpta.hq010201;
 
-import nc.ui.ehpta.pub.btn.DisabledBtn;
-import nc.ui.ehpta.pub.btn.EnabledBtn;
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
@@ -31,11 +30,18 @@ public class EventHandler extends ManageEventHandler {
 	}
 
 	protected void onBoElse(int intBtn) throws Exception {
-		if(intBtn == DisabledBtn.NO) {
-			setDisabled(true);
-		} else if(intBtn == EnabledBtn.NO) {
-			setDisabled(false);
+		
+		switch(intBtn) {
+			case DefaultBillButton.DISABLED :
+				setDisabled(true);
+				break;
+			case DefaultBillButton.ENABLED : 
+				setDisabled(false);
+				break;
+				
+			
 		}
+		
 	}
 	
 	private void setDisabled(Boolean bool) throws Exception {

@@ -1,12 +1,12 @@
-package nc.ui.ehpta.hq010201;
+package nc.ui.ehpta.hq010401;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
-import nc.ui.pub.busitype.IBusiTypeBtn;
+import nc.ui.tm.framework.button.IButtonID;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
-import nc.vo.ehpta.hq010201.StorContractVO;
-import nc.vo.ehpta.hq010201.StorcontractBVO;
+import nc.vo.ehpta.hq010401.SaleContractBsVO;
+import nc.vo.ehpta.hq010401.SaleContractVO;
 import nc.vo.trade.pub.HYBillVO;
 
 /**
@@ -31,18 +31,18 @@ public class ClientUICtrl extends AbstractManageController {
 	public int[] getCardButtonAry() {
 
 		return new int[] { IBillButton.Query, IBillButton.Add,
-				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
-				IBillButton.Cancel, IBillButton.Delete, IBillButton.Refresh,
+				IBillButton.Line, IBillButton.Edit, IBillButton.Refresh,
+				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
 				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
-				IBillButton.ApproveInfo , DefaultBillButton.ENABLED , DefaultBillButton.DISABLED , IBillButton.Return  };
+				IBillButton.ApproveInfo, IBillButton.Brow,
+				DefaultBillButton.DOCUMENT, IBillButton.Return };
 
 	}
 
 	public int[] getListButtonAry() {
 		return new int[] { IBillButton.Query, IBillButton.Add,
-				IBillButton.Edit, IBillButton.Delete, IBillButton.Refresh,
-				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
-				IBillButton.ApproveInfo , DefaultBillButton.ENABLED , DefaultBillButton.DISABLED , IBillButton.Card
+				IBillButton.Edit, IBillButton.Refresh, IBillButton.Delete,
+				DefaultBillButton.DOCUMENT, IBillButton.Card
 
 		};
 
@@ -57,12 +57,13 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public String getBillType() {
-		return "HQ01";
+		return "HQ04";
 	}
 
 	public String[] getBillVoName() {
 		return new String[] { HYBillVO.class.getName(),
-				StorContractVO.class.getName(), StorcontractBVO.class.getName() };
+				SaleContractVO.class.getName(),
+				SaleContractBsVO.class.getName() };
 	}
 
 	public String getBodyCondition() {
@@ -98,7 +99,7 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isLoadCardFormula() {
-		return false;
+		return true;
 	}
 
 	public String[] getListBodyHideCol() {
