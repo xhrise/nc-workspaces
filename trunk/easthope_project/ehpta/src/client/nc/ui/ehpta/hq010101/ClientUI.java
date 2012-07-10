@@ -11,6 +11,7 @@ import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.trade.business.HYPubBO_Client;
+import nc.ui.trade.button.IBillButton;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.bd.warehouseinfo.StordocVO;
 import nc.vo.pub.AggregatedValueObject;
@@ -139,6 +140,12 @@ public class ClientUI extends AbstractClientUI  {
 				getBillCardPanel().setBodyValueAt(daohuoaddr, e.getRow(), "arriveaddr");
 				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "arrivepk");
 				
+			}else if("pk_yunshu".equals(e.getKey())){
+				trans = (UIRefPane)getBillCardPanel().getBodyItem(e.getKey()).getComponent();
+				Object yunshutype = iUAPQueryBS.executeQuery("select sendname from bd_sendtype where pk_sendtype='"+trans.getRefPK()+"'", new ColumnProcessor());
+				getBillCardPanel().setBodyValueAt(yunshutype, e.getRow(), "pk_yunshu");
+				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "yunshupk");
+				
 			}else if("shippingprice".equals(e.getKey()) || "shippingprice_a".equals(e.getKey())){
 				
 				UFDouble shipp_a = new UFDouble(getBillCardPanel().getBodyValueAt(e.getRow(), "shippingprice_a") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow(), "shippingprice_a").toString());
@@ -179,9 +186,12 @@ public class ClientUI extends AbstractClientUI  {
 	
 		try{
 			if(ty_flag.booleanValue()){
+				getButtonManager().getButton(IBillButton.Edit).setEnabled(false);
+
 				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
 				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(true);
 			}else{
+				getButtonManager().getButton(IBillButton.Edit).setEnabled(true);
 				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(true);
 				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
 			}
@@ -191,6 +201,7 @@ public class ClientUI extends AbstractClientUI  {
 		updateButtons();
 		
 	}
+	
 	
 	@Override
 	protected int getExtendStatus(AggregatedValueObject vo) {
