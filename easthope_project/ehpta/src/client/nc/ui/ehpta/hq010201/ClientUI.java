@@ -10,8 +10,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
-import nc.ui.ehpta.pub.btn.DisabledBtn;
-import nc.ui.ehpta.pub.btn.EnabledBtn;
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
@@ -116,8 +115,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		}
 		
 		// ÃÌº”Õ£”√∞¥≈•
-		addPrivateButton(new DisabledBtn().getButtonVO());
-		addPrivateButton(new EnabledBtn().getButtonVO());
+		addPrivateButton(DefaultBillButton.getDisabledButtonVO());
+		addPrivateButton(DefaultBillButton.getEnabledButtonVO());
 		
 	}
 
@@ -165,8 +164,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 		getBillListPanel().setParentMultiSelect(true);
 
-		getButtonManager().getButton(EnabledBtn.NO).setEnabled(false);
-		getButtonManager().getButton(DisabledBtn.NO).setEnabled(false);
+		getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
+		getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
 		
 		getBillListPanel().setMultiSelect(true);
 		getBillCardPanel().setBodyMultiSelect(true);
@@ -232,11 +231,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		
 		try {
 			if(ty_flag.booleanValue()) {
-				getButtonManager().getButton(DisabledBtn.NO).setEnabled(false);
-				getButtonManager().getButton(EnabledBtn.NO).setEnabled(true);
+				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
+				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(true);
 			} else {
-				getButtonManager().getButton(EnabledBtn.NO).setEnabled(false);
-				getButtonManager().getButton(DisabledBtn.NO).setEnabled(true);
+				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
+				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(true);
 			}
 		} catch(Exception e ) {
 			AppDebug.debug(e);

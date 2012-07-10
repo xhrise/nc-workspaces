@@ -1,7 +1,6 @@
 package nc.ui.ehpta.hq010101;
 
-import nc.ui.ehpta.pub.btn.DisabledBtn;
-import nc.ui.ehpta.pub.btn.EnabledBtn;
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.bill.ISingleController;
@@ -32,40 +31,23 @@ public class ClientUICtrl extends AbstractManageController {
 
 	public int[] getCardButtonAry() {
 
-		return new int[] { 
-				IBillButton.Query, 
-				IBillButton.Add,
-				IBillButton.Edit,
-				IBillButton.Line, 
-				IBillButton.Save,
-				IBillButton.Cancel,
-				IBillButton.Refresh,
-				IBillButton.Delete, 
-				IBillButton.Commit,
-				IBillButton.Audit,
-				IBillButton.CancelAudit,
-				IBillButton.Return,
-				DisabledBtn.NO,
-				EnabledBtn.NO
-				
-				};
+		return new int[] { IBillButton.Query, IBillButton.Add,
+				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
+				IBillButton.Cancel, IBillButton.Refresh, IBillButton.Delete,
+				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
+				IBillButton.Return, DefaultBillButton.DISABLED,
+				DefaultBillButton.ENABLED
+
+		};
 
 	}
 
 	public int[] getListButtonAry() {
-		return new int[] { 
-				IBillButton.Query, 
-				IBillButton.Add,
-				IBillButton.Edit,
-				IBillButton.Line, 
-				IBillButton.Save,
-				IBillButton.Cancel, 
-				IBillButton.Delete, 
-				IBillButton.Audit,
-				IBillButton.CancelAudit,
-				IBillButton.Card,
-				DisabledBtn.NO,
-				EnabledBtn.NO
+		return new int[] { IBillButton.Query, IBillButton.Add,
+				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
+				IBillButton.Cancel, IBillButton.Delete, IBillButton.Audit,
+				IBillButton.CancelAudit, IBillButton.Card, DefaultBillButton.DISABLED,
+				DefaultBillButton.ENABLED
 
 		};
 
