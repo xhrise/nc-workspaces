@@ -6,6 +6,7 @@ import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.filesystem.FileManageUI;
+import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
@@ -49,13 +50,26 @@ public class EventHandler extends ManageEventHandler {
 	
 	private final void documentManage() throws BusinessException {
 		try {
-			AggregatedValueObject aggVO = getBufferData().getCurrentVO();
+			
+			AggregatedValueObject aggVO = null;
+			
+			if(getBillUI().getBillOperate() == IBillOperate.OP_ADD)
+				aggVO = getBillCardPanelWrapper().getBillVOFromUI();
+			else
+				aggVO = getBufferData().getCurrentVO();
 
 			if (aggVO == null || aggVO.getParentVO() == null) {
+				getBillUI().showErrorMessage("请至少选择一条记录...");
 				return ;
 			}
 			
-			String ids = "" + aggVO.getParentVO() .getAttributeValue("pk_bankcontract");
+			String ids = aggVO.getParentVO().getPrimaryKey();
+			
+			if(ids == null || "".equals(ids)) {
+				getBillUI().showErrorMessage("新增时不能进行文件上传操作...");
+				return ;
+			}
+				
 			
 			FileManageUI fileui = new FileManageUI();
 			fileui.setRootDirStr(ids);
