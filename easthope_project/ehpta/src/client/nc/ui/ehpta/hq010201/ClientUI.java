@@ -22,6 +22,7 @@ import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.buffer.BillUIBuffer;
+import nc.ui.trade.button.IBillButton;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
@@ -231,11 +232,16 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		
 		try {
 			if(ty_flag.booleanValue()) {
+
 				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
 				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(true);
+
 			} else {
+
+				getButtonManager().getButton(IBillButton.Edit).setEnabled(true);
 				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
 				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(true);
+
 			}
 		} catch(Exception e ) {
 			AppDebug.debug(e);
@@ -294,9 +300,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			try {
 				AggregatedValueObject aggVO = buffData.getVOByRowNo(row);
 				if(Integer.valueOf(aggVO.getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) 
-					setBackground(colorLight);
-				else
 					setBackground(colorDark);
+				else
+					setBackground(colorLight);
 				
 			} catch(Exception e) {
 				Logger.debug(e);

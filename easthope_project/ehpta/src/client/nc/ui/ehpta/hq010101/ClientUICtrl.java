@@ -30,7 +30,6 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public int[] getCardButtonAry() {
-
 		return new int[] { IBillButton.Query, IBillButton.Add,
 				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
 				IBillButton.Cancel, IBillButton.Refresh, IBillButton.Delete,
@@ -104,7 +103,7 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isLoadCardFormula() {
-		return false;
+		return true;
 	}
 
 	public String[] getListBodyHideCol() {

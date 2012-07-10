@@ -9,9 +9,6 @@ import nc.vo.pub.AggregatedValueObject;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.bill.BillTemplateWrapper;
 
-
-
-
 /**
  * <b> 在此处简要描述此类的功能 </b>
  *
