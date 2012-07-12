@@ -16,8 +16,10 @@ public class Validata {
 		BillItem[] headItems = billCardPanel.getHeadItems();
 		List<BillItem> bodyItems = new ArrayList<BillItem>();
 		
-		for(String tableCode : bodyTableCodes) {
-			bodyItems.addAll(Arrays.asList(billCardPanel.getBillData().getBodyItemsForTable(tableCode)));
+		if(bodyTableCodes != null && bodyTableCodes.length > 0) {
+			for(String tableCode : bodyTableCodes) {
+				bodyItems.addAll(Arrays.asList(billCardPanel.getBillData().getBodyItemsForTable(tableCode)));
+			}
 		}
 		
 		for(BillItem head : headItems) {
@@ -44,39 +46,41 @@ public class Validata {
 			
 		}
 		
-		for(BillItem body : bodyItems) {
-			
-			if(body.isNull()) {
-				SuperVO[] childVOs = (SuperVO[]) currAggVO.getChildrenVO();
-				if(childVOs != null && childVOs.length > 0) {
-					int row = 0;
-					for(SuperVO child : childVOs) {
-						for(String attr : child.getAttributeNames()) {
-							if(attr.equals(body.getKey())) {
-								Object obj = child.getAttributeValue(body.getKey());
-								if(obj == null || "".equals(obj))
-									throw new Exception ("表体行"+(row + 1)+"  ：" + body.getName() + " , 不能为空！");
-							
-								break;
-							} else {
-								Object obj = billCardPanel.getBodyValueAt(row, body.getKey());
-								if(obj == null || "".equals(obj))
-									throw new Exception ("表体行"+(row + 1)+" ：" + body.getName() + " , 不能为空！");
-							
-								break;
-							
+		if(bodyItems != null && bodyItems.size() > 0) {
+			for(BillItem body : bodyItems) {
+				
+				if(body.isNull()) {
+					SuperVO[] childVOs = (SuperVO[]) currAggVO.getChildrenVO();
+					if(childVOs != null && childVOs.length > 0) {
+						int row = 0;
+						for(SuperVO child : childVOs) {
+							for(String attr : child.getAttributeNames()) {
+								if(attr.equals(body.getKey())) {
+									Object obj = child.getAttributeValue(body.getKey());
+									if(obj == null || "".equals(obj))
+										throw new Exception ("表体行"+(row + 1)+"  ：" + body.getName() + " , 不能为空！");
+								
+									break;
+								} else {
+									Object obj = billCardPanel.getBodyValueAt(row, body.getKey());
+									if(obj == null || "".equals(obj))
+										throw new Exception ("表体行"+(row + 1)+" ：" + body.getName() + " , 不能为空！");
+								
+									break;
+								
+								}
+								
 							}
 							
+							row ++;
 						}
 						
-						row ++;
 					}
 					
 				}
-				
-			}
-		
-		} 
+			
+			} 
+		}
 		
 	}
 	
