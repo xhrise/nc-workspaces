@@ -6,7 +6,7 @@
    	
 	import java.util.ArrayList;
 	import nc.vo.pub.*;
-	import nc.vo.pub.lang.*;
+import nc.vo.pub.lang.*;
 	
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -351,6 +351,16 @@
 	public java.lang.String getPKFieldName() {
 	 	  return "pk_aidcust";
 	 	}
+	
+	@Override
+	public String getPrimaryKey() {
+		return pk_aidcust;
+	}
+	
+	@Override
+	public void setPrimaryKey(String key) {
+		pk_aidcust = key;
+	}
     
 	/**
       * <p>返回表名称.

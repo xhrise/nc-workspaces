@@ -1,8 +1,13 @@
 package nc.ui.ehpta.hq010402;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
-import nc.bs.pub.billcodemanage.BillcodeGenerater;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
@@ -19,12 +24,15 @@ import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.bd.invdoc.InvbasdocVO;
+import nc.vo.ehpta.hq010402.AidcustVO;
+import nc.vo.ehpta.hq010402.MultiBillVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
+
 import com.ufida.iufo.pub.tools.AppDebug;
 
 /**
@@ -118,6 +126,8 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		}
 
 		addPrivateButton(DefaultBillButton.getDocumentButtonVO());
+		addPrivateButton(DefaultBillButton.getMakeNewContractButtonVO());
+		
 	}
 
 	/**
@@ -169,7 +179,63 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 			throws Exception {
 	}
 
-	protected void initSelfData() {
+	protected void initSelfData() { }
+	
+	
+	@Override
+	protected int getExtendStatus(AggregatedValueObject vo) {
+		
+		return super.getExtendStatus(sortValueObject(vo));
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected final AggregatedValueObject sortValueObject(AggregatedValueObject vo ) {
+		if(vo != null ) {
+			CircularlyAccessibleValueObject[] cavos = ((MultiBillVO)vo).getTableVO(getEventHandler().getTableCodes()[1]);
+			for(int i = 0 , j = cavos == null ? 0 : cavos.length ; i < j ; i ++ ) {
+				Object obj = cavos[i].getAttributeValue(AidcustVO.DEF1);
+				if(obj != null) {
+					Integer rowNum = Integer.valueOf(obj.toString());
+					if(rowNum != (i + 1)) {
+						try { 
+							List<CircularlyAccessibleValueObject> bodyVOs = new ArrayList<CircularlyAccessibleValueObject>();
+							bodyVOs.addAll(Arrays.asList(cavos));
+							Collections.sort(bodyVOs, new Comparator(){
+	
+								public int compare(Object obj1, Object obj2) {
+									try {
+										if(Integer.valueOf(((CircularlyAccessibleValueObject)obj1).getAttributeValue(AidcustVO.DEF1).toString()) > Integer.valueOf(((CircularlyAccessibleValueObject)obj2).getAttributeValue(AidcustVO.DEF1).toString())) {
+											return 1;
+										} else 
+											return 0;
+											
+									} catch(Exception e) {
+										Logger.error(e);
+										AppDebug.error(e);
+									}
+									
+									return 0;
+									
+								}
+								
+							});
+							
+							((MultiBillVO)vo).setTableVO(getEventHandler().getTableCodes()[1], bodyVOs.toArray(new CircularlyAccessibleValueObject[0]));
+							getBufferData().updateView();
+						} catch(Exception e) {}
+						
+						break;
+					}
+				}
+			}
+		}
+		
+		return vo;
+	}
+	
+	@Override
+	protected void updateListVo() throws Exception {
+		super.updateListVo();
 	}
 
 	public void setDefaultData() throws Exception {
@@ -179,11 +245,11 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
 				fileDef.getField_BillStatus(), "orderdate", "sdate", "edate",
-				"dmakedate" , "version" };
+				"dmakedate" , "version" , fileDef.getField_Busitype() };
 		Object[] values = new Object[] { _getCorp().getPk_corp(),
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
 				billtype, new Integer(IBillStatus.FREE).toString(), _getDate(),
-				_getDate(), _getDate(), _getDate() , 1 };
+				_getDate(), _getDate(), _getDate() , 1 , getBusinessType()};
 		
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -204,7 +270,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 	protected String getBillNo() throws Exception {
 		return GeneraterBillNO.getInstanse().build(getController().getBillType(), _getCorp().getPk_corp());
 	}
-
+	
 	@Override
 	public void afterEdit(BillEditEvent e) {
 		super.afterEdit(e);
@@ -254,6 +320,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		getBillCardPanel().setBodyValueAt(custcode, 0, "defpk_cubasdoc", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custcode, 0, "custcode", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custname, 0, "custname", getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt("1", 0, "def1" , getEventHandler().getTableCodes()[1]);
 		
 		custname = null;
 		custcode = null;
@@ -338,7 +405,8 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		getBillCardPanel().setBodyValueAt(pk_cubasdoc, e.getRow(), "pk_custdoc", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custcode, e.getRow(), "custcode", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custname, e.getRow(), "custname", getEventHandler().getTableCodes()[1]);
-		
+		getBillCardPanel().setBodyValueAt(String.valueOf(e.getRow() + 1) , e.getRow(), "def1" , getEventHandler().getTableCodes()[1]);
+	
 	}
 	
 	@Override

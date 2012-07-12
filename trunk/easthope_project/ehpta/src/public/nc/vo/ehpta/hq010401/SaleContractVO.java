@@ -65,6 +65,7 @@ public class SaleContractVO extends SuperVO {
 	public String def9;
 	public String termination;
 	public String custcode;
+	public UFBoolean close_flag;
 
 	public static final String DEF5 = "def5";
 	public static final String PK_CORP = "pk_corp";
@@ -108,6 +109,14 @@ public class SaleContractVO extends SuperVO {
 	public static final String DEF3 = "def3";
 	public static final String DEF9 = "def9";
 	public static final String TERMINATION = "termination";
+
+	public UFBoolean getClose_flag() {
+		return close_flag;
+	}
+
+	public void setClose_flag(UFBoolean close_flag) {
+		this.close_flag = close_flag;
+	}
 
 	public String getCustcode() {
 		return custcode;
