@@ -26,6 +26,10 @@ public class EventHandler extends ManageEventHandler {
 	public EventHandler(BillManageUI billUI, IControllerBase control) {
 		super(billUI, control);
 	}
+	
+	public final String[] getTableCodes() {
+		return new String[]{"ehpta_sale_contract_bs"};
+	}
 
 	protected void onBoElse(int intBtn) throws Exception {
 		switch(intBtn) {
@@ -43,7 +47,7 @@ public class EventHandler extends ManageEventHandler {
 	@Override
 	protected void onBoSave() throws Exception {
 		
-		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel() , getBillCardPanelWrapper().getBillVOFromUI());
+		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel() , getBillCardPanelWrapper().getBillVOFromUI() , getTableCodes()  );
 		
 		super.onBoSave();
 	}

@@ -1,5 +1,9 @@
 package nc.ui.ehpta.pub.valid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import nc.ui.pub.bill.BillCardPanel;
 import nc.ui.pub.bill.BillItem;
 import nc.vo.pub.AggregatedValueObject;
@@ -7,10 +11,14 @@ import nc.vo.pub.SuperVO;
 
 public class Validata {
 	
-	public static final void saveValidataIsNull(BillCardPanel billCardPanel , AggregatedValueObject currAggVO) throws Exception {
+	public static final void saveValidataIsNull(BillCardPanel billCardPanel , AggregatedValueObject currAggVO , String[] bodyTableCodes) throws Exception {
 		
 		BillItem[] headItems = billCardPanel.getHeadItems();
-		BillItem[] bodyItems = billCardPanel.getBodyItems();
+		List<BillItem> bodyItems = new ArrayList<BillItem>();
+		
+		for(String tableCode : bodyTableCodes) {
+			bodyItems.addAll(Arrays.asList(billCardPanel.getBillData().getBodyItemsForTable(tableCode)));
+		}
 		
 		for(BillItem head : headItems) {
 			if(head.isNull()) {
@@ -67,8 +75,8 @@ public class Validata {
 				}
 				
 			}
-			
-		}
+		
+		} 
 		
 	}
 	
