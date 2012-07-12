@@ -1,25 +1,23 @@
-package nc.ui.ehpta.hq010401;
-
-import java.math.BigDecimal;
+package nc.ui.ehpta.hq010402;
 
 import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
+import nc.bs.pub.billcodemanage.BillcodeGenerater;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
-import nc.ui.tm.framework.button.IButtonID;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.business.HYPubBO_Client;
-import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.bd.invdoc.InvbasdocVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
@@ -27,7 +25,6 @@ import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
-
 import com.ufida.iufo.pub.tools.AppDebug;
 
 /**
@@ -41,18 +38,28 @@ import com.ufida.iufo.pub.tools.AppDebug;
  * @author author
  * @version tempProject version
  */
-public class ClientUI extends nc.ui.trade.manage.BillManageUI
+public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		implements ILinkQuery {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -652591135205093447L;
+	private static final long serialVersionUID = 5102983593663822670L;
 
 	private final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
+
+	private EventHandler eventHandler = null;
+	
+	private ClientUICtrl controller = null;
+	
+	protected ClientUICtrl getController() {
+		if(controller == null)
+			createController();
+		
+		return controller;
+	}
 	
 	protected AbstractManageController createController() {
-		return new ClientUICtrl();
+		controller = new ClientUICtrl();
+		
+		return controller;
 	}
 
 	/**
@@ -109,9 +116,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			btnVo3.setBtnCode(null);
 			addPrivateButton(btnVo3);
 		}
-		
+
 		addPrivateButton(DefaultBillButton.getDocumentButtonVO());
-		
 	}
 
 	/**
@@ -138,8 +144,17 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		}
 	}
 	
-	protected ManageEventHandler createEventHandler() {
-		return new EventHandler(this, getUIControl());
+	protected EventHandler getEventHandler() {
+		if(eventHandler == null)
+			createEventHandler();
+		
+		return eventHandler;
+		
+	}
+
+	protected EventHandler createEventHandler() {
+		eventHandler = new EventHandler(this, getUIControl());
+		return eventHandler;
 	}
 
 	public void setBodySpecialData(CircularlyAccessibleValueObject[] vos)
@@ -160,16 +175,16 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	public void setDefaultData() throws Exception {
 		BillField fileDef = BillField.getInstance();
 		String billtype = getUIControl().getBillType();
-		String pkCorp = ClientEnvironment.getInstance().getCorporation()
-				.getPrimaryKey();
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() , "orderdate" , "sdate" , "edate" , "dmakedate"};
-		Object[] values = new Object[] { pkCorp,
+				fileDef.getField_BillStatus(), "orderdate", "sdate", "edate",
+				"dmakedate" , "version" };
+		Object[] values = new Object[] { _getCorp().getPk_corp(),
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() , _getDate() , _getDate() , _getDate() , _getDate() };
-
+				billtype, new Integer(IBillStatus.FREE).toString(), _getDate(),
+				_getDate(), _getDate(), _getDate() , 1 };
+		
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
 			item = getBillCardPanel().getHeadItem(itemkeys[i]);
@@ -178,53 +193,67 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if (item != null)
 				item.setValue(values[i]);
 		}
+		
+		getBillCardPanel().addLine(getEventHandler().getTableCodes()[0]);
+		getBillCardPanel().addLine(getEventHandler().getTableCodes()[1]);
+//		getBillCardPanel().addLine(getEventHandler().getTableCodes()[2]);
+		
 	}
 	
 	@Override
+	protected String getBillNo() throws Exception {
+		return GeneraterBillNO.getInstanse().build(getController().getBillType(), _getCorp().getPk_corp());
+	}
+
+	@Override
 	public void afterEdit(BillEditEvent e) {
 		super.afterEdit(e);
-		
+
 		try {
-			
-			if("pk_psndoc".equals(e.getKey())) 
+
+			if ("pk_psndoc".equals(e.getKey()))
 				afterSetPk_psndoc(e);
-				
-			else if("purchcode".equals(e.getKey())) 
+
+			else if ("purchcode".equals(e.getKey()))
 				afterSetPurchcode(e);
-				
+			
 			else if("defpk_invbasdoc".equals(e.getKey()))
 				afterSetDefpk_invbasdoc(e);
-				
-			else if("num".equals(e.getKey()))
-				afterSetNum(e);
-
-			else if("taxprice".equals(e.getKey())) 
-				afterSetTaxprice(e);
 			
-		} catch(Exception ex) {
+			else if("totalnum".equals(e.getKey()))
+				afterSetTotalnum(e);
+			
+			else if("defpk_cubasdoc".equals(e.getKey()))
+				afterSetDefpk_cubasdoc(e);
+
+		} catch (Exception ex) {
 			Logger.error(ex);
-			AppDebug.error(ex);
+			AppDebug.debug(ex);
 		}
-		
 	}
-	
+
 	private final void afterSetPk_psndoc(BillEditEvent e) throws Exception {
-		
-		UIRefPane psnRef = (UIRefPane)getBillCardPanel().getHeadItem("pk_psndoc").getComponent();
-		Object pk_deptdoc = iUAPQueryBS.executeQuery("select pk_deptdoc from bd_psndoc where pk_psndoc = '"+psnRef.getRefPK()+"'", new ColumnProcessor());
-		((UIRefPane)getBillCardPanel().getHeadItem("pk_deptdoc").getComponent()).setPK(pk_deptdoc);
+
+		UIRefPane psnRef = (UIRefPane) getBillCardPanel().getHeadItem("pk_psndoc").getComponent();
+		Object pk_deptdoc = iUAPQueryBS.executeQuery("select pk_deptdoc from bd_psndoc where pk_psndoc = '"+ psnRef.getRefPK() + "'", new ColumnProcessor());
+		((UIRefPane) getBillCardPanel().getHeadItem("pk_deptdoc").getComponent()).setPK(pk_deptdoc);
 		pk_deptdoc = null;
-		
+
 	}
-	
+
 	private final void afterSetPurchcode(BillEditEvent e) throws Exception {
-		
+
 		UIRefPane purchRef = (UIRefPane)getBillCardPanel().getHeadItem("purchcode").getComponent();
 		Object custname = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+purchRef.getRefPK()+"')", new ColumnProcessor());
 		getBillCardPanel().getHeadItem("purchname").setValue(custname);
 		
 		Object custcode = iUAPQueryBS.executeQuery("select custcode from bd_cubasdoc where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+purchRef.getRefPK()+"')", new ColumnProcessor());
 		getBillCardPanel().getHeadItem("custcode").setValue(custcode);
+
+		getBillCardPanel().setBodyValueAt(purchRef.getRefPK(), 0, "pk_custdoc", getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt(custcode, 0, "defpk_cubasdoc", getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt(custcode, 0, "custcode", getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt(custname, 0, "custname", getEventHandler().getTableCodes()[1]);
 		
 		custname = null;
 		custcode = null;
@@ -242,17 +271,14 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("invspec"), e.getRow(), "invspec");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("pk_measdoc"), e.getRow(), "pk_measdoc");
 			
-			BigDecimal taxratio = (BigDecimal) iUAPQueryBS.executeQuery("select taxratio from bd_taxitems where pk_taxitems = '"+invVO[0].getAttributeValue("pk_taxitems")+"'", new ColumnProcessor());
-			getBillCardPanel().setBodyValueAt(taxratio, e.getRow(), "taxrate");
-			
 			if(invVO[0].getAttributeValue("pk_measdoc") != null && !"".equals(invVO[0].getAttributeValue("pk_measdoc"))) {
 				
 				Object measname = iUAPQueryBS.executeQuery("select measname from bd_measdoc where pk_measdoc = '"+invVO[0].getAttributeValue("pk_measdoc")+"'", new ColumnProcessor());
-				getBillCardPanel().setBodyValueAt(measname, e.getRow(), "defmeasname");
+				getBillCardPanel().setBodyValueAt(measname, e.getRow(), "defpk_measdoc");
 				
 			}
 			
-			UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
+			UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "totalnum");
 			Object invspec = getBillCardPanel().getBodyValueAt(e.getRow(), "invspec");
 			
 			if(invspec != null && !"".equals(invspec) && num != null && num.doubleValue() > 0) {
@@ -270,18 +296,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			} else  
 				getBillCardPanel().setBodyValueAt(num , e.getRow(), "numof");
 			
-			UFDouble taxprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxprice");
-			
-			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
-				getBillCardPanel().setBodyValueAt(num.multiply(taxprice).div(taxratio.doubleValue() + 1), e.getRow(), "tax");
-			
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2)), e.getRow(), "notaxloan");
-				
-			}
 			
 			num = null;
 			invspec = null;
-			taxprice = null;
 			
 		}
 		
@@ -289,14 +306,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		
 	}
 	
-	private final void afterSetNum(BillEditEvent e) throws Exception {
+	private final void afterSetTotalnum(BillEditEvent e) throws Exception {
 		
-		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
-		
+		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "totalnum");
 		Object invspec = getBillCardPanel().getBodyValueAt(e.getRow(), "invspec");
-		UFDouble taxprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxprice");
 		
-		if(invspec != null && !"".equals(invspec)) {
+		if(invspec != null && !"".equals(invspec) && num != null && num.doubleValue() > 0) {
 			
 			try {
 				UFDouble invspecNum = new UFDouble(invspec.toString());
@@ -311,47 +326,28 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		} else  
 			getBillCardPanel().setBodyValueAt(num , e.getRow(), "numof");
 		
-		if(taxprice != null && taxprice.doubleValue() != 0 && num != null && num.doubleValue() != 0) {
-			getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2) , e.getRow(), "sumpricetax");
-			
-			
-			UFDouble taxratio = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxrate");
-			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2), e.getRow(), "tax");
-			
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2)), e.getRow(), "notaxloan");
-			}
-			
-		} else 
-			getBillCardPanel().setBodyValueAt(0 , e.getRow(), "sumpricetax");
+	}
+	
+	private final void afterSetDefpk_cubasdoc(BillEditEvent e) throws Exception {
 		
-		num = null;
-		invspec = null;
-		taxprice = null;
+		Object custcode = getBillCardPanel().getBodyValueAt(e.getRow(), e.getKey());
+		
+		Object pk_cubasdoc = iUAPQueryBS.executeQuery("select pk_cubasdoc from bd_cubasdoc where custcode = '"+custcode+"'" , new ColumnProcessor());
+		Object custname = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where custcode = '"+custcode+"'",  new ColumnProcessor());
+
+		getBillCardPanel().setBodyValueAt(pk_cubasdoc, e.getRow(), "pk_custdoc", getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt(custcode, e.getRow(), "custcode", getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt(custname, e.getRow(), "custname", getEventHandler().getTableCodes()[1]);
 		
 	}
 	
-	private final void afterSetTaxprice(BillEditEvent e) throws Exception {
+	@Override
+	public boolean beforeEdit(BillEditEvent e) {
 		
-		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
-		UFDouble taxprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxprice");
+		if(getEventHandler().getTableCodes()[1].equals(e.getTableCode())) 
+			if(e.getRow() == 0)
+				return false;
 		
-		if(taxprice != null && taxprice.doubleValue() != 0 && num != null && num.doubleValue() != 0) {
-			getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2) , e.getRow(), "sumpricetax");
-		
-			UFDouble taxratio = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxrate");
-			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2), e.getRow(), "tax");
-			
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2)), e.getRow(), "notaxloan");
-			}
-			
-		} else 
-			getBillCardPanel().setBodyValueAt(0 , e.getRow(), "sumpricetax");
-			
-		num = null;
-		taxprice = null;
-		
+		return super.beforeEdit(e);
 	}
-	
 }

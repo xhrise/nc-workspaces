@@ -1,13 +1,16 @@
-package nc.ui.ehpta.hq010401;
+package nc.ui.ehpta.hq010402;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
-import nc.ui.tm.framework.button.IButtonID;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
-import nc.ui.trade.button.IBillButton;
-import nc.vo.ehpta.hq010401.SaleContractBsVO;
+import nc.ui.trade.bill.ISingleController;
+
+import nc.vo.ehpta.hq010402.MultiBillVO;
 import nc.vo.ehpta.hq010401.SaleContractVO;
-import nc.vo.trade.pub.HYBillVO;
+import nc.vo.ehpta.hq010402.SaleContractBVO;
+import nc.vo.ehpta.hq010402.AidcustVO;
+import nc.vo.ehpta.hq010402.PrepolicyVO;
+import nc.ui.trade.button.IBillButton;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -57,15 +60,18 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public String getBillType() {
-		return "HQ04";
+		return "HQ06";
 	}
 
 	public String[] getBillVoName() {
-		return new String[] { HYBillVO.class.getName(),
+		return new String[] { 
+				MultiBillVO.class.getName(),
 				SaleContractVO.class.getName(),
-				SaleContractBsVO.class.getName() };
+				SaleContractBVO.class.getName(),
+				AidcustVO.class.getName(),
+				PrepolicyVO.class.getName() };
 	}
-	
+
 	public String getBodyCondition() {
 		return null;
 	}
