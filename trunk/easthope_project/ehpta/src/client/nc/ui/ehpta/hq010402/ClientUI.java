@@ -28,6 +28,7 @@ import nc.vo.ehpta.hq010402.AidcustVO;
 import nc.vo.ehpta.hq010402.MultiBillVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFDate;
 import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
@@ -286,11 +287,23 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 			else if("defpk_invbasdoc".equals(e.getKey()))
 				afterSetDefpk_invbasdoc(e);
 			
+			else if("num".equals(e.getKey()))
+				afterSetNum(e);
+			
 			else if("totalnum".equals(e.getKey()))
 				afterSetTotalnum(e);
 			
 			else if("defpk_cubasdoc".equals(e.getKey()))
 				afterSetDefpk_cubasdoc(e);
+			
+//			else if("sdate".equals(e.getKey()))
+//				afterSetSdate(e);
+//			
+//			else if("execduration".equals(e.getKey()))
+//				afterSetExecduration(e);
+//			
+//			else if("edate".equals(e.getKey()))
+//				afterSetEdate(e);
 
 		} catch (Exception ex) {
 			Logger.error(ex);
@@ -320,7 +333,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		getBillCardPanel().setBodyValueAt(custcode, 0, "defpk_cubasdoc", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custcode, 0, "custcode", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custname, 0, "custname", getEventHandler().getTableCodes()[1]);
-		getBillCardPanel().setBodyValueAt("1", 0, "def1" , getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt("10", 0, "def1" , getEventHandler().getTableCodes()[1]);
 		
 		custname = null;
 		custcode = null;
@@ -363,6 +376,8 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 			} else  
 				getBillCardPanel().setBodyValueAt(num , e.getRow(), "numof");
 			
+			// ÉèÖÃÐÐºÅ
+			getBillCardPanel().setBodyValueAt((e.getRow() + 1) + "0", e.getRow(), "def1" , getEventHandler().getTableCodes()[0]);
 			
 			num = null;
 			invspec = null;
@@ -371,6 +386,20 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		
 		invVO = null;
 		
+	}
+	
+	private final void afterSetNum(BillEditEvent e) throws Exception {
+		
+		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
+		UFDouble totalnum = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "totalnum");
+		
+		if(totalnum == null || totalnum.doubleValue() == 0) {
+			if(num != null && num.doubleValue() > 0) {
+				getBillCardPanel().setBodyValueAt(num, e.getRow(), "totalnum", getEventHandler().getTableCodes()[0]);
+				afterSetTotalnum(e);
+			}
+		}
+	
 	}
 	
 	private final void afterSetTotalnum(BillEditEvent e) throws Exception {
@@ -405,9 +434,163 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		getBillCardPanel().setBodyValueAt(pk_cubasdoc, e.getRow(), "pk_custdoc", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custcode, e.getRow(), "custcode", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custname, e.getRow(), "custname", getEventHandler().getTableCodes()[1]);
-		getBillCardPanel().setBodyValueAt(String.valueOf(e.getRow() + 1) , e.getRow(), "def1" , getEventHandler().getTableCodes()[1]);
+		getBillCardPanel().setBodyValueAt((e.getRow() + 1) + "0" , e.getRow(), "def1" , getEventHandler().getTableCodes()[1]);
 	
 	}
+	
+//	private final void afterSetSdate(BillEditEvent e) throws Exception {
+//		
+//		Object execduration = getBillCardPanel().getBodyValueAt(e.getRow(), "execduration" );
+//		UFDate edate = (UFDate) getBillCardPanel().getBodyValueAt(e.getRow(), "edate");
+//		UFDate sdate = (UFDate) getBillCardPanel().getBodyValueAt(e.getRow(), e.getKey());
+//		
+//		if(sdate != null) {
+//			if(execduration != null && (Integer)execduration > 0 ) {
+//				
+//				int year = sdate.getYear();
+//				int month = sdate.getMonth();
+//				int day = sdate.getDay();
+//				
+//				if(month + (Integer)execduration >= 12) {
+//					year += (sdate.getMonth() + (Integer)execduration) / 12;
+//					month = (sdate.getMonth() + (Integer)execduration) % 12;
+//					if(month == 0) {
+//						month = 12;
+//						year --;
+//					}
+//				} else 
+//					month += (Integer)execduration;
+//				
+//				getBillCardPanel().setBodyValueAt(new UFDate(year + "-" + month + "-" + day), e.getRow(), "edate", getEventHandler().getTableCodes()[0]);
+//			} else if(edate != null) {
+//				if(edate.before(sdate) || (edate.getYear() == sdate.getYear() && edate.getMonth() == sdate.getMonth())) {
+//					getBillCardPanel().setBodyValueAt(null, e.getRow(), "edate", getEventHandler().getTableCodes()[0]);
+//				} else {
+//					Integer exec = (edate.getYear() - sdate.getYear()) * 12 + (edate.getMonth() - sdate.getMonth());
+//					getBillCardPanel().setBodyValueAt(exec, e.getRow(), "execduration", getEventHandler().getTableCodes()[0]);
+//				}
+//			} 
+//		}
+//		
+//		execduration = null;
+//		edate = null;
+//		sdate = null;
+//		
+//	}
+//	
+//	private final void afterSetExecduration(BillEditEvent e) throws Exception {
+//		Object execduration = getBillCardPanel().getBodyValueAt(e.getRow(), e.getKey() );
+//		UFDate edate = (UFDate) getBillCardPanel().getBodyValueAt(e.getRow(), "edate");
+//		UFDate sdate = (UFDate) getBillCardPanel().getBodyValueAt(e.getRow(), "sdate");
+//		
+//		if(execduration != null && (Integer)execduration > 0 ) {
+//			if(sdate != null) {
+//				int year = sdate.getYear();
+//				int month = sdate.getMonth();
+//				int day = sdate.getDay();
+//				
+//				if(month + (Integer)execduration >= 12) {
+//					year += (sdate.getMonth() + (Integer)execduration) / 12;
+//					month = (sdate.getMonth() + (Integer)execduration) % 12;
+//					if(month == 0) {
+//						month = 12;
+//						year --;
+//					}
+//				} else 
+//					month += (Integer)execduration;
+//				
+//				getBillCardPanel().setBodyValueAt(new UFDate(year + "-" + month + "-" + day), e.getRow(), "edate", getEventHandler().getTableCodes()[0]);
+//			} else if(sdate == null && edate != null) {
+//				
+//				int year = edate.getYear();
+//				int month = edate.getMonth();
+//				int day = edate.getDay();
+//				
+//				if(month + (Integer)execduration >= 12) {
+//					year += (edate.getMonth() - (Integer)execduration) / 12;
+//					month = (edate.getMonth() - (Integer)execduration) % 12;
+//					if(month < 0)
+//						month *= -1;
+//					else if(month == 0) {
+//						month = 12;
+//						year --;
+//					}
+//				} else 
+//					month += (Integer)execduration;
+//				
+//				getBillCardPanel().setBodyValueAt(new UFDate(year + "-" + month + "-" + day), e.getRow(), "sdate", getEventHandler().getTableCodes()[0]);
+//				
+//			}
+//		} else 
+//			getBillCardPanel().setBodyValueAt(null , e.getRow(), "edate", getEventHandler().getTableCodes()[0]);
+//		
+//		execduration = null;
+//		edate = null;
+//		sdate = null;
+//		
+//	}
+//	
+//	private final void afterSetEdate(BillEditEvent e) throws Exception {
+//		Object execduration = getBillCardPanel().getBodyValueAt(e.getRow(), "execduration" );
+//		UFDate sdate = (UFDate) getBillCardPanel().getBodyValueAt(e.getRow(), "sdate");
+//		UFDate edate = (UFDate) getBillCardPanel().getBodyValueAt(e.getRow(), e.getKey());
+//		
+//		if(edate != null) {
+//			if(execduration != null && (Integer) execduration > 0) {
+//				if(sdate != null) {
+//					if(edate.before(sdate) || (edate.getYear() == sdate.getYear() && edate.getMonth() == sdate.getMonth())) {
+//						int year = edate.getYear();
+//						int month = edate.getMonth();
+//						int day = edate.getDay();
+//						
+//						if(month + (Integer)execduration >= 12) {
+//							year += (edate.getMonth() - (Integer)execduration) / 12;
+//							month = (edate.getMonth() - (Integer)execduration) % 12;
+//							if(month < 0)
+//								month *= -1;
+//							else if(month == 0) {
+//								month = 12;
+//								year --;
+//							}
+//						} else 
+//							month -= (Integer)execduration;
+//						
+//						getBillCardPanel().setBodyValueAt(new UFDate(year + "-" + month + "-" + day), e.getRow(), "sdate", getEventHandler().getTableCodes()[0]);
+//					
+//					} else {
+//						Integer exec = (edate.getYear() - sdate.getYear()) * 12 + (edate.getMonth() - sdate.getMonth());
+//						getBillCardPanel().setBodyValueAt(exec, e.getRow(), "execduration", getEventHandler().getTableCodes()[0]);
+//					}
+//				} else {
+//					int year = edate.getYear();
+//					int month = edate.getMonth();
+//					int day = edate.getDay();
+//					
+//					if(month + (Integer)execduration >= 12) {
+//						year += (edate.getMonth() - (Integer)execduration) / 12;
+//						month = (edate.getMonth() - (Integer)execduration) % 12;
+//						if(month < 0)
+//							month *= -1;
+//						else if(month == 0) {
+//							month = 12;
+//							year --;
+//						}
+//					} else 
+//						month += (Integer)execduration;
+//					
+//					getBillCardPanel().setBodyValueAt(new UFDate(year + "-" + month + "-" + day), e.getRow(), "sdate", getEventHandler().getTableCodes()[0]);
+//				}
+//			} else if(sdate != null) {
+//				if(edate.before(sdate) || (edate.getYear() == sdate.getYear() && edate.getMonth() == sdate.getMonth())) {
+//					getBillCardPanel().setBodyValueAt(null, e.getRow(), "sdate", getEventHandler().getTableCodes()[0]);
+//					
+//				} else {
+//					Integer exec = (edate.getYear() - sdate.getYear()) * 12 + (edate.getMonth() - sdate.getMonth());
+//					getBillCardPanel().setBodyValueAt(exec, e.getRow(), "execduration", getEventHandler().getTableCodes()[0]);
+//				}
+//			}
+//		}
+//	}
 	
 	@Override
 	public boolean beforeEdit(BillEditEvent e) {
