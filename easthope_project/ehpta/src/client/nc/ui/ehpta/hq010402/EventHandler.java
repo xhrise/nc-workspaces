@@ -132,7 +132,7 @@ public class EventHandler extends ManageEventHandler {
 				int vbillstatus = headvo.getVbillstatus();
 				
 				boolean flag = headvo.getClose_flag() == null ? false : headvo.getClose_flag().booleanValue();
-				if (vbillstatus == 1 && flag == true) {
+				if (vbillstatus != IBillStatus.CHECKPASS && flag == true) {
 					getBillUI().showErrorMessage("此单据没有审批通过或已经关闭,不允许版本变更!");
 					return false;
 				} else {
@@ -264,7 +264,6 @@ public class EventHandler extends ManageEventHandler {
 		
 		if(closeOriContract()) {
 			super.onBoSave();
-			super.onBoRefresh();
 		}
 		
 		if(preContractOK != null && !"".equals(preContractOK)) {
@@ -305,6 +304,27 @@ public class EventHandler extends ManageEventHandler {
 		if(((MultiBillVO)getBufferData().getCurrentVO()).getTableVO(getTableCodes()[1]) != null && ((MultiBillVO)getBufferData().getCurrentVO()).getTableVO(getTableCodes()[1]).length > 0)
 			HYPubBO_Client.updateAry((SuperVO[]) ((MultiBillVO)getBufferData().getCurrentVO()).getTableVO(getTableCodes()[1]));
 		
+		if(strWhere == null) {
+			
+			StringBuilder builder = new StringBuilder();
+			if(getBufferData().getAllHeadVOsFromBuffer() != null && getBufferData().getAllHeadVOsFromBuffer().length > 0) {
+				int i = 0;
+				for(CircularlyAccessibleValueObject cavo : getBufferData().getAllHeadVOsFromBuffer()) {
+					if(i == getBufferData().getAllHeadVOsFromBuffer().length - 1)
+						builder.append("'" + cavo.getAttributeValue("pk_contract") + "'");
+					else
+						builder.append("'" + cavo.getAttributeValue("pk_contract") + "',");
+					
+					i ++;
+				}
+			}
+			
+			if(builder.length() > 0) {
+				strWhere = new StringBuffer();
+				strWhere.append(" pk_contract in ("+builder.toString()+") and nvl(dr , 0) = 0 and pk_corp = '"+_getCorp().getPk_corp()+"' and contype = '长单合同' ");
+			}
+		
+		}
 		
 		if(strWhere != null ) {
 			
@@ -358,6 +378,16 @@ public class EventHandler extends ManageEventHandler {
 	}
 	
 	@Override
+	protected void onBoCancel() throws Exception {
+		
+		super.onBoCancel();
+		
+		if(preContractOK != null)
+			preContractOK = null;
+		
+	}
+	
+	@Override
 	protected void onBoDelete() throws Exception {
 		
 		if (getBufferData().getCurrentVO() == null)
@@ -389,8 +419,6 @@ public class EventHandler extends ManageEventHandler {
 					getBillUI().setBillOperate(IBillOperate.OP_NOTEDIT);
 				getBufferData().setCurrentRow(getBufferData().getCurrentRow());
 			} else {
-				
-//				int currRow = getBufferData().getCurrentRow();
 				
 				SaleContractHistoryVO[] contractHisVO = ((SaleContractHistoryVO[]) HYPubBO_Client.queryByCondition(SaleContractHistoryVO.class, " pk_contract = '"+pk_contract+"' and version = " + (version - 1)));
 				SaleContractVO[] contractVO = new SaleContractVO[0];
@@ -461,11 +489,6 @@ public class EventHandler extends ManageEventHandler {
 				try {HYPubBO_Client.insertAry(aidcustVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(policyVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(contractVO); } catch(Exception e) { AppDebug.debug(e); }
-				
-//				updateBuffer();
-//				
-//				if(currRow > 0)
-//					getBufferData().setCurrentRow(currRow - 1);
 				
 				super.onBoRefresh();
 				

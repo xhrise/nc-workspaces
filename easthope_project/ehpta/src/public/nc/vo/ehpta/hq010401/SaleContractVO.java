@@ -22,6 +22,8 @@ import nc.vo.pub.lang.*;
  */
 public class SaleContractVO extends SuperVO {
 
+	private static final long serialVersionUID = -3190481795437729930L;
+	
 	public String def5;
 	public String pk_corp;
 	public String pk_psndoc;
@@ -66,6 +68,7 @@ public class SaleContractVO extends SuperVO {
 	public String termination;
 	public String custcode;
 	public UFBoolean close_flag;
+	public UFDouble contprice;
 
 	public static final String DEF5 = "def5";
 	public static final String PK_CORP = "pk_corp";
@@ -109,6 +112,14 @@ public class SaleContractVO extends SuperVO {
 	public static final String DEF3 = "def3";
 	public static final String DEF9 = "def9";
 	public static final String TERMINATION = "termination";
+
+	public UFDouble getContprice() {
+		return contprice;
+	}
+
+	public void setContprice(UFDouble contprice) {
+		this.contprice = contprice;
+	}
 
 	public UFBoolean getClose_flag() {
 		return close_flag;
@@ -1142,6 +1153,7 @@ public class SaleContractVO extends SuperVO {
 	 * @exception nc.vo.pub.ValidationException
 	 *                如果验证失败,抛出 ValidationException,对错误进行解释.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void validate() throws ValidationException {
 
 		ArrayList errFields = new ArrayList(); // errFields record those null

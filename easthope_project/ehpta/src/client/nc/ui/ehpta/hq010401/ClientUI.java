@@ -7,6 +7,7 @@ import nc.bs.logging.Logger;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
@@ -51,8 +52,19 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 
 	private final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
 	
+	protected ClientUICtrl controller = null;
+	
+	protected ClientUICtrl getController() {
+		
+		if(controller == null)
+			createController();
+		
+		return controller;
+	}
+	
 	protected AbstractManageController createController() {
-		return new ClientUICtrl();
+		controller = new ClientUICtrl();
+		return controller;
 	}
 
 	/**
@@ -165,10 +177,13 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() , "orderdate" , "sdate" , "edate" , "dmakedate"};
+				fileDef.getField_BillStatus() , "orderdate" , "sdate" , 
+				"edate" , "dmakedate" , fileDef.getField_Busitype() };
+		
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() , _getDate() , _getDate() , _getDate() , _getDate() };
+				billtype, new Integer(IBillStatus.FREE).toString() , 
+				_getDate() , _getDate() , _getDate() , _getDate() , getBusinessType() };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -178,6 +193,14 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if (item != null)
 				item.setValue(values[i]);
 		}
+		
+		getBillCardPanel().addLine();
+		
+	}
+	
+	@Override
+	protected String getBillNo() throws Exception {
+		return GeneraterBillNO.getInstanse().build(getController().getBillType(), _getCorp().getPk_corp());
 	}
 	
 	@Override
@@ -236,8 +259,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		InvbasdocVO[] invVO = (InvbasdocVO[])HYPubBO_Client.queryByCondition(InvbasdocVO.class, " invcode = '"+obj+"' and nvl(dr , 0) = 0 ");
 		
 		if(invVO != null && invVO.length > 0) {
-			
-			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("pk_invbasdoc"), e.getRow(), "pk_invbasdoc");
+			Object pk_invmandoc = iUAPQueryBS.executeQuery("select pk_invmandoc from bd_invmandoc where pk_invbasdoc = '"+invVO[0].getAttributeValue("pk_invbasdoc")+"' and pk_corp = '"+_getCorp().getPk_corp()+"' and nvl(dr , 0 ) = 0 ", new ColumnProcessor());
+			getBillCardPanel().setBodyValueAt(pk_invmandoc == null ? invVO[0].getAttributeValue("pk_invbasdoc") : pk_invmandoc , e.getRow(), "pk_invbasdoc");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("invname"), e.getRow(), "invname");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("invspec"), e.getRow(), "invspec");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("pk_measdoc"), e.getRow(), "pk_measdoc");
@@ -272,12 +295,30 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			
 			UFDouble taxprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxprice");
 			
-			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
-				getBillCardPanel().setBodyValueAt(num.multiply(taxprice).div(taxratio.doubleValue() + 1), e.getRow(), "tax");
-			
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2)), e.getRow(), "notaxloan");
+			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 ) {
 				
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2) , e.getRow(), "sumpricetax");
+				
+				AggregatedValueObject  uiAggVO = getBillCardWrapper().getBillVOFromUI();
+				if(uiAggVO != null && uiAggVO.getChildrenVO() != null && uiAggVO.getChildrenVO().length > 0) {
+					UFDouble contprice = new UFDouble();
+					for(CircularlyAccessibleValueObject cavo : uiAggVO.getChildrenVO()) {
+						UFDouble sumpricetax = (UFDouble) (cavo.getAttributeValue("sumpricetax") == null ? new UFDouble() : cavo.getAttributeValue("sumpricetax"));
+						contprice = contprice.add(sumpricetax);
+					}
+					
+					getBillCardPanel().setHeadItem("contprice", contprice);
+						
+				}
+				
+				if(taxratio != null && taxratio.doubleValue() > 0) {
+					getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.doubleValue() / 100 + 1)).toString() , 2), e.getRow(), "tax");
+					getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.doubleValue() / 100 + 1)).toString() , 2)), e.getRow(), "notaxloan");
+				}
 			}
+			
+			// ÉèÖÃÐÐºÅ
+			getBillCardPanel().setBodyValueAt((e.getRow() + 1) + "0", e.getRow(), "def1");
 			
 			num = null;
 			invspec = null;
@@ -314,12 +355,23 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		if(taxprice != null && taxprice.doubleValue() != 0 && num != null && num.doubleValue() != 0) {
 			getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2) , e.getRow(), "sumpricetax");
 			
+			AggregatedValueObject  uiAggVO = getBillCardWrapper().getBillVOFromUI();
+			if(uiAggVO != null && uiAggVO.getChildrenVO() != null && uiAggVO.getChildrenVO().length > 0) {
+				UFDouble contprice = new UFDouble("0");
+				for(CircularlyAccessibleValueObject cavo : uiAggVO.getChildrenVO()) {
+					UFDouble sumpricetax = (UFDouble) (cavo.getAttributeValue("sumpricetax") == null ? new UFDouble("0") : cavo.getAttributeValue("sumpricetax"));
+					contprice = contprice.add(sumpricetax);
+				}
+				
+				getBillCardPanel().setHeadItem("contprice", contprice);
+					
+			}
 			
 			UFDouble taxratio = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxrate");
 			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2), e.getRow(), "tax");
-			
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2)), e.getRow(), "notaxloan");
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2), e.getRow(), "tax");
+				
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2)), e.getRow(), "notaxloan");
 			}
 			
 		} else 
@@ -339,11 +391,23 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		if(taxprice != null && taxprice.doubleValue() != 0 && num != null && num.doubleValue() != 0) {
 			getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2) , e.getRow(), "sumpricetax");
 		
+			AggregatedValueObject  uiAggVO = getBillCardWrapper().getBillVOFromUI();
+			if(uiAggVO != null && uiAggVO.getChildrenVO() != null && uiAggVO.getChildrenVO().length > 0) {
+				UFDouble contprice = new UFDouble();
+				for(CircularlyAccessibleValueObject cavo : uiAggVO.getChildrenVO()) {
+					UFDouble sumpricetax = (UFDouble) (cavo.getAttributeValue("sumpricetax") == null ? new UFDouble() : cavo.getAttributeValue("sumpricetax"));
+					contprice = contprice.add(sumpricetax);
+				}
+				
+				getBillCardPanel().setHeadItem("contprice", contprice);
+					
+			}
+			
 			UFDouble taxratio = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxrate");
 			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2), e.getRow(), "tax");
-			
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).div(taxratio.doubleValue() + 1).toString() , 2)), e.getRow(), "notaxloan");
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2), e.getRow(), "tax");
+				
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2)), e.getRow(), "notaxloan");
 			}
 			
 		} else 
