@@ -35,10 +35,7 @@ public class SaleContractDMO implements IQueryData {
 	public CircularlyAccessibleValueObject[] queryAllHeadData(String whereString)
 			throws BusinessException {
 		
-		if(whereString == null || "".equals(whereString))
-			whereString = " 1 = 1 and vbillstatus = 1 and nvl(dr , 0 ) = 0 ";
-		else 
-			whereString += " and vbillstatus = 1 ";
+		whereString += " and vbillstatus = 1 and pk_contract not in (select nvl(pk_contract , 'null') from so_sale where nvl(contracttype , 20) = 20 and nvl(dr ,0) = 0 )";
 		
 		SuperVO[] superVOs =  HYPubBO_Client.queryByCondition(SaleContractVO.class, whereString);
 		

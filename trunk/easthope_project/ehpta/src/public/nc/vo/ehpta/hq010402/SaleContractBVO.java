@@ -42,13 +42,13 @@ public class SaleContractBVO extends SuperVO {
 	public UFDouble num;
 	public String def2;
 	public Integer numof;
-	public UFDate edate;
+	public String edate;
 	public Integer execduration;
 	public UFDouble totalnum;
 	public String def4;
 	public String durationunit;
 	public UFDouble preprice;
-	public UFDate sdate;
+	public String sdate;
 	public String def3;
 	public String def9;
 	public String invspec;
@@ -523,7 +523,7 @@ public class SaleContractBVO extends SuperVO {
 	 * 
 	 * @return UFDate
 	 */
-	public UFDate getEdate() {
+	public String getEdate() {
 		return edate;
 	}
 
@@ -535,7 +535,7 @@ public class SaleContractBVO extends SuperVO {
 	 * @param newEdate
 	 *            UFDate
 	 */
-	public void setEdate(UFDate newEdate) {
+	public void setEdate(String newEdate) {
 
 		edate = newEdate;
 	}
@@ -667,7 +667,7 @@ public class SaleContractBVO extends SuperVO {
 	 * 
 	 * @return UFDate
 	 */
-	public UFDate getSdate() {
+	public String getSdate() {
 		return sdate;
 	}
 
@@ -679,7 +679,7 @@ public class SaleContractBVO extends SuperVO {
 	 * @param newSdate
 	 *            UFDate
 	 */
-	public void setSdate(UFDate newSdate) {
+	public void setSdate(String newSdate) {
 
 		sdate = newSdate;
 	}
@@ -788,8 +788,10 @@ public class SaleContractBVO extends SuperVO {
 	 * @exception nc.vo.pub.ValidationException
 	 *                如果验证失败,抛出 ValidationException,对错误进行解释.
 	 */
+	@SuppressWarnings("unchecked")
 	public void validate() throws ValidationException {
 
+		@SuppressWarnings("rawtypes")
 		ArrayList errFields = new ArrayList(); // errFields record those null
 
 		// fields that cannot be null.

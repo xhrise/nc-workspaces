@@ -14,7 +14,6 @@ import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
-import nc.ui.tm.framework.button.IButtonID;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
