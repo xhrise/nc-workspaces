@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="out/public" path="src/public"/>
+	<classpathentry excluding="so/" kind="src" output="out/public" path="src/public"/>
 	<classpathentry kind="src" output="out/private" path="src/private"/>
 	<classpathentry kind="src" output="out/client" path="src/client"/>
+	<classpathentry kind="src" path="src/so/public"/>
+	<classpathentry kind="src" path="src/so/private"/>
+	<classpathentry kind="src" path="src/so/client"/>
 	<classpathentry kind="src" output="out/test" path="src/test"/>
 	<classpathentry kind="src" output="out/resources" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
