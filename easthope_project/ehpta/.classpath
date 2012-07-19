@@ -3,13 +3,13 @@
 	<classpathentry kind="src" output="out/public" path="src/public"/>
 	<classpathentry kind="src" output="out/private" path="src/private"/>
 	<classpathentry kind="src" output="out/client" path="src/client"/>
-	<classpathentry kind="src" output="modules/so/classes" path="src/so/public"/>
-	<classpathentry kind="src" output="modules/so/META-INF/classes" path="src/so/private"/>
-	<classpathentry kind="src" output="modules/so/client/classes" path="src/so/client"/>
-	<classpathentry kind="src" output="modules/cmp/classes" path="src/cmp/public"/>
-	<classpathentry kind="src" output="modules/cmp/META-INF/classes" path="src/cmp/private"/>
-	<classpathentry kind="src" output="modules/cmp/client/classes" path="src/cmp/client"/>
-	<classpathentry kind="src" output="modules/uap/client/classes" path="src/uap/client"/>
+	<classpathentry kind="src" output="modules/so/classes" path="src/other/so/public"/>
+	<classpathentry kind="src" output="modules/so/META-INF/classes" path="src/other/so/private"/>
+	<classpathentry kind="src" output="modules/so/client/classes" path="src/other/so/client"/>
+	<classpathentry kind="src" output="modules/cmp/classes" path="src/other/cmp/public"/>
+	<classpathentry kind="src" output="modules/cmp/META-INF/classes" path="src/other/cmp/private"/>
+	<classpathentry kind="src" output="modules/cmp/client/classes" path="src/other/cmp/client"/>
+	<classpathentry kind="src" output="modules/uap/client/classes" path="src/other/uap/client"/>
 	<classpathentry kind="src" output="out/test" path="src/test"/>
 	<classpathentry kind="src" output="out/resources" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
