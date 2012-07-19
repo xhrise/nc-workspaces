@@ -14,16 +14,16 @@ import nc.ui.so.so001.panel.SaleBillUI;
  * @rebuild V5.1 销售订单维护 zhongwei
  */
 @SuppressWarnings({ "serial", "restriction" })
-public class SaleOrderAdminUI extends SaleBillUI {
+public class ExtSaleOrderAdminUI extends SaleBillUI {
 
 	//按钮初始化标记
 	private boolean b_init;
 
-	public SaleOrderAdminUI() {
+	public ExtSaleOrderAdminUI() {
 		super();
 	}
 
-	public SaleOrderAdminUI(String pk_corp, String billtype, String busitype, String operator, String id) {
+	public ExtSaleOrderAdminUI(String pk_corp, String billtype, String busitype, String operator, String id) {
 		super(pk_corp, billtype, busitype, operator, id);
 	}
 
@@ -258,7 +258,7 @@ public class SaleOrderAdminUI extends SaleBillUI {
 
 	@Override
 	protected String getClientUI() {
-		return SaleOrderAdminUI.class.getName();
+		return ExtSaleOrderAdminUI.class.getName();
 	}
 	
 }

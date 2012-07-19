@@ -10,7 +10,7 @@
 	<classpathentry kind="src" output="modules/cmp/META-INF/classes" path="src/other/cmp/private"/>
 	<classpathentry kind="src" output="modules/cmp/client/classes" path="src/other/cmp/client"/>
 	<classpathentry kind="src" output="modules/uap/client/classes" path="src/other/uap/client"/>
-	<classpathentry kind="src" output="out/test" path="src/test" />
+	<classpathentry kind="src" output="out/test" path="src/test"/>
 	<classpathentry kind="src" output="out/resources" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="nc.uap.mde.library.container/Ant_Library"/>
