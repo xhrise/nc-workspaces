@@ -39,7 +39,7 @@ public class SaleContractVO extends SuperVO {
 	public UFBoolean stopcontract;
 	public UFBoolean rebate_flag;
 	public String purchname;
-	public UFDateTime ts;
+	public String ts;
 	public String def6;
 	public String pk_busitype;
 	public String bargainor;
@@ -504,7 +504,7 @@ public class SaleContractVO extends SuperVO {
 	 * 
 	 * @return UFDateTime
 	 */
-	public UFDateTime getTs() {
+	public String getTs() {
 		return ts;
 	}
 
@@ -516,7 +516,7 @@ public class SaleContractVO extends SuperVO {
 	 * @param newTs
 	 *            UFDateTime
 	 */
-	public void setTs(UFDateTime newTs) {
+	public void setTs(String newTs) {
 
 		ts = newTs;
 	}

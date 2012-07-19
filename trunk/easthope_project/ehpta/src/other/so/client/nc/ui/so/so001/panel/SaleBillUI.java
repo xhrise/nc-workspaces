@@ -4142,19 +4142,6 @@ public abstract class SaleBillUI extends SaleBillListUI implements IFreshTsListe
 			SaleOrderVO saleorder = vocache.getSaleOrderVO(csaleid);
 			loadCardData(saleorder);
 			
-			// 设置表头合同类型下拉列表的数据显示
-			// add by river for 2012-07-18
-			// start ..
-			if(getBillCardPanel().getHeadItem("contracttype") != null) {
-				if(saleorder != null && saleorder.getParentVO() != null) {
-					if((Integer) saleorder.getParentVO().getAttributeValue("contracttype") == 10)
-						((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("现货合同");
-					else if((Integer) saleorder.getParentVO().getAttributeValue("contracttype") == 20)
-						((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("长单合同");
-				}
-			}
-			
-			// .. end
 		} else {
 			loadCardData(null);
 		}
@@ -5995,19 +5982,6 @@ public abstract class SaleBillUI extends SaleBillListUI implements IFreshTsListe
 		// 清除缓存数据
 		getBillCardTools().clearCatheData();
 		
-		// 设置表头合同类型下拉列表的数据显示
-		// add by river for 2012-07-18
-		// start ..
-		if(getBillCardPanel().getHeadItem("contracttype") != null) {
-			if(PfUtilClient.getRetVos() != null && PfUtilClient.getRetVos().length > 0) {
-				if((Integer) PfUtilClient.getRetVos()[0].getParentVO().getAttributeValue("contracttype") == 10)
-					((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("现货合同");
-				else if((Integer) PfUtilClient.getRetVos()[0].getParentVO().getAttributeValue("contracttype") == 20)
-					((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("长单合同");
-			}
-		}
-		
-		// .. end
 	}
 
 	/**
@@ -7143,20 +7117,6 @@ public abstract class SaleBillUI extends SaleBillListUI implements IFreshTsListe
 
 				loadCardData(vocache.getSaleOrderVO(csaleid));
 				
-				// 设置表头合同类型下拉列表的数据显示
-				// add by river for 2012-07-18
-				// start ..
-				SaleOrderVO saleorder = vocache.getSaleOrderVO(csaleid);
-				if(getBillCardPanel().getHeadItem("contracttype") != null) {
-					if(saleorder != null && saleorder.getParentVO() != null) {
-						if((Integer) saleorder.getParentVO().getAttributeValue("contracttype") == 10)
-							((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("现货合同");
-						else if((Integer) saleorder.getParentVO().getAttributeValue("contracttype") == 20)
-							((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("长单合同");
-					}
-				}
-				
-				// .. end
 			}
 
 			showCustManArInfo();
@@ -7619,16 +7579,6 @@ public abstract class SaleBillUI extends SaleBillListUI implements IFreshTsListe
 			nc.ui.scm.pub.panel.SetColor.resetColor(getBillCardPanel());
 		}
 		
-		// PTA销售二开 ， 添加合同保存时的相关验证
-		// add by river for 2012-07-18
-		// start ..
-		
-		if(!beforeSaveValid()) {
-			showWarningMessage("<<< 保存验证提示 >>>");
-		}
-		
-		// .. end
-
 		// 处理通过复制增加的订单保存（保存后的后续处理不同）
 		if ("新增".equals(strState)) { /*-=notranslate=-*/
 			onSaveCopyBill();

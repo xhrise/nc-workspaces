@@ -26,7 +26,7 @@ public class SaleContractDMO implements IQueryData {
 				PrepolicyVO.class.getName() }, key);
 		
 		if(aggVO != null && aggVO.getParentVO() != null) {
-			return ((MultiBillVO)aggVO).getAllChildrenVO();
+			return ((MultiBillVO)aggVO).getTableVO(((MultiBillVO)aggVO).getDefaultTableCode());
 		}
 		
 		return null;
