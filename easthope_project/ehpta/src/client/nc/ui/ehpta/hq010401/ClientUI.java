@@ -123,6 +123,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		
 		addPrivateButton(DefaultBillButton.getDocumentButtonVO());
 		
+		addPrivateButton(DefaultBillButton.getLinkButtonVO());
+		addPrivateButton(DefaultBillButton.getReceivableButtonVO());
+		addPrivateButton(DefaultBillButton.getDeliveryButtonVO());
+		addPrivateButton(DefaultBillButton.getInvoiceButtonVO());
+		
 	}
 
 	/**

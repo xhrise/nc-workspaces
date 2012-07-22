@@ -1,16 +1,12 @@
-package nc.ui.ehpta.hq010402;
+package nc.ui.ehpta.hq010403;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
-import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.bill.ISingleController;
-
-import nc.vo.ehpta.hq010402.MultiBillVO;
-import nc.vo.ehpta.hq010401.SaleContractVO;
-import nc.vo.ehpta.hq010402.SaleContractBVO;
-import nc.vo.ehpta.hq010402.AidcustVO;
-import nc.vo.ehpta.hq010402.PrepolicyVO;
+import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
+import nc.vo.ehpta.hq010403.AdjustVO;
+import nc.vo.trade.pub.HYBillVO;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -25,7 +21,8 @@ import nc.ui.trade.button.IBillButton;
  * @version tempProject version
  */
 
-public class ClientUICtrl extends AbstractManageController {
+public class ClientUICtrl extends AbstractManageController implements
+		ISingleController {
 
 	public String[] getCardBodyHideCol() {
 		return null;
@@ -33,17 +30,17 @@ public class ClientUICtrl extends AbstractManageController {
 
 	public int[] getCardButtonAry() {
 
-		return new int[] { IBillButton.Query,IBillButton.Busitype , IBillButton.Add,
-				IBillButton.Line, IBillButton.Edit, IBillButton.Refresh,
+		return new int[] { IBillButton.Query, IBillButton.Add,
+				IBillButton.Edit, IBillButton.Refresh,
 				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
 				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
-				IBillButton.ApproveInfo, DefaultBillButton.MAKENEWCONTRACT , IBillButton.Brow,
-				DefaultBillButton.LINKQUERY , DefaultBillButton.DOCUMENT, IBillButton.Return };
+				IBillButton.ApproveInfo, IBillButton.Brow,
+				DefaultBillButton.DOCUMENT, IBillButton.Return };
 
 	}
 
 	public int[] getListButtonAry() {
-		return new int[] { IBillButton.Query,IBillButton.Busitype , IBillButton.Add,
+		return new int[] { IBillButton.Query, IBillButton.Add,
 				IBillButton.Edit, IBillButton.Refresh, IBillButton.Delete,
 				DefaultBillButton.DOCUMENT, IBillButton.Card
 
@@ -60,16 +57,12 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public String getBillType() {
-		return "HQ06";
+		return "HQ07";
 	}
 
 	public String[] getBillVoName() {
-		return new String[] { 
-				MultiBillVO.class.getName(),
-				SaleContractVO.class.getName(),
-				SaleContractBVO.class.getName(),
-				AidcustVO.class.getName(),
-				PrepolicyVO.class.getName() };
+		return new String[] { HYBillVO.class.getName(),
+				AdjustVO.class.getName(), AdjustVO.class.getName() };
 	}
 
 	public String getBodyCondition() {
@@ -124,4 +117,12 @@ public class ClientUICtrl extends AbstractManageController {
 		return true;
 	}
 
+	/**
+	 * 是否单表
+	 * 
+	 * @return boolean true:单表体，false:单表头
+	 */
+	public boolean isSingleDetail() {
+		return false; // 单表头
+	}
 }

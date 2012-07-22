@@ -170,7 +170,7 @@ public class CHG30TO32 extends VOConversionUI {
             "H_pk_contract->H_pk_contract",
             "H_version->H_version",
             "H_iscredit->H_iscredit",
-            "H_purchcode->H_purchcode",
+            "H_purchcode->H_ccustomerid",
             "H_concode->H_concode",
             // .. end
             

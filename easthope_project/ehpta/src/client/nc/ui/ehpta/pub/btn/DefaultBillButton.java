@@ -4,10 +4,15 @@ import nc.vo.trade.button.ButtonVO;
 
 public final class DefaultBillButton {
 	
-	public static final int DISABLED = 101;
-	public static final int ENABLED = 102;
-	public static final int DOCUMENT = 103;
-	public static final int MAKENEWCONTRACT = 104;
+	public static final int DISABLED = 101; // 停用
+	public static final int ENABLED = 102; // 启用
+	public static final int DOCUMENT = 103; // 附件
+	public static final int MAKENEWCONTRACT = 104; // 合同变更
+	public static final int LINKQUERY = 105; // 联查
+	
+	public static final int RECEIVABLE = 110; //　到款记录
+	public static final int DELIVERY = 111; // 发货记录
+	public static final int INVOICE = 112; // 开票记录
 	
 	public static final ButtonVO getDocumentButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
@@ -56,4 +61,54 @@ public final class DefaultBillButton {
 
 		return btnVo;
 	}
+	
+	public static final ButtonVO getLinkButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(LINKQUERY);
+		btnVO.setBtnCode("linkquery");
+		btnVO.setBtnName("联查");
+		btnVO.setBtnChinaName("联查");
+		
+		btnVO.setChildAry(new int[] {RECEIVABLE , DELIVERY , INVOICE});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getReceivableButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(RECEIVABLE);
+		btnVO.setBtnCode("receivable");
+		btnVO.setBtnName("到款记录");
+		btnVO.setBtnChinaName("到款记录");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getDeliveryButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(DELIVERY);
+		btnVO.setBtnCode("delivery");
+		btnVO.setBtnName("发货记录");
+		btnVO.setBtnChinaName("发货记录");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getInvoiceButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(INVOICE);
+		btnVO.setBtnCode("invoice");
+		btnVO.setBtnName("开票记录");
+		btnVO.setBtnChinaName("开票记录");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	
 }

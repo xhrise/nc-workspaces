@@ -128,6 +128,10 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		addPrivateButton(DefaultBillButton.getDocumentButtonVO());
 		addPrivateButton(DefaultBillButton.getMakeNewContractButtonVO());
 		
+		addPrivateButton(DefaultBillButton.getLinkButtonVO());
+		addPrivateButton(DefaultBillButton.getReceivableButtonVO());
+		addPrivateButton(DefaultBillButton.getDeliveryButtonVO());
+		addPrivateButton(DefaultBillButton.getInvoiceButtonVO());
 	}
 
 	/**

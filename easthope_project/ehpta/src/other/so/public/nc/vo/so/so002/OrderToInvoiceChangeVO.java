@@ -115,6 +115,19 @@ public class OrderToInvoiceChangeVO implements IchangeVO {
 
 			setNsubsummny(saleinvoice);
 
+			// 设置合同类型
+			// add by river for 2012-07-22
+			// start ..
+			if(nowVo.getParentVO().getAttributeValue("saletype") == null) {
+				if(preVo.getParentVO().getAttributeValue("contracttype") != null) {
+					if(Integer.valueOf(preVo.getParentVO().getAttributeValue("contracttype").toString()) == 10)
+						nowVo.getParentVO().setAttributeValue("saletype", "现货合同");
+					else if(Integer.valueOf(preVo.getParentVO().getAttributeValue("contracttype").toString()) == 20)
+						nowVo.getParentVO().setAttributeValue("saletype", "长单合同");
+				}
+			} // .. end
+			
+			
 		} catch (Exception e) {
 			SCMEnv.out(e);
 			if(e instanceof BusinessException)
