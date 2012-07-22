@@ -12,7 +12,15 @@ import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
 
-
+/**
+ * 
+ * @author river
+ * 
+ * Create Date : 2012-07-01
+ *
+ * 功能： PTA销售 长单合同的下游单据查询DMO
+ * 
+ */
 public class SaleContractDMO implements IQueryData {
 
 	public CircularlyAccessibleValueObject[] queryAllBodyData(String key)
@@ -35,7 +43,7 @@ public class SaleContractDMO implements IQueryData {
 	public CircularlyAccessibleValueObject[] queryAllHeadData(String whereString)
 			throws BusinessException {
 		
-		whereString += " and vbillstatus = 1 and pk_contract not in (select nvl(pk_contract , 'null') from so_sale where nvl(contracttype , 20) = 20 and nvl(dr ,0) = 0 )";
+		whereString += " and vbillstatus = 1 and pk_contract not in (select pk_contract from so_sale where pk_contract is not null and nvl(dr,0)=0 ) order by dmakedate desc ";
 		
 		SuperVO[] superVOs =  HYPubBO_Client.queryByCondition(SaleContractVO.class, whereString);
 		

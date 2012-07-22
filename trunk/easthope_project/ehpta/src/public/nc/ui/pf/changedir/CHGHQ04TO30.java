@@ -63,13 +63,16 @@ public class CHGHQ04TO30 extends VOConversionUI {
 	    		"H_ccurrencytypeid->00010000000000000001",
 	    		"H_nexchangeotobrate->1",
 	    		"H_ndiscountrate->100",
+	    		"H_ccalbodyid->1120A8100000000YSLF2",
+	    		"H_csalecorpid->0001A8100000000044PP",
 	    		"B_creceipttype->HQ04" , 
 	    		"B_ndiscountmny->0" , 
 	    		"B_ndiscountrate->100" , 
 	    		"B_nitemdiscountrate->100" , 
 	    		"B_noriginalcurdiscountmny->0",
 	    		"B_ccurrencytypeid->00010000000000000001",   //　原币   币种 （表体 - so_saleorder_b） 默认：人民币
-	    		"B_nexchangeotobrate->1"
+	    		"B_nexchangeotobrate->1",
+	    		"B_cadvisecalbodyid->1120A8100000000YSLF2"
 	    		
 	    }; 
 	  }
