@@ -8,7 +8,15 @@ import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
 
-
+/**
+ * 
+ * @author river
+ * 
+ * Create Date : 2012-07-01
+ *
+ * 功能： PTA销售 现货合同的下游单据查询DMO
+ * 
+ */
 public class SpotContractDMO implements IQueryData {
 	
 	public CircularlyAccessibleValueObject[] queryAllBodyData(String key)
@@ -21,7 +29,7 @@ public class SpotContractDMO implements IQueryData {
 	public CircularlyAccessibleValueObject[] queryAllHeadData(String whereString)
 			throws BusinessException {
 		
-		whereString += " and vbillstatus = 1 ";
+		whereString += " and vbillstatus = 1 and pk_contract not in (select pk_contract from so_sale where pk_contract is not null and nvl(dr,0)=0) order by dmakedate desc "; 
 		
 		SuperVO[] superVOs =  HYPubBO_Client.queryByCondition(SaleContractVO.class, whereString);
 		

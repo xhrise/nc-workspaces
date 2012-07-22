@@ -3,7 +3,7 @@
 	<classpathentry kind="src" output="out/public" path="src/public"/>
 	<classpathentry kind="src" output="out/private" path="src/private"/>
 	<classpathentry kind="src" output="out/client" path="src/client"/>
-	<classpathentry kind="src" output="modules/so/classes" path="src/other/so/public"/>
+	<classpathentry kind="src" output="modules/so/classes"  path="src/other/so/public"/>
 	<classpathentry kind="src" output="modules/so/META-INF/classes" path="src/other/so/private"/>
 	<classpathentry kind="src" output="modules/so/client/classes" path="src/other/so/client"/>
 	<classpathentry kind="src" output="modules/cmp/classes" path="src/other/cmp/public"/>
