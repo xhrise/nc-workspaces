@@ -53,6 +53,7 @@ public class SaleContractBVO extends SuperVO {
 	public String def9;
 	public String invspec;
 	public String pk_contract_b;
+	public UFDouble taxrate;
 
 	public static final String DEF5 = "def5";
 	public static final String DR = "dr";
@@ -83,6 +84,15 @@ public class SaleContractBVO extends SuperVO {
 	public static final String DEF9 = "def9";
 	public static final String INVSPEC = "invspec";
 	public static final String PK_CONTRACT_B = "pk_contract_b";
+
+	
+	public UFDouble getTaxrate() {
+		return taxrate;
+	}
+
+	public void setTaxrate(UFDouble taxrate) {
+		this.taxrate = taxrate;
+	}
 
 	/**
 	 * 属性def5的Getter方法.

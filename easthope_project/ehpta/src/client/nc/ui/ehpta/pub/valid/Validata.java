@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.pub.bill.BillCardPanel;
 import nc.ui.pub.bill.BillItem;
 import nc.vo.pub.AggregatedValueObject;
@@ -82,6 +84,15 @@ public class Validata {
 			} 
 		}
 		
+	}
+	
+	public static final void cancleAuditValid(AggregatedValueObject currVO) throws Exception {
+		if(currVO != null && currVO.getParentVO() != null) {
+			Object pk_contract = currVO.getParentVO().getAttributeValue("pk_contract");
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+			if(count > 0)
+				throw new Exception("当前合同已被引用，不能进行弃审操作！");
+		}
 	}
 	
 }

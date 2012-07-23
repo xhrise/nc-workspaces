@@ -1,5 +1,6 @@
 package nc.ui.ehpta.hq010402;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
@@ -50,8 +52,6 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		implements ILinkQuery {
 
 	private static final long serialVersionUID = 5102983593663822670L;
-
-	private final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
 
 	private EventHandler eventHandler = null;
 	
@@ -323,7 +323,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 	private final void afterSetPk_psndoc(BillEditEvent e) throws Exception {
 
 		UIRefPane psnRef = (UIRefPane) getBillCardPanel().getHeadItem("pk_psndoc").getComponent();
-		Object pk_deptdoc = iUAPQueryBS.executeQuery("select pk_deptdoc from bd_psndoc where pk_psndoc = '"+ psnRef.getRefPK() + "'", new ColumnProcessor());
+		Object pk_deptdoc = UAPQueryBS.iUAPQueryBS.executeQuery("select pk_deptdoc from bd_psndoc where pk_psndoc = '"+ psnRef.getRefPK() + "'", new ColumnProcessor());
 		((UIRefPane) getBillCardPanel().getHeadItem("pk_deptdoc").getComponent()).setPK(pk_deptdoc);
 		pk_deptdoc = null;
 
@@ -332,10 +332,10 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 	private final void afterSetPurchcode(BillEditEvent e) throws Exception {
 
 		UIRefPane purchRef = (UIRefPane)getBillCardPanel().getHeadItem("purchcode").getComponent();
-		Object custname = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+purchRef.getRefPK()+"')", new ColumnProcessor());
+		Object custname = UAPQueryBS.iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+purchRef.getRefPK()+"')", new ColumnProcessor());
 		getBillCardPanel().getHeadItem("purchname").setValue(custname);
 		
-		Object custcode = iUAPQueryBS.executeQuery("select custcode from bd_cubasdoc where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+purchRef.getRefPK()+"')", new ColumnProcessor());
+		Object custcode = UAPQueryBS.iUAPQueryBS.executeQuery("select custcode from bd_cubasdoc where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+purchRef.getRefPK()+"')", new ColumnProcessor());
 		getBillCardPanel().getHeadItem("custcode").setValue(custcode);
 
 		getBillCardPanel().setBodyValueAt(purchRef.getRefPK(), 0, "pk_custdoc", getEventHandler().getTableCodes()[1]);
@@ -355,15 +355,18 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		
 		if(invVO != null && invVO.length > 0) {
 
-			Object pk_invmandoc = iUAPQueryBS.executeQuery("select pk_invmandoc from bd_invmandoc where pk_invbasdoc = '"+invVO[0].getAttributeValue("pk_invbasdoc")+"' and pk_corp = '"+_getCorp().getPk_corp()+"' and nvl(dr , 0 ) = 0 ", new ColumnProcessor());
+			Object pk_invmandoc = UAPQueryBS.iUAPQueryBS.executeQuery("select pk_invmandoc from bd_invmandoc where pk_invbasdoc = '"+invVO[0].getAttributeValue("pk_invbasdoc")+"' and pk_corp = '"+_getCorp().getPk_corp()+"' and nvl(dr , 0 ) = 0 ", new ColumnProcessor());
 			getBillCardPanel().setBodyValueAt(pk_invmandoc == null ? invVO[0].getAttributeValue("pk_invbasdoc") : pk_invmandoc , e.getRow(), "pk_invbasdoc");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("invname"), e.getRow(), "invname");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("invspec"), e.getRow(), "invspec");
 			getBillCardPanel().setBodyValueAt(invVO[0].getAttributeValue("pk_measdoc"), e.getRow(), "pk_measdoc");
 			
+			BigDecimal taxratio = (BigDecimal) UAPQueryBS.iUAPQueryBS.executeQuery("select taxratio from bd_taxitems where pk_taxitems = '"+invVO[0].getAttributeValue("pk_taxitems")+"'", new ColumnProcessor());
+			getBillCardPanel().setBodyValueAt(taxratio, e.getRow(), "taxrate");
+			
 			if(invVO[0].getAttributeValue("pk_measdoc") != null && !"".equals(invVO[0].getAttributeValue("pk_measdoc"))) {
 				
-				Object measname = iUAPQueryBS.executeQuery("select measname from bd_measdoc where pk_measdoc = '"+invVO[0].getAttributeValue("pk_measdoc")+"'", new ColumnProcessor());
+				Object measname = UAPQueryBS.iUAPQueryBS.executeQuery("select measname from bd_measdoc where pk_measdoc = '"+invVO[0].getAttributeValue("pk_measdoc")+"'", new ColumnProcessor());
 				getBillCardPanel().setBodyValueAt(measname, e.getRow(), "defpk_measdoc");
 				
 			}
@@ -436,8 +439,8 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		
 		Object custcode = getBillCardPanel().getBodyValueAt(e.getRow(), e.getKey());
 		
-		Object pk_cubasdoc = iUAPQueryBS.executeQuery("select pk_cubasdoc from bd_cubasdoc where custcode = '"+custcode+"'" , new ColumnProcessor());
-		Object custname = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where custcode = '"+custcode+"'",  new ColumnProcessor());
+		Object pk_cubasdoc = UAPQueryBS.iUAPQueryBS.executeQuery("select pk_cumandoc from bd_cumandoc where pk_cubasdoc in (select pk_cubasdoc from bd_cubasdoc where custcode = '"+custcode+"')" , new ColumnProcessor());
+		Object custname = UAPQueryBS.iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where custcode = '"+custcode+"'",  new ColumnProcessor());
 
 		getBillCardPanel().setBodyValueAt(pk_cubasdoc, e.getRow(), "pk_custdoc", getEventHandler().getTableCodes()[1]);
 		getBillCardPanel().setBodyValueAt(custcode, e.getRow(), "custcode", getEventHandler().getTableCodes()[1]);

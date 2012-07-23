@@ -1,10 +1,12 @@
 package nc.ui.so.so001.order;
 
-import nc.bs.framework.common.NCLocator;
-import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIComboBox;
+import nc.ui.pub.beans.UIRefPane;
+import nc.ui.pub.bill.BillCardBeforeEditListener;
+import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.pf.PfUtilClient;
 import nc.ui.scm.extend.IFuncExtend;
 import nc.ui.scm.so.SaleBillType;
@@ -20,21 +22,27 @@ import nc.vo.so.so001.SaleOrderVO;
  * 
  */
 @SuppressWarnings({ "serial", "restriction" })
-public class ExtSaleOrderAdminUI extends SaleBillUI {
+public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEditListener {
 
 	//按钮初始化标记
 	private boolean b_init;
 	
-	private final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
-
 	public ExtSaleOrderAdminUI() {
 		super();
+		
+		// 设置表头及表尾的编辑前事件
+		// add by river for 2012-07-23
+		getBillCardPanel().setBillBeforeEditListenerHeadTail(this);
 	}
-
+	
 	public ExtSaleOrderAdminUI(String pk_corp, String billtype, String busitype, String operator, String id) {
 		super(pk_corp, billtype, busitype, operator, id);
+		
+		// 设置表头及表尾的编辑前事件
+		// add by river for 2012-07-23
+		getBillCardPanel().setBillBeforeEditListenerHeadTail(this);
 	}
-
+	
 	@Override
 	public String getBillButtonAction(nc.ui.pub.ButtonObject bo) {
 		return null;
@@ -276,7 +284,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI {
 		if(saleVOs != null && saleVOs.length > 0) {
 			Object pk_contract = saleVOs[0].getParentVO().getAttributeValue("pk_contract");
 			if(pk_contract != null) {
-				Integer count = (Integer)iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
 			
 				if(count > 0 )
 					throw new Exception("该合同已经录入销售订单！");
@@ -308,4 +316,93 @@ public class ExtSaleOrderAdminUI extends SaleBillUI {
 		
 		// .. end
 	}
+
+	// 表头及表尾ITEM的编辑前事件
+	// add by river for 2012-07-23
+	public boolean beforeEdit(BillItemEvent e) {
+		
+		if(getBillCardPanel().getHeadItem("contracttype") != null) {
+			
+			UIComboBox comboBox = ((UIComboBox)getBillCardPanel().getHeadItem("contracttype").getComponent());
+			if(comboBox != null && comboBox.getSelectdItemValue() != null) {
+				if("ccustomerid".equals(e.getItem().getKey()) || "creceiptcorpid".equals(e.getItem().getKey()) || "creceiptcustomerid".equals(e.getItem().getKey())) {
+				
+					Object pk_contract = getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+				
+					UIRefPane ccustomerRef = ((UIRefPane)e.getItem().getComponent());
+					
+					String wherePart = null;
+					if (ccustomerRef.getRefNodeName().equals("客商档案")) {
+						
+						wherePart = " bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "' AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
+					
+					} else if (ccustomerRef.getRefNodeName().equals("客户档案")) {
+	
+						wherePart=" bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='2') ";
+	
+					} else if (ccustomerRef.getRefNodeName().equals("供应商档案")) {
+	
+						wherePart=" bd_cumandoc.pk_corp='" + ccustomerRef.getRefNodeName() + "' AND (bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='3') ";
+	
+					} else if (ccustomerRef.getRefNodeName().equals("客商档案包含冻结")) {
+						wherePart=" bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
+	
+						//
+					} else if (ccustomerRef.getRefNodeName().equals("客户档案包含冻结")) {
+						wherePart=" (bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='2')) ";
+	
+					} else if (ccustomerRef.getRefNodeName().equals("供应商档案包含冻结")) {
+						wherePart=" bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='3') ";
+					}
+					
+					switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
+					case 10 :
+						wherePart += " and bd_cumandoc.pk_cumandoc = (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0) ";
+						break;
+						
+					case 20 : 
+						if("ccustomerid".equals(e.getItem().getKey()))
+							wherePart += " and bd_cumandoc.pk_cumandoc = (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0) ";
+						else 
+							wherePart += " and bd_cumandoc.pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0) ";
+						
+						break;
+						
+					default :
+						
+						break;
+					}
+					
+						
+					ccustomerRef.setWhereString(wherePart);
+					
+				} else if("cdeptid".equals(e.getItem().getKey())) {
+					UIRefPane deptRef = (UIRefPane) e.getItem().getComponent();
+					deptRef.setWhereString(" ( pk_corp = '"+getCorpPrimaryKey()+"' and pk_deptdoc = '"+deptRef.getRefPK()+"') ");
+				} else if("cemployeeid".equals(e.getItem().getKey())) {
+					UIRefPane employeeRef =  (UIRefPane) e.getItem().getComponent();
+					employeeRef.setWhereString(" bd_psndoc.pk_corp='" + getCorpPrimaryKey() + "'  and bd_psndoc.indocflag='Y' and bd_psndoc.pk_psndoc = (select pk_psndoc from ehpta_sale_contract where pk_contract = '"+getBillCardPanel().getHeadItem("pk_contract").getValueObject()+"')");
+				} else if("period".equals(e.getItem().getKey())) {
+					switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
+					case 10 :
+
+						break;
+						
+					case 20 : 
+						
+						// 选择期间时自动按照表体行中的存货编码带出挂牌价、结算价、含税单价，计算出挂结价差
+						
+						
+						break;
+						
+					default :
+						
+						break;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
 }
