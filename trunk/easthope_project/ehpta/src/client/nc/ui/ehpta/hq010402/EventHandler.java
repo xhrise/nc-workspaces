@@ -2,11 +2,11 @@ package nc.ui.ehpta.hq010402;
 
 import java.awt.BorderLayout;
 
-import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
-import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.bill.BillCardPanel;
 import nc.ui.pub.bill.BillItem;
@@ -53,8 +53,6 @@ public class EventHandler extends ManageEventHandler {
 	private String preContractOK = null; // 原合同主键
 	
 	private StringBuffer strWhere = null;
-	
-	private IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
 	
 	public EventHandler(BillManageUI billUI, IControllerBase control) {
 		super(billUI, control);
@@ -230,13 +228,13 @@ public class EventHandler extends ManageEventHandler {
 					}
 				}
 				
-				Integer contHisCount = (Integer) iUAPQueryBS.executeQuery("select count(1) from ehpta_sale_contract_history where pk_contract = '"+pk_contract+"' and version = " + version , new ColumnProcessor());
+				Integer contHisCount = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from ehpta_sale_contract_history where pk_contract = '"+pk_contract+"' and version = " + version , new ColumnProcessor());
 				if(contHisCount > 0) {
 					
-					try { iUAPQueryBS.executeQuery("delete ehpta_sale_contract_b_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
-					try { iUAPQueryBS.executeQuery("delete ehpta_aidcust_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
-					try { iUAPQueryBS.executeQuery("delete ehpta_prepolicy_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
-					try { iUAPQueryBS.executeQuery("delete ehpta_sale_contract_history where pk_contract = '"+pk_contract+"' and version = " + version ,  null); } catch(Exception e) { }
+					try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_sale_contract_b_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
+					try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_aidcust_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
+					try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_prepolicy_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
+					try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_sale_contract_history where pk_contract = '"+pk_contract+"' and version = " + version ,  null); } catch(Exception e) { }
 					
 				}
 				
@@ -246,10 +244,10 @@ public class EventHandler extends ManageEventHandler {
 				HYPubBO_Client.insertAry(policyHisVO);
 				HYPubBO_Client.insert(contractHisVO);
 				
-				try { iUAPQueryBS.executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { iUAPQueryBS.executeQuery("delete ehpta_aidcust where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { iUAPQueryBS.executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { iUAPQueryBS.executeQuery("delete ehpta_sale_contract where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_aidcust where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_sale_contract where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 				
 			} 
 		} 
@@ -266,6 +264,11 @@ public class EventHandler extends ManageEventHandler {
 			super.onBoSave();
 		}
 		
+		afterOnBoSave();
+		
+	}
+	
+	protected final void afterOnBoSave() throws Exception { 
 		if(preContractOK != null && !"".equals(preContractOK)) {
 			MultiBillVO currVO = (MultiBillVO)getBufferData().getCurrentVO();
 			CircularlyAccessibleValueObject[] tableVO0 = currVO.getTableVO(getTableCodes()[0]);
@@ -295,7 +298,7 @@ public class EventHandler extends ManageEventHandler {
 				HYPubBO_Client.updateAry((SuperVO[]) tableVO2);
 			}
 			
-			try { iUAPQueryBS.executeQuery("update ehpta_sale_contract set pk_contract = '"+preContractOK+"' where pk_contract = '"+currVO.getParentVO().getPrimaryKey()+"'", null); } catch(Exception e) { } 
+			try { UAPQueryBS.iUAPQueryBS.executeQuery("update ehpta_sale_contract set pk_contract = '"+preContractOK+"' where pk_contract = '"+currVO.getParentVO().getPrimaryKey()+"'", null); } catch(Exception e) { } 
 			
 			
 			preContractOK = null;
@@ -351,7 +354,6 @@ public class EventHandler extends ManageEventHandler {
 			
 			
 		}
-		
 	}
 	
 	protected void onBoQuery() throws Exception {
@@ -480,10 +482,10 @@ public class EventHandler extends ManageEventHandler {
 					}
 				}
 				
-				try { iUAPQueryBS.executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { iUAPQueryBS.executeQuery("delete ehpta_aidcust where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { iUAPQueryBS.executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { iUAPQueryBS.executeQuery("delete ehpta_sale_contract where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_aidcust where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("delete ehpta_sale_contract where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 			
 				try {HYPubBO_Client.insertAry(contractBVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(aidcustVO); } catch(Exception e) { AppDebug.debug(e); }
@@ -529,6 +531,14 @@ public class EventHandler extends ManageEventHandler {
 		
 		super.onBoLineDel();
 		
+	}
+	
+	@Override
+	protected void onBoCancelAudit() throws Exception {
+		
+		Validata.cancleAuditValid(getBufferData().getCurrentVO());
+		
+		super.onBoCancelAudit();
 	}
 	
 	private final void checkSelectedOne() throws Exception {

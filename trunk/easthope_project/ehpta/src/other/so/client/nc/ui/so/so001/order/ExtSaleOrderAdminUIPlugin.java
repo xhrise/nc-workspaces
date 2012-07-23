@@ -57,6 +57,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	}
 
 	public boolean beforeEdit(BillEditEvent e, SCMUIContext ctx) {
+		
 		return false;
 	}
 
@@ -135,6 +136,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	}
 
 	public boolean beforeEdit(BillItemEvent e, SCMUIContext conx) {
+		
 		return false;
 	}
 

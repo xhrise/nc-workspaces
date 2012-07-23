@@ -63,6 +63,7 @@ public class SaleContractAfterCHG implements IchangeVO {
 							bvo.setAttributeValue("noriginalcurdiscountmny", 0);
 							bvo.setAttributeValue("ccurrencytypeid", "00010000000000000001");
 							bvo.setAttributeValue("nexchangeotobrate", 1);
+							bvo.setAttributeValue("cadvisecalbodyid", "1120A8100000000YSLF2");
 							
 							bvo.setAttributeValue("cinvbasdocid", cavo.getAttributeValue("pk_invbasdoc"));
 							bvo.setAttributeValue("cinventoryid", cavo.getAttributeValue("pk_invbasdoc"));

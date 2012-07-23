@@ -43,14 +43,6 @@ public class EventHandler extends ManageEventHandler {
 				break;
 		}
 	}
-
-	@Override
-	protected void onBoSave() throws Exception {
-		
-		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel() , getBillCardPanelWrapper().getBillVOFromUI() , getTableCodes()  );
-		
-		super.onBoSave();
-	}
 	
 	private final void documentManage() throws BusinessException {
 		try {
@@ -92,6 +84,21 @@ public class EventHandler extends ManageEventHandler {
 		}
 	}
 	
+	@Override
+	protected void onBoSave() throws Exception {
+		
+		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel() , getBillCardPanelWrapper().getBillVOFromUI() , getTableCodes()  );
+		
+		super.onBoSave();
+	}
+	
+	@Override
+	protected void onBoCancelAudit() throws Exception {
+		
+		Validata.cancleAuditValid(getBufferData().getCurrentVO());
+		
+		super.onBoCancelAudit();
+	}
 }
 
 

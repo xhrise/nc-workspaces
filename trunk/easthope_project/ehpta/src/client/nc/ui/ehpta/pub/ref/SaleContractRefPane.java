@@ -40,7 +40,7 @@ public class SaleContractRefPane extends AbstractRefModel {
 		
 		setWherePart(" 1 = 1 and nvl(dr,0)=0 and pk_corp = '" + getPk_corp() + "'");
 		
-		setOrderPart(" dmakedate asc ");
+		setOrderPart(" dmakedate desc ");
 		
 	}
 }
