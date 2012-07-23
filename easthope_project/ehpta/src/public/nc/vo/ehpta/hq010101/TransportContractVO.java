@@ -15,162 +15,85 @@ import nc.vo.pub.lang.*;
  * 在此处添加此类的描述信息
  * </p>
  * 
- * 创建日期:2012-7-2
+ * 创建日期:2012-7-23
  * 
  * @author ${vmObject.author}
  * @version Your Project 1.0
  */
-public class EhptaTransportVO extends SuperVO {
-	public String shipperparty;
-	public String securedparty;
-	public String shipperowner;
-	public String pk_corp;
-	public UFDate startdate;
+public class TransportContractVO extends SuperVO {
+
 	public String def5;
-	public UFDate enddate;
+	public String pk_corp;
+	public UFDate transdate;
+	public String pk_guarantee;
+	public UFDate dmakedate;
 	public String pk_transport;
 	public Integer dr;
-	public UFDate singledate;
 	public String voperatorid;
+	public String pk_trans;
+	public String transtype;
 	public String vapprovenote;
 	public String pk_billtype;
-	public Integer vbillstatus;
 	public String def7;
-	public UFBoolean stopstatus;
-	public UFDate stopdate;
-	public String pk_shipperowner;
-	public String pk_shipperparty;
-	public String pk_busitype;
-	public UFDate ts;
+	public Integer vbillstatus;
+	public UFDate closedate;
+	public UFBoolean close_flag;
 	public String def6;
+	public String pk_busitype;
+	public String ts;
+	public String pk_carrier;
 	public String vbillno;
 	public String def10;
-	public UFDate qianyuedate;
-	public String remarks;
+	public String memo;
 	public String def8;
-	public String contracttype;
 	public String def1;
 	public UFDate dapprovedate;
 	public String vapproveid;
 	public String def2;
+	public UFDate edate;
 	public String def4;
-	public String pk_securedparty;
+	public UFDate sdate;
 	public String def3;
 	public String def9;
 
-	public static final String PK_CORP = "pk_corp";
-	public static final String STARTDATE = "startdate";
 	public static final String DEF5 = "def5";
-	public static final String ENDDATE = "enddate";
+	public static final String PK_CORP = "pk_corp";
+	public static final String TRANSDATE = "transdate";
+	public static final String PK_GUARANTEE = "pk_guarantee";
+	public static final String DMAKEDATE = "dmakedate";
 	public static final String PK_TRANSPORT = "pk_transport";
 	public static final String DR = "dr";
-	public static final String SINGLEDATE = "singledate";
 	public static final String VOPERATORID = "voperatorid";
+	public static final String PK_TRANS = "pk_trans";
+	public static final String TRANSTYPE = "transtype";
 	public static final String VAPPROVENOTE = "vapprovenote";
 	public static final String PK_BILLTYPE = "pk_billtype";
-	public static final String VBILLSTATUS = "vbillstatus";
 	public static final String DEF7 = "def7";
-	public static final String STOPSTATUS = "stopstatus";
-	public static final String STOPDATE = "stopdate";
-	public static final String PK_SHIPPEROWNER = "pk_shipperowner";
-	public static final String PK_SHIPPERPARTY = "pk_shipperparty";
+	public static final String VBILLSTATUS = "vbillstatus";
+	public static final String CLOSEDATE = "closedate";
+	public static final String CLOSE_FLAG = "close_flag";
+	public static final String DEF6 = "def6";
 	public static final String PK_BUSITYPE = "pk_busitype";
 	public static final String TS = "ts";
-	public static final String DEF6 = "def6";
+	public static final String PK_CARRIER = "pk_carrier";
 	public static final String VBILLNO = "vbillno";
 	public static final String DEF10 = "def10";
-	public static final String QIANYUEDATE = "qianyuedate";
-	public static final String REMARKS = "remarks";
+	public static final String MEMO = "memo";
 	public static final String DEF8 = "def8";
-	public static final String CONTRACTTYPE = "contracttype";
 	public static final String DEF1 = "def1";
 	public static final String DAPPROVEDATE = "dapprovedate";
 	public static final String VAPPROVEID = "vapproveid";
 	public static final String DEF2 = "def2";
+	public static final String EDATE = "edate";
 	public static final String DEF4 = "def4";
-	public static final String PK_SECUREDPARTY = "pk_securedparty";
+	public static final String SDATE = "sdate";
 	public static final String DEF3 = "def3";
 	public static final String DEF9 = "def9";
-	public static final String SHIIPPERPARTY = "shipperparty";
-	public static String SECUREDPARTY = "securedparty";
-	public static String SHIPPEROWNER = "shipperowner";
-
-	public String getShipperparty() {
-		return shipperparty;
-	}
-
-	public void setShipperparty(String newshipperparty) {
-		shipperparty = newshipperparty;
-	}
-
-	public String getSecuredparty() {
-		return securedparty;
-	}
-
-	public void setSecuredparty(String newsecuredparty) {
-		securedparty = newsecuredparty;
-	}
-
-	public String getShipperowner() {
-		return shipperowner;
-	}
-
-	public void setShipperowner(String newshipperowner) {
-		shipperowner = newshipperowner;
-	}
-
-	/**
-	 * 属性pk_corp的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return String
-	 */
-	public String getPk_corp() {
-		return pk_corp;
-	}
-
-	/**
-	 * 属性pk_corp的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newPk_corp
-	 *            String
-	 */
-	public void setPk_corp(String newPk_corp) {
-
-		pk_corp = newPk_corp;
-	}
-
-	/**
-	 * 属性startdate的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return UFDate
-	 */
-	public UFDate getStartdate() {
-		return startdate;
-	}
-
-	/**
-	 * 属性startdate的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newStartdate
-	 *            UFDate
-	 */
-	public void setStartdate(UFDate newStartdate) {
-
-		startdate = newStartdate;
-	}
 
 	/**
 	 * 属性def5的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -181,7 +104,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def5的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef5
 	 *            String
@@ -192,33 +115,105 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性enddate的Getter方法.
+	 * 属性pk_corp的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @return UFDate
+	 * @return String
 	 */
-	public UFDate getEnddate() {
-		return enddate;
+	public String getPk_corp() {
+		return pk_corp;
 	}
 
 	/**
-	 * 属性enddate的Setter方法.
+	 * 属性pk_corp的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newEnddate
+	 * @param newPk_corp
+	 *            String
+	 */
+	public void setPk_corp(String newPk_corp) {
+
+		pk_corp = newPk_corp;
+	}
+
+	/**
+	 * 属性transdate的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return UFDate
+	 */
+	public UFDate getTransdate() {
+		return transdate;
+	}
+
+	/**
+	 * 属性transdate的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newTransdate
 	 *            UFDate
 	 */
-	public void setEnddate(UFDate newEnddate) {
+	public void setTransdate(UFDate newTransdate) {
 
-		enddate = newEnddate;
+		transdate = newTransdate;
+	}
+
+	/**
+	 * 属性pk_guarantee的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return String
+	 */
+	public String getPk_guarantee() {
+		return pk_guarantee;
+	}
+
+	/**
+	 * 属性pk_guarantee的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newPk_guarantee
+	 *            String
+	 */
+	public void setPk_guarantee(String newPk_guarantee) {
+
+		pk_guarantee = newPk_guarantee;
+	}
+
+	/**
+	 * 属性dmakedate的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return UFDate
+	 */
+	public UFDate getDmakedate() {
+		return dmakedate;
+	}
+
+	/**
+	 * 属性dmakedate的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newDmakedate
+	 *            UFDate
+	 */
+	public void setDmakedate(UFDate newDmakedate) {
+
+		dmakedate = newDmakedate;
 	}
 
 	/**
 	 * 属性pk_transport的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -229,7 +224,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性pk_transport的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newPk_transport
 	 *            String
@@ -242,7 +237,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性dr的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return Integer
 	 */
@@ -253,7 +248,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性dr的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDr
 	 *            Integer
@@ -264,33 +259,9 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性singledate的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return UFDate
-	 */
-	public UFDate getSingledate() {
-		return singledate;
-	}
-
-	/**
-	 * 属性singledate的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newSingledate
-	 *            UFDate
-	 */
-	public void setSingledate(UFDate newSingledate) {
-
-		singledate = newSingledate;
-	}
-
-	/**
 	 * 属性voperatorid的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -301,7 +272,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性voperatorid的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newVoperatorid
 	 *            String
@@ -312,9 +283,57 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
+	 * 属性pk_trans的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return String
+	 */
+	public String getPk_trans() {
+		return pk_trans;
+	}
+
+	/**
+	 * 属性pk_trans的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newPk_trans
+	 *            String
+	 */
+	public void setPk_trans(String newPk_trans) {
+
+		pk_trans = newPk_trans;
+	}
+
+	/**
+	 * 属性transtype的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return String
+	 */
+	public String getTranstype() {
+		return transtype;
+	}
+
+	/**
+	 * 属性transtype的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newTranstype
+	 *            String
+	 */
+	public void setTranstype(String newTranstype) {
+
+		transtype = newTranstype;
+	}
+
+	/**
 	 * 属性vapprovenote的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -325,7 +344,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性vapprovenote的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newVapprovenote
 	 *            String
@@ -338,7 +357,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性pk_billtype的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -349,7 +368,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性pk_billtype的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newPk_billtype
 	 *            String
@@ -360,33 +379,9 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性vbillstatus的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return Integer
-	 */
-	public Integer getVbillstatus() {
-		return vbillstatus;
-	}
-
-	/**
-	 * 属性vbillstatus的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newVbillstatus
-	 *            Integer
-	 */
-	public void setVbillstatus(Integer newVbillstatus) {
-
-		vbillstatus = newVbillstatus;
-	}
-
-	/**
 	 * 属性def7的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -397,7 +392,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def7的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef7
 	 *            String
@@ -408,105 +403,105 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性stopstatus的Getter方法.
+	 * 属性vbillstatus的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @return UFBoolean
+	 * @return Integer
 	 */
-	public UFBoolean getStopstatus() {
-		return stopstatus;
+	public Integer getVbillstatus() {
+		return vbillstatus;
 	}
 
 	/**
-	 * 属性stopstatus的Setter方法.
+	 * 属性vbillstatus的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newStopstatus
-	 *            UFBoolean
+	 * @param newVbillstatus
+	 *            Integer
 	 */
-	public void setStopstatus(UFBoolean newStopstatus) {
+	public void setVbillstatus(Integer newVbillstatus) {
 
-		stopstatus = newStopstatus;
+		vbillstatus = newVbillstatus;
 	}
 
 	/**
-	 * 属性stopdate的Getter方法.
+	 * 属性closedate的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return UFDate
 	 */
-	public UFDate getStopdate() {
-		return stopdate;
+	public UFDate getClosedate() {
+		return closedate;
 	}
 
 	/**
-	 * 属性stopdate的Setter方法.
+	 * 属性closedate的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newStopdate
+	 * @param newClosedate
 	 *            UFDate
 	 */
-	public void setStopdate(UFDate newStopdate) {
+	public void setClosedate(UFDate newClosedate) {
 
-		stopdate = newStopdate;
+		closedate = newClosedate;
 	}
 
 	/**
-	 * 属性pk_shipperowner的Getter方法.
+	 * 属性close_flag的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return UFBoolean
+	 */
+	public UFBoolean getClose_flag() {
+		return close_flag;
+	}
+
+	/**
+	 * 属性close_flag的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newClose_flag
+	 *            UFBoolean
+	 */
+	public void setClose_flag(UFBoolean newClose_flag) {
+
+		close_flag = newClose_flag;
+	}
+
+	/**
+	 * 属性def6的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
-	public String getPk_shipperowner() {
-		return pk_shipperowner;
+	public String getDef6() {
+		return def6;
 	}
 
 	/**
-	 * 属性pk_shipperowner的Setter方法.
+	 * 属性def6的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newPk_shipperowner
+	 * @param newDef6
 	 *            String
 	 */
-	public void setPk_shipperowner(String newPk_shipperowner) {
+	public void setDef6(String newDef6) {
 
-		pk_shipperowner = newPk_shipperowner;
-	}
-
-	/**
-	 * 属性pk_shipperparty的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return String
-	 */
-	public String getPk_shipperparty() {
-		return pk_shipperparty;
-	}
-
-	/**
-	 * 属性pk_shipperparty的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newPk_shipperparty
-	 *            String
-	 */
-	public void setPk_shipperparty(String newPk_shipperparty) {
-
-		pk_shipperparty = newPk_shipperparty;
+		def6 = newDef6;
 	}
 
 	/**
 	 * 属性pk_busitype的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -517,7 +512,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性pk_busitype的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newPk_busitype
 	 *            String
@@ -530,55 +525,55 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性ts的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return UFDateTime
 	 */
-	public UFDate getTs() {
+	public String getTs() {
 		return ts;
 	}
 
 	/**
 	 * 属性ts的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newTs
 	 *            UFDateTime
 	 */
-	public void setTs(UFDate newTs) {
+	public void setTs(String newTs) {
 
 		ts = newTs;
 	}
 
 	/**
-	 * 属性def6的Getter方法.
+	 * 属性pk_carrier的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
-	public String getDef6() {
-		return def6;
+	public String getPk_carrier() {
+		return pk_carrier;
 	}
 
 	/**
-	 * 属性def6的Setter方法.
+	 * 属性pk_carrier的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newDef6
+	 * @param newPk_carrier
 	 *            String
 	 */
-	public void setDef6(String newDef6) {
+	public void setPk_carrier(String newPk_carrier) {
 
-		def6 = newDef6;
+		pk_carrier = newPk_carrier;
 	}
 
 	/**
 	 * 属性vbillno的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -589,7 +584,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性vbillno的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newVbillno
 	 *            String
@@ -602,7 +597,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def10的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -613,7 +608,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def10的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef10
 	 *            String
@@ -624,57 +619,33 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性qianyuedate的Getter方法.
+	 * 属性memo的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return UFDate
-	 */
-	public UFDate getQianyuedate() {
-		return qianyuedate;
-	}
-
-	/**
-	 * 属性qianyuedate的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newQianyuedate
-	 *            UFDate
-	 */
-	public void setQianyuedate(UFDate newQianyuedate) {
-
-		qianyuedate = newQianyuedate;
-	}
-
-	/**
-	 * 属性remarks的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
-	public String getRemarks() {
-		return remarks;
+	public String getMemo() {
+		return memo;
 	}
 
 	/**
-	 * 属性remarks的Setter方法.
+	 * 属性memo的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newRemarks
+	 * @param newMemo
 	 *            String
 	 */
-	public void setRemarks(String newRemarks) {
+	public void setMemo(String newMemo) {
 
-		remarks = newRemarks;
+		memo = newMemo;
 	}
 
 	/**
 	 * 属性def8的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -685,7 +656,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def8的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef8
 	 *            String
@@ -696,33 +667,9 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性contracttype的Getter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @return String
-	 */
-	public String getContracttype() {
-		return contracttype;
-	}
-
-	/**
-	 * 属性contracttype的Setter方法.
-	 * 
-	 * 创建日期:2012-7-2
-	 * 
-	 * @param newContracttype
-	 *            String
-	 */
-	public void setContracttype(String newContracttype) {
-
-		contracttype = newContracttype;
-	}
-
-	/**
 	 * 属性def1的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -733,7 +680,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def1的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef1
 	 *            String
@@ -746,7 +693,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性dapprovedate的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return UFDate
 	 */
@@ -757,7 +704,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性dapprovedate的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDapprovedate
 	 *            UFDate
@@ -770,7 +717,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性vapproveid的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -781,7 +728,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性vapproveid的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newVapproveid
 	 *            String
@@ -794,7 +741,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def2的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -805,7 +752,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def2的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef2
 	 *            String
@@ -816,9 +763,33 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
+	 * 属性edate的Getter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @return UFDate
+	 */
+	public UFDate getEdate() {
+		return edate;
+	}
+
+	/**
+	 * 属性edate的Setter方法.
+	 * 
+	 * 创建日期:2012-7-23
+	 * 
+	 * @param newEdate
+	 *            UFDate
+	 */
+	public void setEdate(UFDate newEdate) {
+
+		edate = newEdate;
+	}
+
+	/**
 	 * 属性def4的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -829,7 +800,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def4的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef4
 	 *            String
@@ -840,33 +811,33 @@ public class EhptaTransportVO extends SuperVO {
 	}
 
 	/**
-	 * 属性pk_securedparty的Getter方法.
+	 * 属性sdate的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @return String
+	 * @return UFDate
 	 */
-	public String getPk_securedparty() {
-		return pk_securedparty;
+	public UFDate getSdate() {
+		return sdate;
 	}
 
 	/**
-	 * 属性pk_securedparty的Setter方法.
+	 * 属性sdate的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
-	 * @param newPk_securedparty
-	 *            String
+	 * @param newSdate
+	 *            UFDate
 	 */
-	public void setPk_securedparty(String newPk_securedparty) {
+	public void setSdate(UFDate newSdate) {
 
-		pk_securedparty = newPk_securedparty;
+		sdate = newSdate;
 	}
 
 	/**
 	 * 属性def3的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -877,7 +848,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def3的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef3
 	 *            String
@@ -890,7 +861,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def9的Getter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -901,7 +872,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 属性def9的Setter方法.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newDef9
 	 *            String
@@ -914,7 +885,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 验证对象各属性之间的数据逻辑正确性.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @exception nc.vo.pub.ValidationException
 	 *                如果验证失败,抛出 ValidationException,对错误进行解释.
@@ -947,7 +918,7 @@ public class EhptaTransportVO extends SuperVO {
 	 * <p>
 	 * 取得父VO主键字段.
 	 * <p>
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return java.lang.String
 	 */
@@ -961,7 +932,7 @@ public class EhptaTransportVO extends SuperVO {
 	 * <p>
 	 * 取得表主键.
 	 * <p>
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return java.lang.String
 	 */
@@ -973,21 +944,21 @@ public class EhptaTransportVO extends SuperVO {
 	 * <p>
 	 * 返回表名称.
 	 * <p>
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return java.lang.String
 	 */
 	public java.lang.String getTableName() {
 
-		return "ehpta_transport";
+		return "ehpta_transport_contract";
 	}
 
 	/**
 	 * 按照默认方式创建构造子.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 */
-	public EhptaTransportVO() {
+	public TransportContractVO() {
 
 		super();
 	}
@@ -995,12 +966,12 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 使用主键进行初始化的构造子.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newPk_transport
 	 *            主键值
 	 */
-	public EhptaTransportVO(String newPk_transport) {
+	public TransportContractVO(String newPk_transport) {
 
 		// 为主键字段赋值:
 		pk_transport = newPk_transport;
@@ -1010,7 +981,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 返回对象标识,用来唯一定位对象.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return String
 	 */
@@ -1023,7 +994,7 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 设置对象标识,用来唯一定位对象.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @param newPk_transport
 	 *            String
@@ -1037,13 +1008,13 @@ public class EhptaTransportVO extends SuperVO {
 	/**
 	 * 返回数值对象的显示名称.
 	 * 
-	 * 创建日期:2012-7-2
+	 * 创建日期:2012-7-23
 	 * 
 	 * @return java.lang.String 返回数值对象的显示名称.
 	 */
 	public String getEntityName() {
 
-		return "ehpta_transport";
+		return "ehpta_transport_contract";
 
 	}
 }

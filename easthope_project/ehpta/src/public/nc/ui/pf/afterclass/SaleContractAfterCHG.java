@@ -31,16 +31,17 @@ public class SaleContractAfterCHG implements IchangeVO {
 			AggregatedValueObject[] preVOs, AggregatedValueObject[] nowVOs)
 			throws BusinessException {
 		
+		AggregatedValueObject[] retVOs = nowVOs;
 		if(nowVOs != null && nowVOs.length > 0) {
 			for(int i = 0 , j = nowVOs.length ; i < j ; i ++) {
-				retChangeBusiVO(preVOs[i], nowVOs[i]);
+				retVOs[i] = retChangeBusiVO(preVOs[i], nowVOs[i]);
 			}
 		}
 		
-		return nowVOs;
+		return retVOs;
 	}
 	
-	private final AggregatedValueObject setMultiBody(AggregatedValueObject preVO, AggregatedValueObject nowVO) throws BusinessException {
+	private final void setMultiBody(AggregatedValueObject preVO, AggregatedValueObject nowVO) throws BusinessException {
 		
 		// 多表体无法获取表体数据，这里直接进行赋值.
 		if(preVO instanceof MultiBillVO && Integer.valueOf(nowVO.getParentVO().getAttributeValue("contracttype").toString()) == 20) {
@@ -91,8 +92,6 @@ public class SaleContractAfterCHG implements IchangeVO {
 				}
 			}
 		}
-		
-		return nowVO;
 	}
 
 }

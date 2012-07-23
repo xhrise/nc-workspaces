@@ -1,14 +1,11 @@
 package nc.ui.ehpta.hq010101;
 
-import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
-import nc.ui.trade.bill.ISingleController;
-
-import nc.vo.ehpta.hq010101.MyBillVO;
-import nc.vo.ehpta.hq010101.EhptaTransportVO;
-import nc.vo.ehpta.hq010101.EhptaTransportBVO;
 import nc.ui.trade.button.IBillButton;
+import nc.vo.ehpta.hq010101.TransportContractBVO;
+import nc.vo.ehpta.hq010101.TransportContractVO;
+import nc.vo.trade.pub.HYBillVO;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -30,23 +27,17 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public int[] getCardButtonAry() {
+
 		return new int[] { IBillButton.Query, IBillButton.Add,
 				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
-				IBillButton.Cancel, IBillButton.Refresh, IBillButton.Delete,
-				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
-				IBillButton.Return, DefaultBillButton.DISABLED,
-				DefaultBillButton.ENABLED
-
-		};
+				IBillButton.Cancel, IBillButton.Delete, IBillButton.Return };
 
 	}
 
 	public int[] getListButtonAry() {
 		return new int[] { IBillButton.Query, IBillButton.Add,
 				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
-				IBillButton.Cancel, IBillButton.Delete, IBillButton.Audit,
-				IBillButton.CancelAudit, IBillButton.Card, DefaultBillButton.DISABLED,
-				DefaultBillButton.ENABLED
+				IBillButton.Cancel, IBillButton.Delete, IBillButton.Card
 
 		};
 
@@ -65,9 +56,9 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public String[] getBillVoName() {
-		return new String[] { MyBillVO.class.getName(),
-				EhptaTransportVO.class.getName(),
-				EhptaTransportBVO.class.getName() };
+		return new String[] { HYBillVO.class.getName(),
+				TransportContractVO.class.getName(),
+				TransportContractBVO.class.getName() };
 	}
 
 	public String getBodyCondition() {
@@ -103,7 +94,7 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isLoadCardFormula() {
-		return true;
+		return false;
 	}
 
 	public String[] getListBodyHideCol() {
