@@ -18,7 +18,6 @@ import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.business.HYPubBO_Client;
-import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.bd.invdoc.InvbasdocVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
@@ -43,12 +42,12 @@ import com.ufida.iufo.pub.tools.AppDebug;
 public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		implements ILinkQuery {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = -652591135205093447L;
 
 	protected ClientUICtrl controller = null;
+	
+	private EventHandler eventHandler = null;
 	
 	protected ClientUICtrl getController() {
 		
@@ -151,8 +150,17 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		}
 	}
 	
-	protected ManageEventHandler createEventHandler() {
-		return new EventHandler(this, getUIControl());
+	protected EventHandler getEventHandler() {
+		if(eventHandler == null)
+			createEventHandler();
+		
+		return eventHandler;
+		
+	}
+
+	protected EventHandler createEventHandler() {
+		eventHandler = new EventHandler(this, getUIControl());
+		return eventHandler;
 	}
 
 	public void setBodySpecialData(CircularlyAccessibleValueObject[] vos)
