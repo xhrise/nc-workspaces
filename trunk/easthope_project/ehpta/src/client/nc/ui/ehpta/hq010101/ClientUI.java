@@ -1,27 +1,18 @@
 package nc.ui.ehpta.hq010101;
 
-import nc.bs.framework.common.NCLocator;
-import nc.itf.uap.IUAPQueryBS;
-import nc.jdbc.framework.processor.ColumnProcessor;
-import nc.ui.ehpta.pub.btn.DefaultBillButton;
-import nc.ui.pub.ClientEnvironment;
-import nc.ui.pub.beans.UIRefPane;
-import nc.ui.pub.bill.BillCardBeforeEditListener;
-import nc.ui.pub.bill.BillEditEvent;
-import nc.ui.pub.bill.BillItem;
-import nc.ui.pub.bill.BillItemEvent;
-import nc.ui.trade.business.HYPubBO_Client;
-import nc.ui.trade.button.IBillButton;
-import nc.ui.trade.manage.ManageEventHandler;
-import nc.vo.bd.warehouseinfo.StordocVO;
-import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
-import nc.vo.pub.lang.UFBoolean;
-import nc.vo.pub.lang.UFDouble;
+import nc.ui.trade.bill.AbstractManageController;
+import nc.ui.trade.bsdelegate.BusinessDelegator;
+import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.bill.BillItem;
+import nc.ui.pub.linkoperate.*;
+import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
-
-import com.ufida.iufo.pub.tools.AppDebug;
+import nc.vo.pub.AggregatedValueObject;
+import nc.ui.trade.base.IBillOperate;
+import nc.ui.trade.bill.BillTemplateWrapper;
+import nc.ui.trade.manage.ManageEventHandler;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -34,12 +25,97 @@ import com.ufida.iufo.pub.tools.AppDebug;
  * @author author
  * @version tempProject version
  */
-public class ClientUI extends AbstractClientUI  {
+public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
+		ILinkQuery {
 	
-	private AggregatedValueObject nowAggVO = null;
-	
+	private static final long serialVersionUID = -2862050814411394246L;
+
+	protected AbstractManageController createController() {
+		return new ClientUICtrl();
+	}
+
+	/**
+	 * 如果单据不走平台时，UI类需要重载此方法，返回不走平台的业务代理类
+	 * 
+	 * @return BusinessDelegator 不走平台的业务代理类
+	 */
+	protected BusinessDelegator createBusinessDelegator() {
+		return new Delegator();
+	}
+
+	/**
+	 * 注册自定义按钮
+	 */
+	protected void initPrivateButton() {
+		int[] listButns = getUIControl().getListButtonAry();
+		boolean hasCommit = false;
+		boolean hasAudit = false;
+		boolean hasCancelAudit = false;
+		for (int i = 0; i < listButns.length; i++) {
+			if (listButns[i] == nc.ui.trade.button.IBillButton.Commit)
+				hasCommit = true;
+			if (listButns[i] == nc.ui.trade.button.IBillButton.Audit)
+				hasAudit = true;
+			if (listButns[i] == nc.ui.trade.button.IBillButton.CancelAudit)
+				hasCancelAudit = true;
+		}
+		int[] cardButns = getUIControl().getCardButtonAry();
+		for (int i = 0; i < cardButns.length; i++) {
+			if (cardButns[i] == nc.ui.trade.button.IBillButton.Commit)
+				hasCommit = true;
+			if (cardButns[i] == nc.ui.trade.button.IBillButton.Audit)
+				hasAudit = true;
+			if (cardButns[i] == nc.ui.trade.button.IBillButton.CancelAudit)
+				hasCancelAudit = true;
+		}
+		if (hasCommit) {
+			ButtonVO btnVo = nc.ui.trade.button.ButtonVOFactory.getInstance()
+					.build(nc.ui.trade.button.IBillButton.Commit);
+			btnVo.setBtnCode(null);
+			addPrivateButton(btnVo);
+		}
+
+		if (hasAudit) {
+			ButtonVO btnVo2 = nc.ui.trade.button.ButtonVOFactory.getInstance()
+					.build(nc.ui.trade.button.IBillButton.Audit);
+			btnVo2.setBtnCode(null);
+			addPrivateButton(btnVo2);
+		}
+
+		if (hasCancelAudit) {
+			ButtonVO btnVo3 = nc.ui.trade.button.ButtonVOFactory.getInstance()
+					.build(nc.ui.trade.button.IBillButton.CancelAudit);
+			btnVo3.setBtnCode(null);
+			addPrivateButton(btnVo3);
+		}
+	}
+
+	/**
+	 * 注册前台校验类
+	 */
+	public Object getUserObject() {
+		return new ClientUICheckRuleGetter();
+	}
+
+	public void doQueryAction(ILinkQueryData querydata) {
+		String billId = querydata.getBillID();
+		if (billId != null) {
+			try {
+				setCurrentPanel(BillTemplateWrapper.CARDPANEL);
+				AggregatedValueObject vo = loadHeadData(billId);
+				getBufferData().addVOToBuffer(vo);
+				setListHeadData(new CircularlyAccessibleValueObject[] { vo
+						.getParentVO() });
+				getBufferData().setCurrentRow(getBufferData().getCurrentRow());
+				setBillOperate(IBillOperate.OP_NO_ADDANDEDIT);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
 	protected ManageEventHandler createEventHandler() {
-		return new MyEventHandler(this, getUIControl());
+		return new EventHandler(this, getUIControl());
 	}
 
 	public void setBodySpecialData(CircularlyAccessibleValueObject[] vos)
@@ -55,28 +131,8 @@ public class ClientUI extends AbstractClientUI  {
 	}
 
 	protected void initSelfData() {
-		UIRefPane sendRef = (UIRefPane) getBillCardPanel().getBodyItem("shipaddr").getComponent();
-		sendRef.setWhereString(" pk_corp = " + _getCorp().getPk_corp()+ " and nvl(dr , 0) = 0 ");
-
-		UIRefPane getRef = (UIRefPane) getBillCardPanel().getBodyItem("arriveaddr").getComponent();
-		getRef.setWhereString(" pk_corp = " + _getCorp().getPk_corp()+ " and nvl(dr , 0) = 0 ");
-		
-		getBillListPanel().setParentMultiSelect(true);
-
 	}
-/**
- * 自定义按钮
- */
-	@Override
-	protected void initPrivateButton() {
-		
-		super.initPrivateButton();
 
-		addPrivateButton(DefaultBillButton.getDisabledButtonVO());
-		addPrivateButton(DefaultBillButton.getEnabledButtonVO());
-		
-	}
-	
 	public void setDefaultData() throws Exception {
 		BillField fileDef = BillField.getInstance();
 		String billtype = getUIControl().getBillType();
@@ -85,10 +141,10 @@ public class ClientUI extends AbstractClientUI  {
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() , "singledate" };
+				fileDef.getField_BillStatus() };
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString(),_getDate() };
+				billtype, new Integer(IBillStatus.FREE).toString() };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -99,122 +155,4 @@ public class ClientUI extends AbstractClientUI  {
 				item.setValue(values[i]);
 		}
 	}
-
-	@Override
-	public void afterUpdate() {
-		super.afterUpdate();
-		
-		updateButtonState();
-	}
-	
-	@Override
-	public void afterEdit(BillEditEvent e) {
-		super.afterEdit(e);
-		IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
-		UIRefPane trans = null;
-		try {
-			if ("pk_shipperparty".equals(e.getKey())) {
-				trans = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
-				Object transtuoyun = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where pk_cubasdoc='" + trans.getRefPK() + "'",new ColumnProcessor());
-				getBillCardPanel().getHeadItem("shipperparty").setValue(transtuoyun);
-			
-			} else if("pk_securedparty".equals(e.getKey())){
-				trans = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
-				Object transdangbao = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where pk_cubasdoc='" + trans.getRefPK() + "'", new ColumnProcessor());
-				getBillCardPanel().getHeadItem("securedparty").setValue(transdangbao);
-			
-			}else if ("pk_shipperowner".equals(e.getKey())) {
-				trans = (UIRefPane)getBillCardPanel().getHeadItem(e.getKey()).getComponent();
-				Object transchengyun = iUAPQueryBS.executeQuery("select custname from bd_cubasdoc where pk_cubasdoc='"+trans.getRefPK()+"'", new ColumnProcessor());
-				getBillCardPanel().getHeadItem("shipperowner").setValue(transchengyun);
-			
-			}else if("pk_send".equals(e.getKey())){
-				trans = (UIRefPane)getBillCardPanel().getBodyItem(e.getKey()).getComponent();
-				Object fayunaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc='"+trans.getRefPK()+"'", new ColumnProcessor());
-				getBillCardPanel().setBodyValueAt(fayunaddr, e.getRow(), "shipaddr");
-				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "sendpk");
-				
-			}else if("pk_arrive".equals(e.getKey())){
-				trans = (UIRefPane)getBillCardPanel().getBodyItem(e.getKey()).getComponent();
-				Object daohuoaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc='"+trans.getRefPK()+"'", new ColumnProcessor());
-				getBillCardPanel().setBodyValueAt(daohuoaddr, e.getRow(), "arriveaddr");
-				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "arrivepk");
-				
-			}else if("pk_yunshu".equals(e.getKey())){
-				trans = (UIRefPane)getBillCardPanel().getBodyItem(e.getKey()).getComponent();
-				Object yunshutype = iUAPQueryBS.executeQuery("select sendname from bd_sendtype where pk_sendtype='"+trans.getRefPK()+"'", new ColumnProcessor());
-				getBillCardPanel().setBodyValueAt(yunshutype, e.getRow(), "pk_yunshu");
-				getBillCardPanel().setBodyValueAt(trans.getRefPK(), e.getRow(), "yunshupk");
-				
-			}else if("shippingprice".equals(e.getKey()) || "shippingprice_a".equals(e.getKey())){
-				
-				UFDouble shipp_a = new UFDouble(getBillCardPanel().getBodyValueAt(e.getRow(), "shippingprice_a") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow(), "shippingprice_a").toString());
-				if(shipp_a.doubleValue() < -100) {
-					shipp_a = new UFDouble(-100);
-					getBillCardPanel().setBodyValueAt(shipp_a , e.getRow() , "shippingprice_a" );
-				}
-				
-				UFDouble shipp = new UFDouble(getBillCardPanel().getBodyValueAt(e.getRow() , "shippingprice") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow() , "shippingprice").toString() );
-				UFDouble calculate = shipp_a.doubleValue() == -100 ? new UFDouble(0) : shipp.multiply(shipp_a.div(100).add(1));
-				getBillCardPanel().setBodyValueAt(calculate, e.getRow(), "actualshippingprice");
-			
-			
-			}else if("mtzbfprice".equals(e.getKey()) || "rkscprice".equals(e.getKey()) || "rkscprice_c".equals(e.getKey()) || "nhcyprice".equals(e.getKey()) || "carprice".equals(e.getKey())){
-				
-				UFDouble mtprice = new UFDouble( getBillCardPanel().getBodyValueAt(e.getRow(), "mtzbfprice") == null ? "0" :  getBillCardPanel().getBodyValueAt(e.getRow(), "mtzbfprice").toString());
-				UFDouble rkprice = new UFDouble( getBillCardPanel().getBodyValueAt(e.getRow(), "rkscprice") == null ? "0" :  getBillCardPanel().getBodyValueAt(e.getRow(), "mtzbfprice").toString());
-				UFDouble rkcprice = new UFDouble( getBillCardPanel().getBodyValueAt(e.getRow(), "rkscprice_c") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow(), "rkscprice_c").toString());
-				UFDouble nhprice = new UFDouble( getBillCardPanel().getBodyValueAt(e.getRow(), "nhcyprice") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow(), "nhcyprice").toString());
-				UFDouble caprice = new UFDouble (getBillCardPanel().getBodyValueAt(e.getRow(), "carprice") == null ? "0" : getBillCardPanel().getBodyValueAt(e.getRow(), "carprice").toString());
-				
-				UFDouble calculateprice = mtprice.add(rkprice).add(rkcprice).add(nhprice).add(caprice);
-				getBillCardPanel().setBodyValueAt(calculateprice, e.getRow(), "sjfee");
-			}
-			
-		} catch (Exception e2) {
-			AppDebug.debug(e2);
-		}
-	}
-
-	
-	private void updateButtonState(){
-		
-		if(nowAggVO ==null || nowAggVO.getParentVO()==null) 
-			return ;
-		
-		UFBoolean ty_flag = (UFBoolean) nowAggVO.getParentVO().getAttributeValue("stopstatus");
-	
-		try{
-			if(ty_flag.booleanValue()){
-				getButtonManager().getButton(IBillButton.Edit).setEnabled(false);
-
-				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
-				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(true);
-			}else{
-				getButtonManager().getButton(IBillButton.Edit).setEnabled(true);
-				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(true);
-				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		updateButtons();
-		
-	}
-	
-	
-	@Override
-	protected int getExtendStatus(AggregatedValueObject vo) {
-		
-		nowAggVO = vo;
-		
-		return super.getExtendStatus(vo);
-	}
-
-	@Override
-	public boolean beforeEdit(BillEditEvent e) {
-		
-		return super.beforeEdit(e);
-	}
-
 }

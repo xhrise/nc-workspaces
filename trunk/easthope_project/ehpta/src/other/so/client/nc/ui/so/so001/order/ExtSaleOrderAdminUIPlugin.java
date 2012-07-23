@@ -5,17 +5,17 @@ import java.awt.event.ActionEvent;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIComboBox;
 import nc.ui.pub.bill.BillEditEvent;
+import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.bill.BillMouseEnent;
-import nc.ui.pub.pf.PfUtilClient;
 import nc.ui.scm.plugin.IScmUIPlugin;
 import nc.ui.scm.plugin.SCMUIContext;
-import nc.ui.so.so001.panel.SaleBillUI;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.scm.plugin.Action;
 import nc.vo.so.so001.SaleOrderVO;
+import nc.vo.so.so001.SaleorderBVO;
 
 @SuppressWarnings("restriction")
 public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
@@ -27,14 +27,42 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	public void beforeButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 
+		if("保存".equals(bo.getName())) {
+			BillItem contypeItem = ctx.getBillCardPanel().getBillData().getHeadItem("contracttype");
+			if(contypeItem != null && contypeItem.getValueObject() != null) {
+				BillItem conItem = ctx.getBillCardPanel().getBillData().getHeadItem("pk_contract");
+				
+				switch((Integer) contypeItem.getValueObject()) {
+				
+					case 10 :
+						
+						System.out.println("现货合同");
+						break;
+						
+					case 20 :
+						
+						System.out.println("长单合同");
+						if(conItem != null && conItem.getValueObject() != null) {
+							CircularlyAccessibleValueObject[] bodyVOs = ctx.getBillCardPanel().getBillData().getBodyValueVOs(SaleorderBVO.class.getName());
+							
+						}
+						
+						break;
+					
+					default :
+						break;
+						
+				}
+			}
+		}
 	}
 
 	public void afterButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 		
-		ExtSaleOrderAdminUI saleUI = (ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel();
-		
 		if("刷新".equals(bo.getName()) || "查询".equals(bo.getName()) || "增加".equals(bo.getParent() == null ? bo.getName() : bo.getParent().getName())) {
+			
+			ExtSaleOrderAdminUI saleUI = (ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel();
 			
 			int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
 			String csaleid = null;

@@ -12,9 +12,9 @@ import nc.ui.trade.manage.ManageEventHandler;
  * @version tempProject version
  */
 
-public class AbstractMyEventHandler extends ManageEventHandler {
+public class EventHandler extends ManageEventHandler {
 
-	public AbstractMyEventHandler(BillManageUI billUI, IControllerBase control) {
+	public EventHandler(BillManageUI billUI, IControllerBase control) {
 		super(billUI, control);
 	}
 
