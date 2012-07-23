@@ -1,5 +1,6 @@
 package nc.ui.ehpta.hq010101;
 
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
@@ -29,26 +30,29 @@ public class ClientUICtrl extends AbstractManageController {
 	public int[] getCardButtonAry() {
 
 		return new int[] { IBillButton.Query, IBillButton.Add,
-				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
-				IBillButton.Cancel, IBillButton.Delete, IBillButton.Return };
+				IBillButton.Line, IBillButton.Edit, IBillButton.Refresh,
+				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
+				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
+				IBillButton.ApproveInfo, IBillButton.Brow,
+				IBillButton.Return };
 
 	}
 
 	public int[] getListButtonAry() {
 		return new int[] { IBillButton.Query, IBillButton.Add,
-				IBillButton.Edit, IBillButton.Line, IBillButton.Save,
-				IBillButton.Cancel, IBillButton.Delete, IBillButton.Card
+				IBillButton.Edit, IBillButton.Refresh, IBillButton.Delete,
+				IBillButton.Card
 
 		};
 
 	}
 
 	public boolean isShowCardRowNo() {
-		return false;
+		return true;
 	}
 
 	public boolean isShowCardTotal() {
-		return false;
+		return true;
 	}
 
 	public String getBillType() {
@@ -94,7 +98,7 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isLoadCardFormula() {
-		return false;
+		return true;
 	}
 
 	public String[] getListBodyHideCol() {
@@ -106,11 +110,11 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isShowListRowNo() {
-		return false;
+		return true;
 	}
 
 	public boolean isShowListTotal() {
-		return false;
+		return true;
 	}
 
 }

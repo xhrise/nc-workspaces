@@ -1,18 +1,25 @@
 package nc.ui.ehpta.hq010101;
 
-import nc.vo.pub.CircularlyAccessibleValueObject;
-import nc.ui.trade.bill.AbstractManageController;
-import nc.ui.trade.bsdelegate.BusinessDelegator;
+import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.beans.constenum.DefaultConstEnum;
+import nc.ui.pub.bill.BillCellEditor;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
-import nc.ui.pub.linkoperate.*;
+import nc.ui.pub.linkoperate.ILinkQuery;
+import nc.ui.pub.linkoperate.ILinkQueryData;
+import nc.ui.trade.base.IBillOperate;
+import nc.ui.trade.bill.AbstractManageController;
+import nc.ui.trade.bill.BillTemplateWrapper;
+import nc.ui.trade.bsdelegate.BusinessDelegator;
+import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
-import nc.vo.pub.AggregatedValueObject;
-import nc.ui.trade.base.IBillOperate;
-import nc.ui.trade.bill.BillTemplateWrapper;
-import nc.ui.trade.manage.ManageEventHandler;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -27,11 +34,24 @@ import nc.ui.trade.manage.ManageEventHandler;
  */
 public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		ILinkQuery {
-	
+
 	private static final long serialVersionUID = -2862050814411394246L;
 
+	private EventHandler eventHandler = null;
+
+	private ClientUICtrl controller = null;
+
+	protected ClientUICtrl getController() {
+		if (controller == null)
+			createController();
+
+		return controller;
+	}
+
 	protected AbstractManageController createController() {
-		return new ClientUICtrl();
+		controller = new ClientUICtrl();
+
+		return controller;
 	}
 
 	/**
@@ -114,8 +134,17 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		}
 	}
 
-	protected ManageEventHandler createEventHandler() {
-		return new EventHandler(this, getUIControl());
+	protected EventHandler getEventHandler() {
+		if (eventHandler == null)
+			createEventHandler();
+
+		return eventHandler;
+
+	}
+
+	protected EventHandler createEventHandler() {
+		eventHandler = new EventHandler(this, getUIControl());
+		return eventHandler;
 	}
 
 	public void setBodySpecialData(CircularlyAccessibleValueObject[] vos)
@@ -141,10 +170,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() };
+				fileDef.getField_BillStatus(), "dmakedate", "transdate",
+				"sdate", "edate" };
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() };
+				billtype, new Integer(IBillStatus.FREE).toString(), _getDate(),
+				_getDate(), _getDate(), _getDate() };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -155,4 +186,70 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				item.setValue(values[i]);
 		}
 	}
+
+	@Override
+	protected String getBillNo() throws Exception {
+		return GeneraterBillNO.getInstanse().build(getController().getBillType(), _getCorp().getPk_corp());
+	}
+	
+	@Override
+	public void afterEdit(BillEditEvent e) {
+		
+		try {
+			if(e.getSource() instanceof BillCellEditor) {
+				if("defpk_sstordoc".equals(e.getKey())) 
+					afterSetDefpk_sstordoc(e);
+				
+				if("defpk_estordoc".equals(e.getKey()))
+					afterSetDefpk_estordoc(e);
+				
+				if("defpk_sendtype".equals(e.getKey()))
+					afterSetDefpk_sendtype(e);
+			}
+		} catch(Exception ex) {
+			showErrorMessage(ex.getMessage());
+			Logger.error(ex);
+			return ;
+		}
+		
+		super.afterEdit(e);
+	}
+	
+	private final void afterSetDefpk_sstordoc(BillEditEvent e) throws Exception {
+		
+		if(e.getValue() != null ) {
+			
+			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getValue(), e.getRow(), "pk_sstordoc");
+			
+			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getName(), e.getRow(), "defsstorname");
+			
+			Object storaddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+((DefaultConstEnum)e.getValue()).getValue()+"'", new ColumnProcessor());
+		
+			getBillCardPanel().setBodyValueAt(storaddr, e.getRow(), "sstoraddr");
+		
+		}
+	}
+	
+	private final void afterSetDefpk_estordoc(BillEditEvent e) throws Exception {
+		
+		if(e.getValue() != null) {
+			
+			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getValue(), e.getRow(), "pk_estordoc");
+			
+			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getName(), e.getRow(), "defestorname");
+			
+			Object etoraddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+((DefaultConstEnum)e.getValue()).getValue()+"'", new ColumnProcessor());
+		
+			getBillCardPanel().setBodyValueAt(etoraddr, e.getRow(), "estoraddr");
+		
+		}
+	}
+	
+	private final void afterSetDefpk_sendtype(BillEditEvent e) throws Exception {
+		
+		if(e.getValue() != null) 
+			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getValue(), e.getRow(), "pk_sendtype");
+	
+	}
+	
 }
