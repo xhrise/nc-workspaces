@@ -221,7 +221,7 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 	/**
 	 *  功能　：重写beforeOnButtonClicked 
 	 *  
-	 *  Authur : river
+	 *  Author : river
 	 *  
 	 *  Create Date : 2012-07-25
 	 *  
@@ -231,12 +231,22 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 			throws BusinessException {
 		
 		if("反审核".equals(bo.getName())) {
-			beforeOnBoCancleAudit();
+//			beforeOnBoCancleAudit();
 		} else
 			super.beforeOnButtonClicked(bo);
 		
 	}
 	
+	/**
+	 *  功能： 反审核事件前事件
+	 *  
+	 *  Author : river
+	 *  
+	 *  Create Date : 2012-07-25
+	 *  
+	 * @throws BusinessException
+	 */
+	// 弃审是不好判断合同金额的使用情况，暂时去除控制
 	private final void beforeOnBoCancleAudit() throws BusinessException {
 		Vector<String> djpks = getAllSelectedDJPK();
 		if(djpks != null && djpks.size() == 0)
@@ -244,44 +254,36 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
 		
 		if(djpks != null && djpks.size() > 0) {
-			try {
-				Object userObj = new nc.ui.ehpta.hq010403.ClientUICheckRuleGetter();
+			
+			String whereSql = "";
+			int i = 0 ;
+			for(String djpk : djpks) {
+				if(i == djpks.size() - 1)
+					whereSql += "'" + djpk + "'";
+				else 
+					whereSql += "'" + djpk + "',";
 				
-				String whereSql = "";
-				int i = 0 ;
-				for(String djpk : djpks) {
-					if(i == djpks.size() - 1)
-						whereSql += "'" + djpk + "'";
-					else 
-						whereSql += "'" + djpk + "',";
-					
-					i++;
-				}
-				
-				Vector retVector = null;
-				if(!"".equals(whereSql)) {
-					try {
-						retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("+whereSql+") and dwbm = '"+getCorpPrimaryKey()+"' and zyx6 is not null and nvl(dr,0)=0 ", new VectorProcessor());
-					} catch (BusinessException e) {
-						e.printStackTrace();
-					}
-				}
-				
-				
-				if(retVector != null && retVector.size() > 0) {
-					for(Object vct : retVector) {
-						
-						Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where pk_contract = '"+((Vector)vct).get(2)+"' and nvl(dr,0)=0", new ColumnProcessor());
-						if(count > 0) {
-							Logger.error("收款已被使用，不能进行弃审操作！");
-							throw new BusinessException("收款已被使用，不能进行弃审操作！" );
-						}
-					}
-					
-				}
-			} catch(Exception e) {
-				throw new BusinessException(e);
+				i++;
 			}
+			
+			Vector retVector = null;
+			if(!"".equals(whereSql)) 
+				retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("+whereSql+") and dwbm = '"+getCorpPrimaryKey()+"' and zyx6 is not null and nvl(dr,0)=0 ", new VectorProcessor());
+			
+			if(retVector != null && retVector.size() > 0) {
+				for(Object vct : retVector) {
+					Object vouchid = ((Vector)vct).get(4);
+					Object ccustomerid = UAPQueryBS.iUAPQueryBS.executeQuery("select distinct hbbm from arap_djfb where vouchid = '"+vouchid+"'", new ColumnProcessor());
+					
+					Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where ccustomerid in (select pk_cumandoc from bd_cumandoc where pk_cubasdoc = '"+ccustomerid+"' and pk_corp = '"+getCorpPrimaryKey()+"') and nvl(dr,0)=0 and (contracttype = 10 or contracttype = 20) ", new ColumnProcessor());
+					if(count > 0) {
+						Logger.error("收款已被使用，不能进行弃审操作！");
+						throw new BusinessException("收款已被使用，不能进行弃审操作！" );
+					}
+				}
+				
+			}
+			
 		} else
 			return ;
 	}
@@ -298,18 +300,20 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 	protected void afterOnButtonClicked(ButtonObject bo, boolean success) {
 		
 		if(success) {
-			if("审核".equals(bo.getName())) {
+			
+			if("审核".equals(bo.getName())) 
 				afterOnBoAudit();
-			} else if("反审核".equals(bo.getName())) {
+			
+			 else if("反审核".equals(bo.getName())) 
 				afterOnBoCancleAudit();
-			}
+			
 		}
 	}
 	
 	/**
 	 *  功能 ： 审核通过时推式生成余额调整单记录
 	 *  
-	 *  Authur : river 
+	 *  Author : river 
 	 *  
 	 *  Create Date : 2012-07-25
 	 *  
@@ -443,7 +447,7 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 	/**
 	 *  功能 ： 弃审时推式生成余额调整单记录
 	 *  
-	 *  Authur : river 
+	 *  Author : river 
 	 *  
 	 *  Create Date : 2012-07-25
 	 *  
