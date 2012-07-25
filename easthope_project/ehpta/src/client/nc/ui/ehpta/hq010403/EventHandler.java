@@ -7,6 +7,7 @@ import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.filesystem.FileManageUI;
 import nc.ui.trade.base.IBillOperate;
+import nc.ui.trade.businessaction.IBusinessController;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
@@ -86,6 +87,24 @@ public class EventHandler extends ManageEventHandler {
 		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel() , getBillCardPanelWrapper().getBillVOFromUI() , (String[]) null);
 		
 		super.onBoSave();
+		
+	}
+	
+	@Override
+	protected void onBoCancelAudit() throws Exception {
+
+		AggregatedValueObject currAggVO = getBufferData().getCurrentVO();
+		if(currAggVO != null && currAggVO.getParentVO() != null) {
+			String def2 = (String) currAggVO.getParentVO().getAttributeValue("def2");
+			if(def2 != null && "Y".equals(def2))
+				throw new Exception ("当前记录由收款单推式生成，不能进行弃审操作！");
+		}
+		
+		super.onBoCancelAudit();
+	}
+	
+	public IBusinessController getBusiAction() {
+		return getBusinessAction();
 	}
 
 }

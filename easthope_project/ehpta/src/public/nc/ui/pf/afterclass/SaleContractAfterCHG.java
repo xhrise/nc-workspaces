@@ -24,7 +24,7 @@ public class SaleContractAfterCHG implements IchangeVO {
 		// 多表体无法获取表体数据，这里直接进行赋值.
 		setMultiBody(preVO , nowVO);
 		
-		return nowVO;
+		return nowVO; 
 	}
 
 	public AggregatedValueObject[] retChangeBusiVOs(

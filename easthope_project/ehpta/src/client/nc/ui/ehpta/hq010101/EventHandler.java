@@ -3,6 +3,7 @@ package nc.ui.ehpta.hq010101;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
+import nc.vo.pub.SuperVO;
 
 /**
  * 
@@ -19,6 +20,22 @@ public class EventHandler extends ManageEventHandler {
 	}
 
 	protected void onBoElse(int intBtn) throws Exception {
+	}
+	
+	@Override
+	protected void onBoQuery() throws Exception {
+		StringBuffer strWhere = new StringBuffer();
+
+		if (askForQueryCondition(strWhere) == false)
+			return;// 用户放弃了查询
+
+		SuperVO[] queryVos = queryHeadVOs(strWhere.toString());
+
+		getBufferData().clear();
+		// 增加数据到Buffer
+		addDataToBuffer(queryVos);
+
+		updateBuffer();
 	}
 
 }
