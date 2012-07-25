@@ -1771,7 +1771,7 @@ nc.ui.glpub.IUiPanel {
 		// if (bo !=m_boPrint&&bo!=m_boPrint_All) {
 		// refreshBtnStats();
 		// }
-
+		
 	}
 	/*
 	 * 设置是否取消关闭节点的标示信息

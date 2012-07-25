@@ -5,6 +5,7 @@ import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.beans.UIComboBox;
 import nc.ui.pub.beans.constenum.DefaultConstEnum;
 import nc.ui.pub.bill.BillCellEditor;
 import nc.ui.pub.bill.BillEditEvent;
@@ -17,6 +18,7 @@ import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
@@ -197,6 +199,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		
 		try {
 			if(e.getSource() instanceof BillCellEditor) {
+				
 				if("defpk_sstordoc".equals(e.getKey())) 
 					afterSetDefpk_sstordoc(e);
 				
@@ -205,6 +208,18 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				
 				if("defpk_sendtype".equals(e.getKey()))
 					afterSetDefpk_sendtype(e);
+				
+				if("shipprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()))
+					afterSetAshipprice(e);
+				
+				if("piersfee".equals(e.getKey()) || "storcarfee".equals(e.getKey()) || "storshipfee".equals(e.getKey()) || "inlandshipfee".equals(e.getKey()) || "carfee".equals(e.getKey()))
+					afterSetTransprice(e);
+					
+			} else {
+				
+				if("transtype".equals(e.getKey()))
+					afterSetTranstype(e);
+				
 			}
 		} catch(Exception ex) {
 			showErrorMessage(ex.getMessage());
@@ -250,6 +265,122 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		if(e.getValue() != null) 
 			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getValue(), e.getRow(), "pk_sendtype");
 	
+	}
+	
+	private final void afterSetTranstype(BillEditEvent e) throws Exception {
+		
+		Object transtype = ((UIComboBox)getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getSelectdItemValue();
+		if(transtype != null) {
+			AggregatedValueObject aggVO = getBillCardWrapper().getBillVOFromUI();
+			BillItem[] bodyItem = getBillCardPanel().getBodyItems();
+			
+			if("upper".equals(transtype)) {
+				
+				if(aggVO != null && aggVO.getChildrenVO() != null && aggVO.getChildrenVO().length > 0) {
+					for(int i = 0 , j = aggVO.getChildrenVO().length ; i < j ; i++) {
+						for(BillItem item : bodyItem) {
+							if("piersfee".equals(item.getKey()) 
+								|| "storcarfee".equals(item.getKey()) 
+								|| "storshipfee".equals(item.getKey()) 
+								|| "inlandshipfee".equals(item.getKey()) 
+								|| "carfee".equals(item.getKey()) 
+								|| "transprice".equals(item.getKey())
+								|| "sstoraddr".equals(item.getKey()) 
+								|| "estoraddr".equals(item.getKey())) {
+								
+								if(!("sstoraddr".equals(item.getKey()) || "estoraddr".equals(item.getKey())))
+									getBillCardPanel().setBodyValueAt(null, i, item.getKey());
+								
+							} 
+							
+						}
+					}
+				}
+				
+			} else if("under".equals(transtype)) {
+				
+				if(aggVO != null && aggVO.getChildrenVO() != null && aggVO.getChildrenVO().length > 0) {
+					for(int i = 0 , j = aggVO.getChildrenVO().length ; i < j ; i++) {
+						for(BillItem item : bodyItem) {
+							if("shipprice".equals(item.getKey()) 
+								|| "dieselprice".equals(item.getKey()) 
+								|| "shipregulation".equals(item.getKey()) 
+								|| "ashipprice".equals(item.getKey())
+								|| "sstoraddr".equals(item.getKey()) 
+								|| "estoraddr".equals(item.getKey()) ) {
+								
+								if(!("sstoraddr".equals(item.getKey()) || "estoraddr".equals(item.getKey())))
+									getBillCardPanel().setBodyValueAt(null, i, item.getKey());
+								
+							} 
+								
+						}
+					}
+				}
+				
+			}
+		}
+	}
+	
+	private final void afterSetAshipprice(BillEditEvent e) throws Exception {
+		
+		UFDouble shipprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "shipprice");
+		UFDouble shipregulation = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "shipregulation");
+		if(shipregulation.doubleValue() < -100.0) {
+			
+			shipregulation = new UFDouble(-100);
+			getBillCardPanel().setBodyValueAt(shipregulation, e.getRow(), "shipregulation");
+		}
+		
+		if(shipprice != null && shipprice.doubleValue() > 0 && shipregulation != null)
+			getBillCardPanel().setBodyValueAt(shipprice.multiply(shipregulation.div(100).add(1)), e.getRow(), "ashipprice");
+		else 
+			getBillCardPanel().setBodyValueAt(null, e.getRow(), "ashipprice");
+		
+	}
+	
+	private final void afterSetTransprice(BillEditEvent e) throws Exception {
+		
+		UFDouble piersfee =  (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "piersfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "piersfee"));
+		UFDouble storcarfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "storcarfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "storcarfee"));
+		UFDouble storshipfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "storshipfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "storshipfee"));
+		UFDouble inlandshipfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "inlandshipfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "inlandshipfee"));
+		UFDouble carfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "carfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "carfee"));
+	
+		getBillCardPanel().setBodyValueAt(piersfee.add(storcarfee).add(storshipfee).add(inlandshipfee).add(carfee), e.getRow(), "transprice");
+		
+	}
+	
+	@Override
+	public boolean beforeEdit(BillEditEvent e) {
+		
+		if(getBillOperate() == IBillOperate.OP_EDIT || getBillOperate() == IBillOperate.OP_ADD) {
+			
+			Object transtype = ((UIComboBox)getBillCardPanel().getHeadItem("transtype").getComponent()).getSelectdItemValue();
+			
+			if(transtype != null && !"".equals(transtype)) {
+				if("upper".equals(transtype)) {
+					if("shipprice".equals(e.getKey()) || "dieselprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()) || "ashipprice".equals(e.getKey()) || "defpk_sstordoc".equals(e.getKey()) || "defpk_estordoc".equals(e.getKey()) || "defpk_sendtype".equals(e.getKey()) || "memo".equals(e.getKey()) )
+						return true;
+					else 
+						return false;
+					
+				} else if("under".equals(transtype)) {
+					if(!("shipprice".equals(e.getKey()) || "dieselprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()) || "ashipprice".equals(e.getKey())))
+						return true;
+					else 
+						return false;
+				}
+			} else {
+				if(!("defpk_sstordoc".equals(e.getKey()) || "defpk_estordoc".equals(e.getKey()) || "defpk_sendtype".equals(e.getKey()) || "memo".equals(e.getKey()))) { 
+					showWarningMessage("请选择合同类型...");
+					return false;
+				} else 
+					return true;
+			}
+		}
+		
+		return super.beforeEdit(e);
 	}
 	
 }
