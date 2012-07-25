@@ -112,6 +112,14 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 	}
 
 	public void onButtonClicked(nc.ui.pub.ButtonObject bo) {
+		
+		try {
+			beforeOnButtonClicked(bo);
+		} catch (BusinessException e2) {
+			showErrorMessage(e2.getMessage());
+			return ;
+		}
+		
 		this.beginPressBtn(bo);
 		this.showProgressBar(true);
 		String butitype=null;
@@ -208,6 +216,74 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 		
 		afterOnButtonClicked(bo, isSuccess());
 
+	}
+	
+	/**
+	 *  功能　：重写beforeOnButtonClicked 
+	 *  
+	 *  Authur : river
+	 *  
+	 *  Create Date : 2012-07-25
+	 *  
+	 */
+	@Override
+	protected void beforeOnButtonClicked(ButtonObject bo)
+			throws BusinessException {
+		
+		if("反审核".equals(bo.getName())) {
+			beforeOnBoCancleAudit();
+		} else
+			super.beforeOnButtonClicked(bo);
+		
+	}
+	
+	private final void beforeOnBoCancleAudit() throws BusinessException {
+		Vector<String> djpks = getAllSelectedDJPK();
+		if(djpks != null && djpks.size() == 0)
+			if(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid") != null)
+				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
+		
+		if(djpks != null && djpks.size() > 0) {
+			try {
+				Object userObj = new nc.ui.ehpta.hq010403.ClientUICheckRuleGetter();
+				
+				String whereSql = "";
+				int i = 0 ;
+				for(String djpk : djpks) {
+					if(i == djpks.size() - 1)
+						whereSql += "'" + djpk + "'";
+					else 
+						whereSql += "'" + djpk + "',";
+					
+					i++;
+				}
+				
+				Vector retVector = null;
+				if(!"".equals(whereSql)) {
+					try {
+						retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("+whereSql+") and dwbm = '"+getCorpPrimaryKey()+"' and zyx6 is not null and nvl(dr,0)=0 ", new VectorProcessor());
+					} catch (BusinessException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				
+				if(retVector != null && retVector.size() > 0) {
+					for(Object vct : retVector) {
+						
+						Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where pk_contract = '"+((Vector)vct).get(2)+"' and nvl(dr,0)=0", new ColumnProcessor());
+						if(count > 0) {
+							Logger.error("收款已被使用，不能进行弃审操作！");
+							throw new BusinessException("收款已被使用，不能进行弃审操作！" );
+						}
+					}
+					
+				}
+			} catch(Exception e) {
+				throw new BusinessException(e);
+			}
+		} else
+			return ;
 	}
 	
 	/**
@@ -424,6 +500,8 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 									if(((Vector)vct).get(1) != null) {
 										Logger.info("单据未弃审至制单状态，不能弃审余额调整单中的记录");
 										Logger.error("单据未弃审至制单状态，不能弃审余额调整单中的记录");
+										
+										showErrorMessage("余额调整单 - " + billVO.getParentVO().getAttributeValue("vbillno") + " : 单据未弃审至制单状态，不能弃审余额调整单中的记录" );
 										
 										continue;
 									}
