@@ -2,6 +2,9 @@ package nc.ui.so.so001.order;
 
 import java.awt.event.ActionEvent;
 
+import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIComboBox;
 import nc.ui.pub.bill.BillEditEvent;
@@ -13,9 +16,12 @@ import nc.ui.scm.plugin.SCMUIContext;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFDouble;
 import nc.vo.scm.plugin.Action;
 import nc.vo.so.so001.SaleOrderVO;
 import nc.vo.so.so001.SaleorderBVO;
+import nc.vo.so.so001.SaleorderHVO;
+import nc.vo.trade.pub.HYBillVO;
 
 @SuppressWarnings("restriction")
 public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
@@ -32,20 +38,54 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			if(contypeItem != null && contypeItem.getValueObject() != null) {
 				BillItem conItem = ctx.getBillCardPanel().getBillData().getHeadItem("pk_contract");
 				
-				switch((Integer) contypeItem.getValueObject()) {
+				if(conItem == null || conItem.getValueObject() == null || "".equals(conItem.getValueObject()))
+					throw new BusinessException ("销售合同不能为空！");
+				
+				Object mny = UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(sum(mny),0) from ehpta_adjust where pk_contract = '"+conItem.getValueObject()+"' and vbillstatus = 1 and nvl(dr,0)=0 ", new ColumnProcessor());
+				
+				UFDouble sumMny = new UFDouble(mny.toString());
+				
+				BillItem headsummnyItem = ctx.getBillCardPanel().getBillData().getHeadItem("nheadsummny");
+				if(headsummnyItem == null || headsummnyItem.getValueObject() == null || "".equals(headsummnyItem.getValueObject()))
+					throw new BusinessException ("表头 ： 整单加税合计金额 不能为空！");
+				
+				
+				switch(Integer.valueOf(contypeItem.getValueObject().toString())) {
 				
 					case 10 :
 						
-						System.out.println("现货合同");
+						Logger.info(" 现货合同 : Action -> Save ");
+						
+						AggregatedValueObject billVO = ctx.getBillCardPanel().getBillData().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
+						
+						if(billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+							int nnumber = 0;
+							for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
+								nnumber += Double.valueOf(bodyVO.getAttributeValue("nnumber").toString()).intValue();
+							}
+							
+							Integer num = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(sum(num),0) from ehpta_sale_contract_bs where pk_contract = '"+conItem.getValueObject()+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+							
+							if(nnumber > num)
+								((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("提货数量大于销售合同总数量");
+						
+						}
+						
+						
+							
+						
+						if(sumMny.sub(Double.valueOf(headsummnyItem.getValueObject().toString())).doubleValue() < 0) 
+							((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("合同余额小于本次提货金额");
+						
 						break;
 						
 					case 20 :
 						
-						System.out.println("长单合同");
-						if(conItem != null && conItem.getValueObject() != null) {
-							CircularlyAccessibleValueObject[] bodyVOs = ctx.getBillCardPanel().getBillData().getBodyValueVOs(SaleorderBVO.class.getName());
-							
-						}
+						Logger.info(" 长单合同 : Action -> Save ");
+						
+						Double nheadsummny =  (Double) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(sum(nheadsummny),0) from so_sale where pk_contract is not null and nvl(dr,0)=0 and contracttype >= 10 and pk_contract = '"+conItem.getValueObject()+"'", new ColumnProcessor());
+						if(sumMny.sub(nheadsummny).sub(Double.valueOf(headsummnyItem.getValueObject().toString())).doubleValue() < 0)
+							((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("合同余额小于本次提货金额");
 						
 						break;
 					
