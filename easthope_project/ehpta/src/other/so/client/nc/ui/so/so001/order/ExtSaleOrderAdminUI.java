@@ -316,7 +316,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		
 		// .. end
 	}
-
+	
 	// 表头及表尾ITEM的编辑前事件
 	// add by river for 2012-07-23
 	public boolean beforeEdit(BillItemEvent e) {
