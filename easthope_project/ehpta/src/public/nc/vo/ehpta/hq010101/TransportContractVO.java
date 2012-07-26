@@ -55,6 +55,8 @@ public class TransportContractVO extends SuperVO {
 	public UFDate sdate;
 	public String def3;
 	public String def9;
+	public String transname;
+	public String signaddr;
 
 	public static final String DEF5 = "def5";
 	public static final String PK_CORP = "pk_corp";
@@ -89,6 +91,22 @@ public class TransportContractVO extends SuperVO {
 	public static final String SDATE = "sdate";
 	public static final String DEF3 = "def3";
 	public static final String DEF9 = "def9";
+
+	public String getTransname() {
+		return transname;
+	}
+
+	public void setTransname(String transname) {
+		this.transname = transname;
+	}
+
+	public String getSignaddr() {
+		return signaddr;
+	}
+
+	public void setSignaddr(String signaddr) {
+		this.signaddr = signaddr;
+	}
 
 	/**
 	 * 属性def5的Getter方法.

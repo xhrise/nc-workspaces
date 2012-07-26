@@ -36,7 +36,7 @@ public class CHGHQ06TO30 extends VOConversionUI {
 		      "B_cinvbasdocid->B_pk_invbasdoc",  //　存货档案主键（表体 - so_saleorder_b）
 		      "B_cinventoryid->B_pk_invbasdoc", //　存货档案主键（表体 - so_saleorder_b）
 		      "B_crowno->B_def1",   //  行号（表体 - so_saleorder_b） PTA合同中重新添加  ， 增长为 10 -> 20 -> 30
-		      "B_nnumber->B_num",  // 数量 
+//		      "B_nnumber->B_num",  // 数量 
 		      
 		      
 //		      "B_noriginalcurmny->B_notaxloan",  // 原币无税金额
@@ -84,7 +84,7 @@ public class CHGHQ06TO30 extends VOConversionUI {
 	    return new String[] { 
 	    		"H_dbilldate->date();", 
 	    		"H_dmakedate->date();" ,
-	    		"B_numof->int(B_num / B_invspec)", // 件数
+//	    		"B_numof->int(B_num / B_invspec)", // 件数
 	    		"cadvisecalbody->getColValue(bd_calbody,bodyname,pk_calbody,cadvisecalbodyid)",
 //	    		"B_noriginalcurnetprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税净价 （净价 =？ 单价）
 //			    "B_noriginalcurprice->B_taxprice / (1 + B_taxrate / 100)"  // 原币无税单价

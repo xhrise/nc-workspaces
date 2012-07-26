@@ -69,15 +69,16 @@ public class SaleContractAfterCHG implements IchangeVO {
 							bvo.setAttributeValue("cinvbasdocid", cavo.getAttributeValue("pk_invbasdoc"));
 							bvo.setAttributeValue("cinventoryid", cavo.getAttributeValue("pk_invbasdoc"));
 							bvo.setAttributeValue("crowno", cavo.getAttributeValue("def1"));
-							bvo.setAttributeValue("nnumber", cavo.getAttributeValue("num"));
 							
-							UFDouble num = (UFDouble) cavo.getAttributeValue("num");
-							Object invspec = cavo.getAttributeValue("invspec");
-							Integer numof = 0;
-							try{ numof = num.div(Double.valueOf(invspec.toString())).intValue(); } catch(Exception e) {}
+							// 长单合同不到数量
+//							bvo.setAttributeValue("nnumber", cavo.getAttributeValue("num"));
+//							UFDouble num = (UFDouble) cavo.getAttributeValue("num");
+//							Object invspec = cavo.getAttributeValue("invspec");
+//							Integer numof = 0;
+//							try{ numof = num.div(Double.valueOf(invspec.toString())).intValue(); } catch(Exception e) {}
+//							bvo.setAttributeValue("numof", numof);
+//							bvo.setAttributeValue("nquoteunitnum", cavo.getAttributeValue("num"));
 							
-							bvo.setAttributeValue("numof", numof);
-							bvo.setAttributeValue("nquoteunitnum", cavo.getAttributeValue("num"));
 							bvo.setAttributeValue("ntaxrate", cavo.getAttributeValue("taxrate"));
 							bvo.setAttributeValue("pk_corp", cavo.getAttributeValue("pk_corp"));
 							bvo.setAttributeValue("csourcebillbodyid", cavo.getAttributeValue("pk_contract_b"));
