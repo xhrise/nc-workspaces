@@ -277,6 +277,14 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		return ExtSaleOrderAdminUI.class.getName();
 	}
 	
+	/**
+	 *  功能 : 增加时控制合同是否已经添加，长单合同不做控制。
+	 *  
+	 *  Author : river
+	 *  
+	 *  Create Date : 2012-07-26
+	 *  
+	 */
 	@Override
 	protected void onNewByOther(AggregatedValueObject[] saleVOs)
 			throws Exception {
@@ -284,7 +292,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		if(saleVOs != null && saleVOs.length > 0) {
 			Object pk_contract = saleVOs[0].getParentVO().getAttributeValue("pk_contract");
 			if(pk_contract != null) {
-				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 and contracttype = 10 ", new ColumnProcessor());
 			
 				if(count > 0 )
 					throw new Exception("该合同已经录入销售订单！");

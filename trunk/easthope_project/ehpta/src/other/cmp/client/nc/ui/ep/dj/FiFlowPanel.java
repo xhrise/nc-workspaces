@@ -230,63 +230,63 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 	protected void beforeOnButtonClicked(ButtonObject bo)
 			throws BusinessException {
 		
-		if("反审核".equals(bo.getName())) {
+//		if("反审核".equals(bo.getName())) {
 //			beforeOnBoCancleAudit();
-		} else
+//		} else
 			super.beforeOnButtonClicked(bo);
 		
 	}
 	
-	/**
-	 *  功能： 反审核事件前事件
-	 *  
-	 *  Author : river
-	 *  
-	 *  Create Date : 2012-07-25
-	 *  
-	 * @throws BusinessException
-	 */
-	// 弃审是不好判断合同金额的使用情况，暂时去除控制
-	private final void beforeOnBoCancleAudit() throws BusinessException {
-		Vector<String> djpks = getAllSelectedDJPK();
-		if(djpks != null && djpks.size() == 0)
-			if(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid") != null)
-				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
-		
-		if(djpks != null && djpks.size() > 0) {
-			
-			String whereSql = "";
-			int i = 0 ;
-			for(String djpk : djpks) {
-				if(i == djpks.size() - 1)
-					whereSql += "'" + djpk + "'";
-				else 
-					whereSql += "'" + djpk + "',";
-				
-				i++;
-			}
-			
-			Vector retVector = null;
-			if(!"".equals(whereSql)) 
-				retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("+whereSql+") and dwbm = '"+getCorpPrimaryKey()+"' and zyx6 is not null and nvl(dr,0)=0 ", new VectorProcessor());
-			
-			if(retVector != null && retVector.size() > 0) {
-				for(Object vct : retVector) {
-					Object vouchid = ((Vector)vct).get(4);
-					Object ccustomerid = UAPQueryBS.iUAPQueryBS.executeQuery("select distinct hbbm from arap_djfb where vouchid = '"+vouchid+"'", new ColumnProcessor());
-					
-					Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where ccustomerid in (select pk_cumandoc from bd_cumandoc where pk_cubasdoc = '"+ccustomerid+"' and pk_corp = '"+getCorpPrimaryKey()+"') and nvl(dr,0)=0 and (contracttype = 10 or contracttype = 20) ", new ColumnProcessor());
-					if(count > 0) {
-						Logger.error("收款已被使用，不能进行弃审操作！");
-						throw new BusinessException("收款已被使用，不能进行弃审操作！" );
-					}
-				}
-				
-			}
-			
-		} else
-			return ;
-	}
+//	/**
+//	 *  功能： 反审核事件前事件
+//	 *  
+//	 *  Author : river
+//	 *  
+//	 *  Create Date : 2012-07-25
+//	 *  
+//	 * @throws BusinessException
+//	 */
+	// 反审核不做控制
+//	private final void beforeOnBoCancleAudit() throws BusinessException {
+//		Vector<String> djpks = getAllSelectedDJPK();
+//		if(djpks != null && djpks.size() == 0)
+//			if(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid") != null)
+//				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
+//		
+//		if(djpks != null && djpks.size() > 0) {
+//			
+//			String whereSql = "";
+//			int i = 0 ;
+//			for(String djpk : djpks) {
+//				if(i == djpks.size() - 1)
+//					whereSql += "'" + djpk + "'";
+//				else 
+//					whereSql += "'" + djpk + "',";
+//				
+//				i++;
+//			}
+//			
+//			Vector retVector = null;
+//			if(!"".equals(whereSql)) 
+//				retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("+whereSql+") and dwbm = '"+getCorpPrimaryKey()+"' and zyx6 is not null and nvl(dr,0)=0 ", new VectorProcessor());
+//			
+//			if(retVector != null && retVector.size() > 0) {
+//				for(Object vct : retVector) {
+//					Object vouchid = ((Vector)vct).get(4);
+//					Object ccustomerid = UAPQueryBS.iUAPQueryBS.executeQuery("select distinct hbbm from arap_djfb where vouchid = '"+vouchid+"'", new ColumnProcessor());
+//					
+//					Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where ccustomerid in (select pk_cumandoc from bd_cumandoc where pk_cubasdoc = '"+ccustomerid+"' and pk_corp = '"+getCorpPrimaryKey()+"') and nvl(dr,0)=0 and (contracttype = 10 or contracttype = 20) ", new ColumnProcessor());
+//					if(count > 0) {
+//						Logger.error("收款已被使用，不能进行弃审操作！");
+//						throw new BusinessException("收款已被使用，不能进行弃审操作！" );
+//					}
+//				}
+//				
+//			}
+//			
+//		} else
+//			return ;
+//	}
 	
 	/**
 	 *  功能　：重写afterOnButtonClicked 
