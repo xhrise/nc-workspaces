@@ -195,7 +195,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
 			}
 			
-			SaleContractBalance balanceDlg = new SaleContractBalance(ctx.getIctxpanel().getToftPanel() , obj);
+			SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj);
 			balanceDlg.showModal();
 		}
 		

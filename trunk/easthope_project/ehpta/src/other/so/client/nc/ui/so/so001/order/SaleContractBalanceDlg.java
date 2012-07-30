@@ -16,7 +16,7 @@ import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.pub.beans.UIDialog;
 
 @SuppressWarnings({"rawtypes" , "unchecked" })
-public class SaleContractBalance extends UIDialog{
+public class SaleContractBalanceDlg extends UIDialog{
 
 	private static final long serialVersionUID=1L;
 
@@ -44,7 +44,7 @@ public class SaleContractBalance extends UIDialog{
 		}
 	}
 
-	public SaleContractBalance(Container parent , Object[] objs){
+	public SaleContractBalanceDlg(Container parent , Object[] objs){
 		super(parent);
 		this.parent = parent;
 		if(objs.length==4){
