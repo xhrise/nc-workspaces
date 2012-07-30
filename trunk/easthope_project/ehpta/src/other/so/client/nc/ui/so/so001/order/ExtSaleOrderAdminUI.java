@@ -13,7 +13,6 @@ import nc.ui.scm.so.SaleBillType;
 import nc.ui.so.so001.panel.SaleBillUI;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.so.so001.SaleOrderVO;
-import nc.vo.trade.button.ButtonVO;
 
 /**
  * 销售订单管理 创建日期：(2012-07-22 )
@@ -313,23 +312,6 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 	protected void onCard() {
 		super.onCard();
 		
-		
-		// 双击列表界面数据时在PLUGIN中无法调用mouse_doubleclick方法，但会调用onCard方法，在此加上设置界面合同类型的代码块
-		// add by river for 2012-07-20
-		// start ..
-		
-		String csaleid = (String) getBillListPanel().getHeadBillModel().getValueAt(getBillListPanel().getHeadTable().getSelectedRow(), "csaleid");
-		SaleOrderVO saleorder = vocache.getSaleOrderVO(csaleid);
-		if(getBillCardPanel().getHeadItem("contracttype") != null) {
-			if(saleorder != null && saleorder.getParentVO() != null) {
-				if(Integer.valueOf(saleorder.getParentVO().getAttributeValue("contracttype") == null ? "0" : saleorder.getParentVO().getAttributeValue("contracttype").toString()) == 10)
-					((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("现货合同");
-				else if(Integer.valueOf(saleorder.getParentVO().getAttributeValue("contracttype") == null ? "0" : saleorder.getParentVO().getAttributeValue("contracttype").toString()) == 20)
-					((UIComboBox) getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("长单合同");
-			}
-		}
-		
-		// .. end
 	}
 	
 	// 表头及表尾ITEM的编辑前事件
@@ -346,16 +328,18 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 				
 					UIRefPane ccustomerRef = ((UIRefPane)e.getItem().getComponent());
 					
-					String wherePart = ccustomerRef.getRefModel().getWherePart();
+					String wherePart = " 1 = 1  and (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
+					
+					String nextWherePart = "";
 					
 					switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
 					case 10 :
-						wherePart += " and pk_cumandoc in (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"') ";
+						nextWherePart = wherePart + " and pk_cumandoc in (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"') ";
 						break;
 						
 					case 20 : 
 						
-						wherePart += " and pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"') ";
+						nextWherePart = wherePart + " and pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"') ";
 						break;
 						
 					default :
@@ -364,7 +348,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 					}
 					
 						
-					ccustomerRef.setWhereString(wherePart);
+					ccustomerRef.setWhereString(nextWherePart);
 					
 				} else if("cdeptid".equals(e.getItem().getKey())) {
 					UIRefPane deptRef = (UIRefPane) e.getItem().getComponent();

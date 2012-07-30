@@ -159,27 +159,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	public void afterButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 		
-		if("刷新".equals(bo.getName()) || "查询".equals(bo.getName()) || "增加".equals(bo.getParent() == null ? bo.getName() : bo.getParent().getName())) {
-			
-			ExtSaleOrderAdminUI saleUI = (ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel();
-			
-			int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
-			String csaleid = null;
-			if(num == -1)
-				csaleid = (String) ctx.getBillCardPanel().getHeadItem("csaleid").getValueObject();
-			else 
-				csaleid = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "csaleid");
-			
-			SaleOrderVO saleorder = saleUI.vocache.getSaleOrderVO(csaleid);
-			if(ctx.getBillCardPanel().getHeadItem("contracttype") != null) {
-				if(saleorder != null && saleorder.getParentVO() != null) {
-					if(Integer.valueOf(saleorder.getParentVO().getAttributeValue("contracttype") == null ? "0" : saleorder.getParentVO().getAttributeValue("contracttype").toString()) == 10)
-						((UIComboBox) ctx.getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("现货合同");
-					else if(Integer.valueOf(saleorder.getParentVO().getAttributeValue("contracttype") == null ? "0" : saleorder.getParentVO().getAttributeValue("contracttype").toString()) == 20)
-						((UIComboBox) ctx.getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("长单合同");
-				}
-			}
-		} else if("合同余额".equals(bo.getName())) {
+		if("合同余额".equals(bo.getName())) {
 			
 			int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
 			Object[] obj = new Object[4];

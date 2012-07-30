@@ -60,7 +60,7 @@ public class CHGHQ06TO30 extends VOConversionUI {
 		// 来源单据类型 , PTA现货合同 = HQ04
 	    return new String[] { 
 	    		"H_editionnum->1.0",
-	    		"H_contracttype->20", // 合同类型 , 设置长单合同为 10
+	    		"H_contracttype->20", // 合同类型 , 设置长单合同为 20
 	    		"H_creceipttype->30", // 单据类型  销售订单 = 30
 	    		"H_ccurrencytypeid->00010000000000000001",
 	    		"H_nexchangeotobrate->1",
