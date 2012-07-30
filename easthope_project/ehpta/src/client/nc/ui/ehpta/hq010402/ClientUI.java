@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
-import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
-import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
@@ -48,6 +48,7 @@ import com.ufida.iufo.pub.tools.AppDebug;
  * @author author
  * @version tempProject version
  */
+@SuppressWarnings({"rawtypes" , "unchecked"})
 public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		implements ILinkQuery {
 
@@ -192,7 +193,6 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		return super.getExtendStatus(sortValueObject(vo));
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected final AggregatedValueObject sortValueObject(AggregatedValueObject vo ) {
 		if(vo != null ) {
 			CircularlyAccessibleValueObject[] cavos = ((MultiBillVO)vo).getTableVO(getEventHandler().getTableCodes()[1]);
@@ -248,11 +248,14 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
 				fileDef.getField_BillStatus(), "orderdate", "sdate", "edate",
-				"dmakedate" , "version" , fileDef.getField_Busitype() };
+				"dmakedate" , "version" , fileDef.getField_Busitype() , "pk_psndoc" , "pk_deptdoc" };
+		
+		Vector retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select pk_psndoc , pk_deptdoc from bd_psndoc where pk_psnbasdoc in (select pk_psndoc from sm_userandclerk where userid = '"+ClientEnvironment.getInstance().getUser().getPrimaryKey()+"' and nvl(dr,0)=0) and nvl(dr,0)=0", new VectorProcessor());
+		
 		Object[] values = new Object[] { _getCorp().getPk_corp(),
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
 				billtype, new Integer(IBillStatus.FREE).toString(), _getDate(),
-				_getDate(), _getDate(), _getDate() , 1 , getBusinessType()};
+				_getDate(), _getDate(), _getDate() , 1 , getBusinessType(), retVector == null || retVector.size() == 0 ? null : ((Vector)retVector.get(0)).get(0) , retVector == null || retVector.size() == 0 ? null : ((Vector)retVector.get(0)).get(1)};
 		
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;

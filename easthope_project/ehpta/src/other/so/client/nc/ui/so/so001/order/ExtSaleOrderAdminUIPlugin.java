@@ -124,7 +124,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 							((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("提货数量大于销售合同当前期间执行量");
 					}
 					
-					Object nheadsummny =  UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(sum(nheadsummny),0) from so_sale where pk_contract is not null and nvl(dr,0)=0 and contracttype >= 10 and pk_contract = '"+conItem.getValueObject()+"'", new ColumnProcessor());
+					Object nheadsummny =  UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(sum(nheadsummny),0) from so_sale where pk_contract is not null and nvl(dr,0)=0 and (contracttype = 10 or contracttype = 20 ) and pk_contract = '"+conItem.getValueObject()+"'", new ColumnProcessor());
 					if(sumMny.sub(new UFDouble(nheadsummny.toString())).sub(Double.valueOf(headsummnyItem.getValueObject().toString())).doubleValue() < 0)
 						((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("合同余额小于本次提货金额");
 					
@@ -179,6 +179,24 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 						((UIComboBox) ctx.getBillCardPanel().getHeadItem("contracttype").getComponent()).setSelectedItem("长单合同");
 				}
 			}
+		} else if("合同余额".equals(bo.getName())) {
+			
+			int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
+			Object[] obj = new Object[4];
+			if(num == -1) {
+				obj[0] = (String) ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+				obj[1] = "";
+				obj[2] = (String) ctx.getBillCardPanel().getHeadItem("csaleid").getValueObject();
+				obj[3] = (String) ctx.getBillCardPanel().getHeadItem("concode").getValueObject();
+			} else { 
+				obj[0] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "pk_contract");
+				obj[1] = "";
+				obj[2] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "csaleid");
+				obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
+			}
+			
+			SaleContractBalance balanceDlg = new SaleContractBalance(ctx.getIctxpanel().getToftPanel() , obj);
+			balanceDlg.showModal();
 		}
 		
 	}

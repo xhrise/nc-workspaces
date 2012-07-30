@@ -1,9 +1,11 @@
 package nc.ui.ehpta.hq010401;
 
 import java.math.BigDecimal;
+import java.util.Vector;
 
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
@@ -39,6 +41,7 @@ import com.ufida.iufo.pub.tools.AppDebug;
  * @author author
  * @version tempProject version
  */
+@SuppressWarnings({"rawtypes"})
 public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		implements ILinkQuery {
 
@@ -187,12 +190,14 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
 				fileDef.getField_BillStatus() , "orderdate" , "sdate" , 
-				"edate" , "dmakedate" , fileDef.getField_Busitype() };
+				"edate" , "dmakedate" , fileDef.getField_Busitype() , "pk_psndoc" , "pk_deptdoc" };
+		
+		Vector retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select pk_psndoc , pk_deptdoc from bd_psndoc where pk_psnbasdoc in (select pk_psndoc from sm_userandclerk where userid = '"+ClientEnvironment.getInstance().getUser().getPrimaryKey()+"' and nvl(dr,0)=0) and nvl(dr,0)=0", new VectorProcessor());
 		
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
 				billtype, new Integer(IBillStatus.FREE).toString() , 
-				_getDate() , _getDate() , _getDate() , _getDate() , getBusinessType() };
+				_getDate() , _getDate() , _getDate() , _getDate() , getBusinessType() , retVector == null || retVector.size() == 0 ? null : ((Vector)retVector.get(0)).get(0) , retVector == null || retVector.size() == 0 ? null : ((Vector)retVector.get(0)).get(1) };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
