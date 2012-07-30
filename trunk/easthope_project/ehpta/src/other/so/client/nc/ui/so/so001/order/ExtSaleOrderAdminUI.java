@@ -13,6 +13,7 @@ import nc.ui.scm.so.SaleBillType;
 import nc.ui.so.so001.panel.SaleBillUI;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.so.so001.SaleOrderVO;
+import nc.vo.trade.button.ButtonVO;
 
 /**
  * 销售订单管理 创建日期：(2012-07-22 )
@@ -241,6 +242,12 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		boAsstntQry.addChildButton(boOrderExecRpt);
 		boAsstntQry.addChildButton(boCustInfo);
 		boAsstntQry.addChildButton(boPrifit);
+		
+		// 添加 合同余额 按钮
+		// add by river for 2012-07-30
+		// start ..
+		boAsstntQry.addChildButton(new ButtonObject("合同余额" , "" , 0 , "合同余额"));
+		// ..end 
 
 		//打印
 		boPrntMgr.removeAllChildren();
@@ -339,41 +346,16 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 				
 					UIRefPane ccustomerRef = ((UIRefPane)e.getItem().getComponent());
 					
-					String wherePart = null;
-					if (ccustomerRef.getRefNodeName().equals("客商档案")) {
-						
-						wherePart = " bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "' AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
-					
-					} else if (ccustomerRef.getRefNodeName().equals("客户档案")) {
-	
-						wherePart=" bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='2') ";
-	
-					} else if (ccustomerRef.getRefNodeName().equals("供应商档案")) {
-	
-						wherePart=" bd_cumandoc.pk_corp='" + ccustomerRef.getRefNodeName() + "' AND (bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='3') ";
-	
-					} else if (ccustomerRef.getRefNodeName().equals("客商档案包含冻结")) {
-						wherePart=" bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
-	
-						//
-					} else if (ccustomerRef.getRefNodeName().equals("客户档案包含冻结")) {
-						wherePart=" (bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='2')) ";
-	
-					} else if (ccustomerRef.getRefNodeName().equals("供应商档案包含冻结")) {
-						wherePart=" bd_cumandoc.pk_corp='" + getCorpPrimaryKey() + "'  AND (bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='3') ";
-					}
+					String wherePart = ccustomerRef.getRefModel().getWherePart();
 					
 					switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
 					case 10 :
-						wherePart += " and bd_cumandoc.pk_cumandoc = (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0) ";
+						wherePart += " and pk_cumandoc in (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"') ";
 						break;
 						
 					case 20 : 
-						if("ccustomerid".equals(e.getItem().getKey()))
-							wherePart += " and bd_cumandoc.pk_cumandoc = (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0) ";
-						else 
-							wherePart += " and bd_cumandoc.pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0) ";
 						
+						wherePart += " and pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"') ";
 						break;
 						
 					default :
