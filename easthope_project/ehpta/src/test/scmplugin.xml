@@ -176,10 +176,10 @@
 					<!--合同类型-->
 					<dbfieldname>contracttype</dbfieldname>
 					<vofieldname>contracttype</vofieldname>
-					<dbfieldtype>4</dbfieldtype>
-					<vofieldtype>2</vofieldtype>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
 					<persistence>Y</persistence>
-					<length>30</length>
+					<length>10</length>
 					<allownull>Y</allownull>
 					<precision></precision>
 					<showprop>

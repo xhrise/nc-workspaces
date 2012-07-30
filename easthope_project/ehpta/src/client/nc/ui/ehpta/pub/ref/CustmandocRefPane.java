@@ -35,8 +35,8 @@ public class CustmandocRefPane extends AbstractRefModel {
 		setRefNameField("bd_cubasdoc.custname");
 		
 		setTableName(" bd_cumandoc left join bd_cubasdoc on bd_cubasdoc.pk_cubasdoc = bd_cumandoc.pk_cubasdoc   ");
-		
-		setWherePart(" 1 = 1 and bd_cumandoc.pk_corp = '"+getPk_corp()+"' and (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') " );
+		// and bd_cumandoc.pk_corp = '"+getPk_corp()+"'
+		setWherePart(" 1 = 1  and (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') " );
 		
 		setOrderPart(" bd_cumandoc.pk_cumandoc ");
 	}
