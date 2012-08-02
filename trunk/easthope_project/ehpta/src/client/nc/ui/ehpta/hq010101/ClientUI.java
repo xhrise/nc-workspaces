@@ -324,8 +324,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	
 	private final void afterSetAshipprice(BillEditEvent e) throws Exception {
 		
-		UFDouble shipprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "shipprice");
-		UFDouble shipregulation = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "shipregulation");
+		UFDouble shipprice = getBillCardPanel().getBodyValueAt(e.getRow(), "shipprice") == null ? new UFDouble("0") : (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "shipprice");
+		UFDouble shipregulation = getBillCardPanel().getBodyValueAt(e.getRow(), "shipregulation") == null ? new UFDouble("0") : (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "shipregulation");
 		if(shipregulation.doubleValue() < -100.0) {
 			
 			shipregulation = new UFDouble(-100);

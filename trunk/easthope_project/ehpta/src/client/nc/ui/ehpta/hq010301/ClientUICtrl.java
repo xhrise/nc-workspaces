@@ -1,13 +1,12 @@
 package nc.ui.ehpta.hq010301;
 
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
-import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.bill.ISingleController;
-
-import nc.vo.ehpta.hq010301.MyBillVO;
-import nc.vo.ehpta.hq010301.EhptaHangingpriceVO;
-import nc.vo.ehpta.hq010301.EhptaHangingpriceVO;
+import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
+import nc.vo.ehpta.hq010301.MaintainVO;
+import nc.vo.trade.pub.HYBillVO;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -22,7 +21,8 @@ import nc.ui.trade.button.IBillButton;
  * @version tempProject version
  */
 
-public class ClientUICtrl extends AbstractManageController implements ISingleController{
+public class ClientUICtrl extends AbstractManageController implements
+		ISingleController {
 
 	public String[] getCardBodyHideCol() {
 		return null;
@@ -30,50 +30,29 @@ public class ClientUICtrl extends AbstractManageController implements ISingleCon
 
 	public int[] getCardButtonAry() {
 
-		return new int[] { 
-				IBillButton.Query, 
-				IBillButton.Add,
-				IBillButton.Edit,
-				IBillButton.Save, 
-				IBillButton.Cancel,
-				IBillButton.Delete, 
-				IBillButton.Commit,
-				IBillButton.Return, 
-				IBillButton.Refresh,
-				IBillButton.SelAll, 
-				IBillButton.SelNone ,
-				IBillButton.Audit,
-				IBillButton.CancelAudit,
-				};
+		return new int[] { IBillButton.Query , IBillButton.Add,
+				IBillButton.Edit, IBillButton.Refresh,
+				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
+				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
+				IBillButton.ApproveInfo, IBillButton.Brow, IBillButton.Return };
 
 	}
 
 	public int[] getListButtonAry() {
-		return new int[] { 
-				IBillButton.Query, 
-				IBillButton.Add,
-				IBillButton.Edit, 
-				IBillButton.Save, 
-				IBillButton.Cancel,
-				IBillButton.Delete, 
-				IBillButton.Commit,
-				IBillButton.Card, 
-				IBillButton.Refresh,
-				IBillButton.SelAll, 
-				IBillButton.SelNone,
-				IBillButton.Audit,
-				IBillButton.CancelAudit,
+		return new int[] { IBillButton.Query, IBillButton.Add,
+				IBillButton.Edit, IBillButton.Refresh, IBillButton.Delete,
+				IBillButton.Card
 
 		};
 
 	}
 
 	public boolean isShowCardRowNo() {
-		return true;
+		return false;
 	}
 
 	public boolean isShowCardTotal() {
-		return true;
+		return false;
 	}
 
 	public String getBillType() {
@@ -81,10 +60,8 @@ public class ClientUICtrl extends AbstractManageController implements ISingleCon
 	}
 
 	public String[] getBillVoName() {
-		return new String[] { 
-				MyBillVO.class.getName(),
-				EhptaHangingpriceVO.class.getName(),
-				EhptaHangingpriceVO.class.getName() };
+		return new String[] { HYBillVO.class.getName(),
+				MaintainVO.class.getName(), MaintainVO.class.getName() };
 	}
 
 	public String getBodyCondition() {
@@ -132,21 +109,19 @@ public class ClientUICtrl extends AbstractManageController implements ISingleCon
 	}
 
 	public boolean isShowListRowNo() {
-		return true;
+		return false;
 	}
 
 	public boolean isShowListTotal() {
-		return true;
+		return false;
 	}
 
 	/**
 	 * 是否单表
+	 * 
 	 * @return boolean true:单表体，false:单表头
-	 */ 
+	 */
 	public boolean isSingleDetail() {
-		return false; //单表头
+		return false; // 单表头
 	}
-	
-	
-
 }
