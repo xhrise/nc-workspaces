@@ -11,7 +11,6 @@ import nc.vo.trade.checkrule.ICompareRule;
 import nc.vo.trade.checkrule.ISpecialChecker;
 import nc.vo.trade.checkrule.IUniqueRule;
 import nc.vo.trade.checkrule.IUniqueRules;
-import nc.vo.trade.checkrule.UniqueRule;
 import nc.vo.trade.checkrule.VOChecker;
 
 
