@@ -1,6 +1,5 @@
 package nc.ui.ehpta.hq010301;
 
-import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.ISingleController;
 import nc.ui.trade.businessaction.IBusinessActionType;

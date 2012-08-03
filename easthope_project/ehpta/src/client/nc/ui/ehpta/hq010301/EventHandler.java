@@ -23,6 +23,7 @@ public class EventHandler extends ManageEventHandler {
 		super(billUI, control);
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	protected void onBoSave() throws Exception {
 		
