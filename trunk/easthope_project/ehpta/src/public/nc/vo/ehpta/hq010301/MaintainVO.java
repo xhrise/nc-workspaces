@@ -43,13 +43,13 @@
              public String def8;
              public String def1;
              public UFDate dapprovedate;
-             public UFDate maindate;
+             public String maindate;
              public String vapproveid;
              public String def2;
              public String def4;
              public String standard;
              public String pk_maintain;
-             public UFDateTime maintime;
+             public String maintime;
              public String def3;
              public String def9;
             
@@ -375,9 +375,9 @@
 	   * 创建日期:2012-8-2
 	   * @param newTs UFDateTime
 	   */
-	public void setTs(UFDateTime newTs) {
+	public void setTs(String newTs) {
 		
-		ts = newTs;
+		ts = new UFDateTime(newTs);
 	 } 	  
        
         /**
@@ -554,7 +554,7 @@
 	   * 创建日期:2012-8-2
 	   * @return UFDate
 	   */
-	 public UFDate getMaindate() {
+	 public String getMaindate() {
 		 return maindate;
 	  }   
 	  
@@ -564,7 +564,7 @@
 	   * 创建日期:2012-8-2
 	   * @param newMaindate UFDate
 	   */
-	public void setMaindate(UFDate newMaindate) {
+	public void setMaindate(String newMaindate) {
 		
 		maindate = newMaindate;
 	 } 	  
@@ -680,7 +680,7 @@
 	   * 创建日期:2012-8-2
 	   * @return UFDateTime
 	   */
-	 public UFDateTime getMaintime() {
+	 public String getMaintime() {
 		 return maintime;
 	  }   
 	  
@@ -690,7 +690,7 @@
 	   * 创建日期:2012-8-2
 	   * @param newMaintime UFDateTime
 	   */
-	public void setMaintime(UFDateTime newMaintime) {
+	public void setMaintime(String newMaintime) {
 		
 		maintime = newMaintime;
 	 } 	  
