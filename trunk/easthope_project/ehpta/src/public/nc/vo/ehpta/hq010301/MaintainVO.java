@@ -43,7 +43,7 @@
              public String def8;
              public String def1;
              public UFDate dapprovedate;
-             public String maindate;
+             public UFDate maindate;
              public String vapproveid;
              public String def2;
              public String def4;
@@ -554,7 +554,7 @@
 	   * 创建日期:2012-8-2
 	   * @return UFDate
 	   */
-	 public String getMaindate() {
+	 public UFDate getMaindate() {
 		 return maindate;
 	  }   
 	  
@@ -564,7 +564,7 @@
 	   * 创建日期:2012-8-2
 	   * @param newMaindate UFDate
 	   */
-	public void setMaindate(String newMaindate) {
+	public void setMaindate(UFDate newMaindate) {
 		
 		maindate = newMaindate;
 	 } 	  
