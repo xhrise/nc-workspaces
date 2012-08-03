@@ -10,6 +10,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
 import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
@@ -52,8 +53,6 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	 */
 	private static final long serialVersionUID = 4315846814431299564L;
 	
-	private final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
-
 	private AggregatedValueObject nowAggVO = null;
 	
 	protected AbstractManageController createController() {
@@ -183,10 +182,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() , "dmakedate" };
+				fileDef.getField_BillStatus() , "dmakedate","version" };
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() , _getDate() };
+				billtype, new Integer(IBillStatus.FREE).toString() , _getDate(),1.0 };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -207,7 +206,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			if("pk_stordoc".equals(e.getKey())) {
 				
 				UIRefPane storRef = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
-				Object storaddr = iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK()
+				Object storaddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK()
 						+ "'" , new ColumnProcessor());
 				getBillCardPanel().getHeadItem("storaddr").setValue(storaddr);
 			}
