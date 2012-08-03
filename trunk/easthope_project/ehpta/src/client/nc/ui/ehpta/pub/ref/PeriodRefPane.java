@@ -25,7 +25,7 @@ public class PeriodRefPane extends AbstractRefModel {
 			"开始日期"
 		});
 		
-		setPkFieldCode("pk_accperiodmonth");
+		setPkFieldCode("period");
 		
 		setHiddenFieldCode(new String[] {
 			"pk_accperiodmonth"
