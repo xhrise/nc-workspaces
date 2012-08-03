@@ -2,23 +2,20 @@ package nc.ui.ehpta.hq010202;
 
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
-import nc.ui.trade.bill.ISingleController;
-
-import nc.vo.ehpta.hq010202.MyBillVO;
+import nc.ui.trade.button.IBillButton;
 import nc.vo.ehpta.hq010202.StorfareBVO;
 import nc.vo.ehpta.hq010202.StorfareVO;
-import nc.ui.trade.button.IBillButton;
-
+import nc.vo.trade.pub.HYBillVO;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
- *
+ * 
  * <p>
- *     在此处添加此类的描述信息
+ * 在此处添加此类的描述信息
  * </p>
- *
+ * 
  * Create on 2006-4-6 16:00:51
- *
+ * 
  * @author authorName
  * @version tempProject version
  */
@@ -30,35 +27,22 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public int[] getCardButtonAry() {
-		                                
-                return new int[]{
-                                                               IBillButton.Query,
-                                                                                    IBillButton.Edit,
-                                                                                    IBillButton.Save,
-                                                                                    IBillButton.Cancel,
-                                                                                    IBillButton.Delete,
-                                                                                    IBillButton.Return,
-                                                                                    IBillButton.SelAll,
-                                                                                    IBillButton.SelNone,
-                                                                                    IBillButton.ExportBill
-                                                         };
-  
+
+		return new int[] { IBillButton.Query, IBillButton.Edit,
+				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
+				IBillButton.Return, IBillButton.SelAll, IBillButton.SelNone,
+				IBillButton.ExportBill };
+
 	}
-	
-	public int[] getListButtonAry() {		
-			        	        return new int[]{
-	         	           	             IBillButton.Query,
-	           	         	           	             IBillButton.Edit,
-	           	         	           	             IBillButton.Save,
-	           	         	           	             IBillButton.Cancel,
-	           	         	           	             IBillButton.Delete,
-	           	         	           	             IBillButton.Card,
-	           	         	           	             IBillButton.SelAll,
-	           	         	           	             IBillButton.SelNone,
-	           	         	           	             IBillButton.ExportBill
-	           	         	        
-	        };
-	
+
+	public int[] getListButtonAry() {
+		return new int[] { IBillButton.Query, IBillButton.Edit,
+				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
+				IBillButton.Card, IBillButton.SelAll, IBillButton.SelNone,
+				IBillButton.ExportBill
+
+		};
+
 	}
 
 	public boolean isShowCardRowNo() {
@@ -74,11 +58,8 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public String[] getBillVoName() {
-		return new String[]{
-			MyBillVO.class.getName(),
-			StorfareVO.class.getName(),
-			StorfareBVO.class.getName()
-		};
+		return new String[] { HYBillVO.class.getName(),
+				StorfareVO.class.getName(), StorfareBVO.class.getName() };
 	}
 
 	public String getBodyCondition() {
@@ -113,24 +94,24 @@ public class ClientUICtrl extends AbstractManageController {
 		return true;
 	}
 
-	public boolean isLoadCardFormula() {		
+	public boolean isLoadCardFormula() {
 		return false;
 	}
 
-	public String[] getListBodyHideCol() {	
+	public String[] getListBodyHideCol() {
 		return null;
 	}
 
-	public String[] getListHeadHideCol() {		
+	public String[] getListHeadHideCol() {
 		return null;
 	}
 
-	public boolean isShowListRowNo() {		
+	public boolean isShowListRowNo() {
 		return false;
 	}
 
 	public boolean isShowListTotal() {
 		return false;
 	}
-	
+
 }

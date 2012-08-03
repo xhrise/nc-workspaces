@@ -10,7 +10,7 @@ import java.util.Hashtable;
  * @author author
  * @version tempProject version
  */
-public abstract class AbstractMyDelegator extends nc.ui.trade.bsdelegate.BusinessDelegator {
+public class Delegator extends nc.ui.trade.bsdelegate.BusinessDelegator {
 
 	public Hashtable loadChildDataAry(String[] tableCodes,String key) 
 	                                                 throws Exception{
