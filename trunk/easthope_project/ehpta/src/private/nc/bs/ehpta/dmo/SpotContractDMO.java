@@ -1,6 +1,7 @@
 package nc.bs.ehpta.dmo;
 
 import nc.bs.pub.pf.IQueryData;
+import nc.impl.ehpta.pub.UifService;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.ehpta.hq010401.SaleContractBsVO;
 import nc.vo.ehpta.hq010401.SaleContractVO;
@@ -22,7 +23,7 @@ public class SpotContractDMO implements IQueryData {
 	public CircularlyAccessibleValueObject[] queryAllBodyData(String key)
 			throws BusinessException {
 		
-		return HYPubBO_Client.queryAllBodyData("HQ04", SaleContractBsVO.class, key, " nvl(dr , 0 ) = 0 ");
+		return UifService.builder().queryAllBodyData("HQ04", SaleContractBsVO.class, key, " nvl(dr , 0 ) = 0 ");
 		
 	}
 
@@ -31,7 +32,7 @@ public class SpotContractDMO implements IQueryData {
 		
 		whereString += " and vbillstatus = 1 and pk_contract not in (select pk_contract from so_sale where pk_contract is not null and nvl(dr,0)=0) order by dmakedate desc "; 
 		
-		SuperVO[] superVOs =  HYPubBO_Client.queryByCondition(SaleContractVO.class, whereString);
+		SuperVO[] superVOs =  UifService.builder().queryByCondition(SaleContractVO.class, whereString);
 		
 		return superVOs;
 		

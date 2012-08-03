@@ -375,12 +375,12 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 			}
 			
 			UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "totalnum");
-			Object invspec = getBillCardPanel().getBodyValueAt(e.getRow(), "invspec");
+			Object unitweight = invVO[0].getAttributeValue("unitweight");
 			
-			if(invspec != null && !"".equals(invspec) && num != null && num.doubleValue() > 0) {
+			if(unitweight != null && !"".equals(unitweight) && num != null && num.doubleValue() > 0) {
 				
 				try {
-					UFDouble invspecNum = new UFDouble(invspec.toString());
+					UFDouble invspecNum = new UFDouble(unitweight.toString());
 					if(invspecNum.doubleValue() > 0)
 						getBillCardPanel().setBodyValueAt(num.div(invspecNum).intValue() , e.getRow(), "numof");
 					else 
@@ -396,7 +396,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 			getBillCardPanel().setBodyValueAt((e.getRow() + 1) + "0", e.getRow(), "def1" , getEventHandler().getTableCodes()[0]);
 			
 			num = null;
-			invspec = null;
+			unitweight = null;
 			
 		}
 		
@@ -419,12 +419,13 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 	private final void afterSetTotalnum(BillEditEvent e) throws Exception {
 		
 		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "totalnum");
-		Object invspec = getBillCardPanel().getBodyValueAt(e.getRow(), "invspec");
+		Object pk_invbasdoc = getBillCardPanel().getBodyValueAt(e.getRow(), "pk_invbasdoc");
+		Object unitweight = UAPQueryBS.iUAPQueryBS.executeQuery("select unitweight from bd_invbasdoc where pk_invbasdoc = '"+pk_invbasdoc+"'", new ColumnProcessor());
 		
-		if(invspec != null && !"".equals(invspec) && num != null && num.doubleValue() > 0) {
+		if(unitweight != null && !"".equals(unitweight) && num != null && num.doubleValue() > 0) {
 			
 			try {
-				UFDouble invspecNum = new UFDouble(invspec.toString());
+				UFDouble invspecNum = new UFDouble(unitweight.toString());
 				if(invspecNum.doubleValue() > 0)
 					getBillCardPanel().setBodyValueAt(num.div(invspecNum).intValue() , e.getRow(), "numof");
 				else 
