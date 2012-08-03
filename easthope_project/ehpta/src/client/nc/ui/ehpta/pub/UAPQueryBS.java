@@ -7,7 +7,7 @@ public final class UAPQueryBS {
 	
 	public static final IUAPQueryBS iUAPQueryBS = (IUAPQueryBS) NCLocator.getInstance().lookup(IUAPQueryBS.class);
 	
-	private UAPQueryBS() { }
+	private UAPQueryBS() { } 
 	
 	
 }
