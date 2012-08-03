@@ -1,6 +1,7 @@
 package nc.bs.ehpta.dmo;
 
 import nc.bs.pub.pf.IQueryData;
+import nc.impl.ehpta.pub.UifService;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.ehpta.hq010401.SaleContractVO;
 import nc.vo.ehpta.hq010402.AidcustVO;
@@ -26,7 +27,7 @@ public class SaleContractDMO implements IQueryData {
 	public CircularlyAccessibleValueObject[] queryAllBodyData(String key)
 			throws BusinessException {
 		
-		AggregatedValueObject aggVO = HYPubBO_Client.queryBillVOByPrimaryKey(new String[] { 
+		AggregatedValueObject aggVO = UifService.builder().queryBillVOByPrimaryKey(new String[] { 
 				MultiBillVO.class.getName(),
 				SaleContractVO.class.getName(),
 				SaleContractBVO.class.getName(),
@@ -45,7 +46,7 @@ public class SaleContractDMO implements IQueryData {
 		
 		whereString += " and vbillstatus = 1 and pk_contract not in (select pk_contract from so_sale where pk_contract is not null and nvl(dr,0)=0 and close_flag = 'Y' ) order by dmakedate desc ";
 		
-		SuperVO[] superVOs =  HYPubBO_Client.queryByCondition(SaleContractVO.class, whereString);
+		SuperVO[] superVOs =  UifService.builder().queryByCondition(SaleContractVO.class, whereString);
 		
 		return superVOs;
 		

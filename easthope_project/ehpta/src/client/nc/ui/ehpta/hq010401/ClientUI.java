@@ -290,12 +290,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			}
 			
 			UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
-			Object invspec = getBillCardPanel().getBodyValueAt(e.getRow(), "invspec");
+			Object unitweight = invVO[0].getAttributeValue("unitweight");
 			
-			if(invspec != null && !"".equals(invspec) && num != null && num.doubleValue() > 0) {
+			if(unitweight != null && !"".equals(unitweight) && num != null && num.doubleValue() > 0) {
 				
 				try {
-					UFDouble invspecNum = new UFDouble(invspec.toString());
+					UFDouble invspecNum = new UFDouble(unitweight.toString());
 					if(invspecNum.doubleValue() > 0)
 						getBillCardPanel().setBodyValueAt(num.div(invspecNum).intValue() , e.getRow(), "numof");
 					else 
@@ -335,7 +335,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			getBillCardPanel().setBodyValueAt((e.getRow() + 1) + "0", e.getRow(), "def1");
 			
 			num = null;
-			invspec = null;
+			unitweight = null;
 			taxprice = null;
 			
 		}
@@ -348,13 +348,14 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		
 		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
 		
-		Object invspec = getBillCardPanel().getBodyValueAt(e.getRow(), "invspec");
+		Object pk_invbasdoc = getBillCardPanel().getBodyValueAt(e.getRow(), "pk_invbasdoc");
+		Object unitweight = UAPQueryBS.iUAPQueryBS.executeQuery("select unitweight from bd_invbasdoc where pk_invbasdoc = '"+pk_invbasdoc+"'", new ColumnProcessor());
 		UFDouble taxprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxprice");
 		
-		if(invspec != null && !"".equals(invspec)) {
+		if(unitweight != null && !"".equals(unitweight)) {
 			
 			try {
-				UFDouble invspecNum = new UFDouble(invspec.toString());
+				UFDouble invspecNum = new UFDouble(unitweight.toString());
 				if(invspecNum.doubleValue() > 0)
 					getBillCardPanel().setBodyValueAt(num.div(invspecNum).intValue() , e.getRow(), "numof");
 				else 
@@ -392,7 +393,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			getBillCardPanel().setBodyValueAt(0 , e.getRow(), "sumpricetax");
 		
 		num = null;
-		invspec = null;
+		unitweight = null;
 		taxprice = null;
 		
 	}
