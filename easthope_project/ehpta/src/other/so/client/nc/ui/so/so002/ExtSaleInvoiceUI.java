@@ -1,5 +1,6 @@
 package nc.ui.so.so002;
 
+import nc.ui.pub.ButtonObject;
 
 /**
  * <p>
@@ -21,10 +22,9 @@ package nc.ui.so.so002;
  * @time 2007-3-6 ионГ11:03:07
  */
 
-@SuppressWarnings({"restriction" })
+@SuppressWarnings({ "restriction" })
 public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 
 	private static final long serialVersionUID = -8127806262429494903L;
-  
-	
+
 }
