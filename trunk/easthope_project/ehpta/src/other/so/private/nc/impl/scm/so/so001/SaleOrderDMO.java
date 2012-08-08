@@ -18614,6 +18614,24 @@ public class SaleOrderDMO extends DataManageObject implements IQueryData, IQuery
 	// start ..
 	private final String setSql(String sql) {
 		String[] whereStrs = sql.split("fstatus = 2");
+		
+		return convertSql(whereStrs , sql);
+		
+	} // .. end
+	
+	
+	/**
+	 *  功能 ：转换sql语句的where条件
+	 *  
+	 *  author : river 
+	 *  
+	 *  create : 2012-07-22
+	 *  
+	 * @param whereStrs
+	 * @param sql
+	 * @return
+	 */
+	private final String convertSql(String[] whereStrs , String sql) {
 		String newWhere = "";
 		if(whereStrs != null && whereStrs.length > 1) {
 			int i = 0;
@@ -18630,8 +18648,8 @@ public class SaleOrderDMO extends DataManageObject implements IQueryData, IQuery
 					
 				
 		return newWhere;
-	} // .. end
-
+	}
+	
 	/**
 	 * 接口函数功能:新单据参照查询源头单据使用，包括表头，表体数据， 需要在平台注册的单据DMO实现
 	 * 
