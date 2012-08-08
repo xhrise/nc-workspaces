@@ -2,7 +2,6 @@ package nc.bs.ehpta.dmo;
 
 import nc.bs.pub.pf.IQueryData;
 import nc.impl.ehpta.pub.UifService;
-import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.ehpta.hq010401.SaleContractBsVO;
 import nc.vo.ehpta.hq010401.SaleContractVO;
 import nc.vo.pub.BusinessException;

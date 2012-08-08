@@ -30,7 +30,7 @@ import nc.vo.so.so001.SaleorderHVO;
 public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	public boolean init(SCMUIContext ctx) {
-		return false;
+		return true;
 	}
 
 	public void beforeButtonClicked(ButtonObject bo, SCMUIContext ctx)
@@ -183,7 +183,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	public boolean beforeEdit(BillEditEvent e, SCMUIContext ctx) {
 		
-		return false;
+		return true;
 	}
 
 	public void afterEdit(BillEditEvent e, SCMUIContext ctx) {
@@ -306,7 +306,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	public boolean beforeEdit(BillItemEvent e, SCMUIContext conx) {
 		
-		return false;
+		return true;
 	}
 
 	public AggregatedValueObject[] retChangeBusiVOs(
