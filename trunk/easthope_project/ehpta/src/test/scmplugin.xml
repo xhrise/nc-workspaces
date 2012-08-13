@@ -738,6 +738,114 @@
 				</field>
 			</fields>
 		</vo_field_extend>
+		<vo_field_extend name="销售出库单主表">
+			<!--VO扩展，用于扩展单据数据项 -->
+			<cbilltypecode>4C</cbilltypecode>
+			<voclassname>nc.vo.ic.pub.bill.GeneralBillHeaderVO</voclassname>
+			<!--销售单据主表（主要需要添加的位置） -->
+			<fields>
+				<field>
+					<!--运输输同-->
+					<dbfieldname>pk_transport</dbfieldname>
+					<vofieldname>pk_transport</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>运输输同</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--销售合同编码-->
+					<dbfieldname>concode</dbfieldname>
+					<vofieldname>concode</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>32</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>销售合同编码</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--销售订单编码-->
+					<dbfieldname>salecode</dbfieldname>
+					<vofieldname>salecode</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>32</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>销售订单编码</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--销售合同类型-->
+					<dbfieldname>contractype</dbfieldname>
+					<vofieldname>contractype</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>10</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>销售合同类型</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--销售合同主键-->
+					<dbfieldname>pk_contract</dbfieldname>
+					<vofieldname>pk_contract</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>销售合同主键</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+			</fields>
+		</vo_field_extend>
 		<ui_extend>
 			<!--UI扩展 -->
 			<cbilltypecode>30</cbilltypecode>
@@ -765,6 +873,22 @@
 			<uiplugin>
 				<!--UI插件描述 -->
 				<classname>nc.ui.so.so002.ExtSaleInvoiceUIPlugin</classname>
+				<!--UI插件类名 -->
+				<mothed>N</mothed>
+				<!--实现方式 -->
+			</uiplugin>
+		</ui_extend>
+		<ui_extend>
+			<!--UI扩展 -->
+			<cbilltypecode>4C</cbilltypecode>
+			<!--单据类型 -->
+			 <nodecode>HQ010801</nodecode> 
+			<!--节点号 -->
+			<extenduiclassname>nc.ui.ic.ic211.ExtClientUI</extenduiclassname>
+			<!--被扩展的UI类 -->
+			<uiplugin>
+				<!--UI插件描述 -->
+				<classname>nc.ui.ic.ic211.ExtGeneralUIPlugin</classname>
 				<!--UI插件类名 -->
 				<mothed>N</mothed>
 				<!--实现方式 -->

@@ -125,8 +125,12 @@ public class CHG30TO4C extends nc.bs.pf.change.VOConversion {
 				"B_creceivepointid->B_crecaddrnode",
 
 				// 表头、表体仓库
-				"H_cwarehouseid->H_storage", "B_cwarehouseid->H_storage"
-
+				"H_cwarehouseid->H_storage", "B_cwarehouseid->H_storage",
+				
+				"H_pk_transport->H_pk_transport",
+				"H_concode->H_concode",
+				"H_salecode->H_vreceiptcode",
+				"H_pk_contract->H_pk_contract",
 		};
 	}
 
@@ -147,8 +151,9 @@ public class CHG30TO4C extends nc.bs.pf.change.VOConversion {
 				"B_nshouldoutnum->B_nnumber   -   B_ntotalinventorynumber - iif(B_ntotalshouldoutnum==null,0,B_ntotalshouldoutnum) + iif(B_ntranslossnum==null,0,B_ntranslossnum) ",
 				"B_hsl->iif(B_scalefactor==null,B_nnumber/B_npacknumber,B_scalefactor)",
 				"B_csourcetype->\"30\"",
-				"B_nshouldoutassistnum->(  B_nnumber   -   B_ntotalinventorynumber    - iif(B_ntotalshouldoutnum==null,0,B_ntotalshouldoutnum) + iif(B_ntranslossnum==null,0,B_ntranslossnum) )   *  (   iif(B_npacknumber==null,0,B_npacknumber) / B_nnumber   ) "
-
+				"B_nshouldoutassistnum->(  B_nnumber   -   B_ntotalinventorynumber    - iif(B_ntotalshouldoutnum==null,0,B_ntotalshouldoutnum) + iif(B_ntranslossnum==null,0,B_ntranslossnum) )   *  (   iif(B_npacknumber==null,0,B_npacknumber) / B_nnumber   ) ",
+				"H_ctrancustid->getColValue(ehpta_transport_contract , pk_carrier , pk_transport , H_pk_transport)",
+				"H_contracttype->tostring(H_contracttype)", 
 		};
 	}
 

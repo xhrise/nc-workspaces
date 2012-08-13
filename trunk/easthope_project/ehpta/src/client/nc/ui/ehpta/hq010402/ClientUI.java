@@ -420,7 +420,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		
 		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "totalnum");
 		Object pk_invbasdoc = getBillCardPanel().getBodyValueAt(e.getRow(), "pk_invbasdoc");
-		Object unitweight = UAPQueryBS.iUAPQueryBS.executeQuery("select unitweight from bd_invbasdoc where pk_invbasdoc = '"+pk_invbasdoc+"'", new ColumnProcessor());
+		Object unitweight = UAPQueryBS.iUAPQueryBS.executeQuery("select unitweight from bd_invbasdoc where pk_invbasdoc = (select pk_invbasdoc from bd_invmandoc where pk_invmandoc = '"+pk_invbasdoc+"')", new ColumnProcessor());
 		
 		if(unitweight != null && !"".equals(unitweight) && num != null && num.doubleValue() > 0) {
 			
