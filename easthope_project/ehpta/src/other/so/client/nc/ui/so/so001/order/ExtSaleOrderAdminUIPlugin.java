@@ -214,6 +214,15 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		
 		Vector retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new VectorProcessor());
 		
+		if(retVector == null || retVector.size() == 0) {
+			builder = new StringBuilder();
+			builder.append(" select bas.custname , addr.addrname from bd_cubasdoc bas left join bd_cumandoc man on man.pk_cubasdoc = bas.pk_cubasdoc ");
+			builder.append(" left join ehpta_transport_contract transcont on transcont.pk_carrier = man.pk_cumandoc ");
+			builder.append(" left join bd_custaddr addr on addr.pk_cubasdoc = bas.pk_cubasdoc ");
+			builder.append(" where transcont.pk_transport = '"+pk_transport+"' and rownum = 1  ");
+			retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new VectorProcessor());
+		}
+		
 		if(retVector != null && retVector.size() > 0) {
 			Object custname = ((Vector)retVector.get(0)).get(0);
 			Object addrname = ((Vector)retVector.get(0)).get(1);
