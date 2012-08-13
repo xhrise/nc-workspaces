@@ -32,3 +32,5 @@ alter table so_saleinvoice_b add  transmny	DECIMAL(32,8)	;
 alter table so_saleinvoice_b add  evalmny	DECIMAL(32,8)	;
 
 -- œ˙ €∑¢∆± END
+
+

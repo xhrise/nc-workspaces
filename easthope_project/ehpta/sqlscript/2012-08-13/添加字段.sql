@@ -1,0 +1,1 @@
+alter table BD_REFTABLE modify reftablename varchar2(1024);

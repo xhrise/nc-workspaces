@@ -349,7 +349,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		UFDouble num = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "num");
 		
 		Object pk_invbasdoc = getBillCardPanel().getBodyValueAt(e.getRow(), "pk_invbasdoc");
-		Object unitweight = UAPQueryBS.iUAPQueryBS.executeQuery("select unitweight from bd_invbasdoc where pk_invbasdoc = '"+pk_invbasdoc+"'", new ColumnProcessor());
+		Object unitweight = UAPQueryBS.iUAPQueryBS.executeQuery("select unitweight from bd_invbasdoc where pk_invbasdoc = (select pk_invbasdoc from bd_invmandoc where pk_invmandoc = '"+pk_invbasdoc+"')", new ColumnProcessor());
 		UFDouble taxprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "taxprice");
 		
 		if(unitweight != null && !"".equals(unitweight)) {
