@@ -212,7 +212,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 									adjust.setAttributeValue("def1", vouchid);
 									adjust.setAttributeValue("def2", "Y");
 									adjust.setAttributeValue("def3", iscredit);
-
+									
 									HYBillVO billVO = new HYBillVO();
 									billVO.setParentVO(adjust);
 									adjustList.add(billVO);
