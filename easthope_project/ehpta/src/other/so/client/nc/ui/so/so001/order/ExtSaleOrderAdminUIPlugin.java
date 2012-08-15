@@ -82,8 +82,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 					
 					}
 					
-					if(sumMny.sub(Double.valueOf(headsummnyItem.getValueObject().toString())).doubleValue() < 0) 
-						((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("合同余额小于本次提货金额");
+					// 现货合同保存时不做金额提示
+//					if(sumMny.sub(Double.valueOf(headsummnyItem.getValueObject().toString())).doubleValue() < 0) 
+//						((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("合同余额小于本次提货金额");
 					
 					break;
 					
@@ -230,6 +231,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			ctx.getBillCardPanel().getHeadItem("carriersname").setValue(custname);
 			ctx.getBillCardPanel().getHeadItem("carriersaddr").setValue(addrname);
 			
+		} else {
+			ctx.getBillCardPanel().getHeadItem("carriersname").setValue(null);
+			ctx.getBillCardPanel().getHeadItem("carriersaddr").setValue(null); 
 		}
 	}
 	

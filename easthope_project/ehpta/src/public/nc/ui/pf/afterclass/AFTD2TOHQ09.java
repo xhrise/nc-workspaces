@@ -42,6 +42,8 @@ public class AFTD2TOHQ09 implements IchangeVO {
 		nowVo.getParentVO().setAttributeValue("vbillstatus", 8);
 		nowVo.getParentVO().setAttributeValue("pk_receivable", preVo.getParentVO().getAttributeValue("vouchid"));
 		nowVo.getParentVO().setAttributeValue("def1", pk_contract);
+		nowVo.getParentVO().setAttributeValue("redate", preVo.getParentVO().getAttributeValue("djrq"));
+		nowVo.getParentVO().setAttributeValue("remny", preVo.getParentVO().getAttributeValue("bbje"));
 		
 		return nowVo;
 	}

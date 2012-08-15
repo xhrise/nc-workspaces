@@ -44,13 +44,24 @@ public class CHGHQ04TO30 extends VOConversionUI {
 		      "B_noriginalcurtaxmny->B_tax",  // 原币税额
 		      "B_noriginalcurtaxnetprice->B_taxprice",  // 原币含税净价 
 		      "B_noriginalcurtaxprice->B_taxprice",  // 原币含税单价
+		      "B_nsummny->B_sumpricetax", // 本币价税合计
 		      "B_nquoteunitnum->B_num", // 报价单位数量
+		      
+		      "B_norgqttaxnetprc->B_taxprice", // 报价单位含税净价  
+		      "B_norgqttaxprc->B_taxprice", // 报价单位含税单价
+		      "B_nqttaxnetprc->B_taxprice", // 报价单位本币含税净价 
+		      "B_nqttaxprc->B_taxprice",  // 报价单位本币含税单价 
+
+
+		      
+		      "B_ntaxnetprice->B_taxprice",  // 原币含税净价 
+		      "B_ntaxprice->B_taxprice",  // 原币含税单价
 		      "B_ntaxrate->B_taxrate",  // 税率
 		      "B_pk_corp->H_pk_corp",  // 公司主键
 		      "B_ts->B_ts",  // 时间戳
 		      "B_csourcebillbodyid->B_pk_contract_b", // 来源单据附表ID ， 合同子表主键
 		      "B_csourcebillid->H_pk_contract"  // 来源单据主表ID , 合同主表主键
-	     
+		      
 	      };
 	  }
 	  
@@ -72,7 +83,7 @@ public class CHGHQ04TO30 extends VOConversionUI {
 	    		"B_noriginalcurdiscountmny->0",
 	    		"B_ccurrencytypeid->00010000000000000001",   //　原币   币种 （表体 - so_saleorder_b） 默认：人民币
 	    		"B_nexchangeotobrate->1",
-	    		"B_cadvisecalbodyid->1120A8100000000YSLF2"
+	    		"B_cadvisecalbodyid->1120A8100000000YSLF2",
 	    		
 	    }; 
 	  }
@@ -83,8 +94,13 @@ public class CHGHQ04TO30 extends VOConversionUI {
 	    		"H_dbilldate->date();", 
 	    		"H_dmakedate->date();" ,
 	    		"B_noriginalcurnetprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税净价 （净价 =？ 单价）
-			    "B_noriginalcurprice->B_taxprice / (1 + B_taxrate / 100)"  // 原币无税单价
-			    
+			    "B_noriginalcurprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税单价
+			    "B_nnetprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税净价 （净价 =？ 单价）
+			    "B_nprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税单价
+			    "B_norgqtnetprc->B_taxprice / (1 + B_taxrate / 100)", // 报价单位无税净价  
+			    "B_norgqtprc->B_taxprice / (1 + B_taxrate / 100)", //  报价单位无税单价  
+			    "B_nqtprc->B_taxprice / (1 + B_taxrate / 100)",  // 报价单位本币无税单价 
+			    "B_nqtnetprc->B_taxprice / (1 + B_taxrate / 100)", // 报价单位本币无税净价 
 	    }; 
 	  }
 
