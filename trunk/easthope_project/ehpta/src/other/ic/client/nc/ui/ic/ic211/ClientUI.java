@@ -2632,12 +2632,12 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 						  
 							  UFDate billdate = new UFDate(dbilldate.toString());
 
-							  jobname = jobname.toString() + billdate.getYear() + (billdate.getMonth() < 10 ? "0" + billdate.getMonth() : billdate.getMonth()) + (billdate.getDay() < 10 ? "0" + billdate.getDay() : billdate.getDay());
+							  jobname = jobname.toString() + " - " + billdate.getYear() + (billdate.getMonth() < 10 ? "0" + billdate.getMonth() : billdate.getMonth()) + (billdate.getDay() < 10 ? "0" + billdate.getDay() : billdate.getDay());
 							  
 							  Integer nowBatchCode = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(to_number(max(substr(vbatchcode , length(vbatchcode) - 1 , length(vbatchcode)))),'0') from scm_batchcode where vbatchcode like '"+jobname+"%' and nvl(dr,0)=0 ", new ColumnProcessor());
 							  ++ nowBatchCode;
 							  
-							  jobname = jobname + (nowBatchCode < 10 ? "0" + nowBatchCode : nowBatchCode ).toString();
+							  jobname = jobname + " - " + (nowBatchCode < 10 ? "0" + nowBatchCode : nowBatchCode ).toString();
 							  
 							  builder = new StringBuilder();
 							  builder.append(" update ic_general_b set vbatchcode = '"+jobname+"' where cgeneralbid = '"+cgeneralbid+"' ");

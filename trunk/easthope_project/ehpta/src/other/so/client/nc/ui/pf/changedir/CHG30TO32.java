@@ -172,6 +172,7 @@ public class CHG30TO32 extends VOConversionUI {
             "H_iscredit->H_iscredit",
             "H_purchcode->H_ccustomerid",
             "H_concode->H_concode",
+            "H_salecode->H_vreceiptcode",
             // .. end
             
     });

@@ -608,6 +608,26 @@
 						<pos>0</pos>
 					</showprop>
 				</field>
+				<field>
+					<!--提货单号-->
+					<dbfieldname>salecode</dbfieldname>
+					<vofieldname>salecode</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>提货单号</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
 			</fields>
 		</vo_field_extend>
 		<vo_field_extend name="销售发票子表">

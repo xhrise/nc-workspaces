@@ -327,7 +327,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 				
 				if(taxratio != null && taxratio.doubleValue() > 0) {
 					getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.doubleValue() / 100 + 1)).toString() , 2), e.getRow(), "tax");
-					getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.doubleValue() / 100 + 1)).toString() , 2)), e.getRow(), "notaxloan");
+					getBillCardPanel().setBodyValueAt(new UFDouble((num.multiply(taxprice).div(taxratio.doubleValue() / 100 + 1)).toString() , 2), e.getRow(), "notaxloan");
 				}
 			}
 			
@@ -386,7 +386,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
 				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2), e.getRow(), "tax");
 				
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2)), e.getRow(), "notaxloan");
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).div(taxratio.div(100).add(1)).toString() , 2), e.getRow(), "notaxloan");
 			}
 			
 		} else 
@@ -422,7 +422,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if(taxprice != null && taxprice.doubleValue() > 0 && num != null && num.doubleValue() > 0 && taxratio != null && taxratio.doubleValue() > 0) {
 				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2), e.getRow(), "tax");
 				
-				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).toString() , 2).sub(new UFDouble(num.multiply(taxprice).sub(num.multiply(taxprice).div(taxratio.div(100).add(1))).toString() , 2)), e.getRow(), "notaxloan");
+				getBillCardPanel().setBodyValueAt(new UFDouble(num.multiply(taxprice).div(taxratio.div(100).add(1)).toString() , 2), e.getRow(), "notaxloan");
 			}
 			
 		} else 
