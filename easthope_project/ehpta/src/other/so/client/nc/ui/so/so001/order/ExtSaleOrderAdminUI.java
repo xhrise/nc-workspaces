@@ -295,15 +295,17 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 	protected void onNewByOther(AggregatedValueObject[] saleVOs)
 			throws Exception {
 		
-		if(saleVOs != null && saleVOs.length > 0) {
-			Object pk_contract = saleVOs[0].getParentVO().getAttributeValue("pk_contract");
-			if(pk_contract != null) {
-				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 and contracttype = 10 ", new ColumnProcessor());
-			
-				if(count > 0 )
-					throw new Exception("该合同已经录入销售订单！");
-			}
-		}
+		// remove by river for 2012-08-16
+		// 这里不需要控制合同是否被订单引用
+//		if(saleVOs != null && saleVOs.length > 0) {
+//			Object pk_contract = saleVOs[0].getParentVO().getAttributeValue("pk_contract");
+//			if(pk_contract != null) {
+//				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 and contracttype = 10 ", new ColumnProcessor());
+//			
+//				if(count > 0 )
+//					throw new Exception("该合同已经录入销售订单！");
+//			}
+//		}
 		
 		super.onNewByOther(saleVOs);
 	}

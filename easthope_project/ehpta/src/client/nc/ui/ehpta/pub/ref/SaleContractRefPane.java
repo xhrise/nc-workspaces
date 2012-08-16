@@ -17,6 +17,7 @@ public class SaleContractRefPane extends AbstractRefModel {
 			"pk_contract",
 			"vbillno",
 			"connamed",
+			"purchname",
 			"contype",
 			"memo"
 			
@@ -26,6 +27,7 @@ public class SaleContractRefPane extends AbstractRefModel {
 			"主键",
 			"合同编码",
 			"合同名称",
+			"客户",
 			"合同类型",
 			"备注"
 		});
