@@ -1,6 +1,9 @@
 package nc.ui.so.so001.order;
 
-import nc.jdbc.framework.processor.ColumnProcessor;
+import java.util.Vector;
+
+import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIComboBox;
@@ -12,7 +15,7 @@ import nc.ui.scm.extend.IFuncExtend;
 import nc.ui.scm.so.SaleBillType;
 import nc.ui.so.so001.panel.SaleBillUI;
 import nc.vo.pub.AggregatedValueObject;
-import nc.vo.so.so001.SaleOrderVO;
+import nc.vo.pub.lang.UFDate;
 
 /**
  * 销售订单管理 创建日期：(2012-07-22 )
@@ -320,64 +323,87 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 	// add by river for 2012-07-23
 	public boolean beforeEdit(BillItemEvent e) {
 		
-		if(getBillCardPanel().getHeadItem("contracttype") != null) {
-			
-			UIComboBox comboBox = ((UIComboBox)getBillCardPanel().getHeadItem("contracttype").getComponent());
-			if(comboBox != null && comboBox.getSelectdItemValue() != null) {
-				if("ccustomerid".equals(e.getItem().getKey()) || "creceiptcorpid".equals(e.getItem().getKey()) || "creceiptcustomerid".equals(e.getItem().getKey())) {
+		try {
+			if(getBillCardPanel().getHeadItem("contracttype") != null) {
 				
-					Object pk_contract = getBillCardPanel().getHeadItem("pk_contract").getValueObject();
-				
-					UIRefPane ccustomerRef = ((UIRefPane)e.getItem().getComponent());
+				UIComboBox comboBox = ((UIComboBox)getBillCardPanel().getHeadItem("contracttype").getComponent());
+				if(comboBox != null && comboBox.getSelectdItemValue() != null) {
+					if("ccustomerid".equals(e.getItem().getKey()) || "creceiptcorpid".equals(e.getItem().getKey()) || "creceiptcustomerid".equals(e.getItem().getKey())) {
 					
-					String wherePart = " 1 = 1  and (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
+						Object pk_contract = getBillCardPanel().getHeadItem("pk_contract").getValueObject();
 					
-					String nextWherePart = "";
-					
-					switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
-					case 10 :
-						nextWherePart = wherePart + " and pk_cumandoc in (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"') ";
-						break;
+						UIRefPane ccustomerRef = ((UIRefPane)e.getItem().getComponent());
 						
-					case 20 : 
+						String wherePart = " 1 = 1  and (bd_cumandoc.custflag='0' OR bd_cumandoc.custflag='1' OR bd_cumandoc.custflag='2') ";
 						
-						nextWherePart = wherePart + " and pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"') ";
-						break;
+						String nextWherePart = "";
 						
-					default :
+						switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
+						case 10 :
+							nextWherePart = wherePart + " and pk_cumandoc in (select purchcode from ehpta_sale_contract where pk_contract = '"+pk_contract+"') ";
+							break;
+							
+						case 20 : 
+							
+							nextWherePart = wherePart + " and pk_cumandoc in (select pk_custdoc from ehpta_aidcust where pk_contract = '"+pk_contract+"') ";
+							break;
+							
+						default :
+							
+							break;
+						}
 						
-						break;
-					}
-					
+							
+						ccustomerRef.setWhereString(nextWherePart);
 						
-					ccustomerRef.setWhereString(nextWherePart);
-					
-				} else if("cdeptid".equals(e.getItem().getKey())) {
-					UIRefPane deptRef = (UIRefPane) e.getItem().getComponent();
-					deptRef.setWhereString(" ( pk_corp = '"+getCorpPrimaryKey()+"' and pk_deptdoc = '"+deptRef.getRefPK()+"') ");
-				} else if("cemployeeid".equals(e.getItem().getKey())) {
-					UIRefPane employeeRef =  (UIRefPane) e.getItem().getComponent();
-					employeeRef.setWhereString(" bd_psndoc.pk_corp='" + getCorpPrimaryKey() + "'  and bd_psndoc.indocflag='Y' and bd_psndoc.pk_psndoc = (select pk_psndoc from ehpta_sale_contract where pk_contract = '"+getBillCardPanel().getHeadItem("pk_contract").getValueObject()+"')");
-				} else if("period".equals(e.getItem().getKey())) {
-					switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
-					case 10 :
-
-						break;
-						
-					case 20 : 
-						
-						// 选择期间时自动按照表体行中的存货编码带出挂牌价、结算价、含税单价，计算出挂结价差
-						
-						
-						break;
-						
-					default :
-						
-						break;
+					} else if("cdeptid".equals(e.getItem().getKey())) {
+						UIRefPane deptRef = (UIRefPane) e.getItem().getComponent();
+						deptRef.setWhereString(" ( pk_corp = '"+getCorpPrimaryKey()+"' and pk_deptdoc = '"+deptRef.getRefPK()+"') ");
+					} else if("cemployeeid".equals(e.getItem().getKey())) {
+						UIRefPane employeeRef =  (UIRefPane) e.getItem().getComponent();
+						employeeRef.setWhereString(" bd_psndoc.pk_corp='" + getCorpPrimaryKey() + "'  and bd_psndoc.indocflag='Y' and bd_psndoc.pk_psndoc = (select pk_psndoc from ehpta_sale_contract where pk_contract = '"+getBillCardPanel().getHeadItem("pk_contract").getValueObject()+"')");
+					} else if("period".equals(e.getItem().getKey())) {
+						switch(Integer.valueOf(comboBox.getSelectdItemValue().toString())) {
+						case 10 :
+	
+							// 现货合同不列出期间
+							((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
+							
+							break;
+							
+						case 20 : 
+							
+							// 选择期间时自动按照表体行中的存货编码带出挂牌价、结算价、含税单价，计算出挂结价差
+							Object pk_contract = getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+							Vector retVector = (Vector)UAPQueryBS.iUAPQueryBS.executeQuery("select sdate , edate from ehpta_sale_contract where pk_contract = '"+pk_contract+"'", new VectorProcessor());
+							
+							if(retVector != null && retVector.size() > 0) {
+								UFDate sdate = new UFDate(((Vector)retVector.get(0)).get(0).toString());
+								UFDate edate = new UFDate(((Vector)retVector.get(0)).get(1).toString());
+								
+								sdate = new UFDate(sdate.getYear() + "-" + sdate.getMonth() + "-01");
+								edate = new UFDate(edate.getYear() + "-" + edate.getMonth() + "-01");
+								
+								((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and begindate >='"+sdate.toString()+"' and begindate <= '"+edate.toString()+"'");
+								
+								
+							}
+							
+							break;
+							
+						default :
+							
+							break;
+						}
 					}
 				}
 			}
+		} catch(Exception ex) {
+			Logger.info(ex);
+			showErrorMessage(this.getName() + " - 389 - " + ex.getMessage());
+			return false;
 		}
+		
 		return true;
 	}
 

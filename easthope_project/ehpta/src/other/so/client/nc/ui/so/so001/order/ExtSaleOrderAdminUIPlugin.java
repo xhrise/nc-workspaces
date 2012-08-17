@@ -7,9 +7,10 @@ import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.ref.LPriceRefPane;
 import nc.ui.pub.ButtonObject;
-import nc.ui.pub.beans.UIComboBox;
 import nc.ui.pub.beans.UIRefPane;
+import nc.ui.pub.beans.UITextField;
 import nc.ui.pub.bill.BillCellEditor;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
@@ -28,6 +29,25 @@ import nc.vo.so.so001.SaleorderHVO;
 
 @SuppressWarnings({"restriction" , "rawtypes"})
 public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
+	
+	
+	// 表体加载公式，挂结价反推金额调用
+	// add by river for 2012-08-17
+	private String[] formulas = new String[]{
+		"noriginalcurprice->noriginalcurtaxprice - (noriginalcurtaxprice / ntaxrate)",
+		"noriginalcurmny->noriginalcurprice * nnumber",
+		"noriginalcursummny->noriginalcurtaxprice * nnumber",
+		"noriginalcurtaxmny->noriginalcurtaxprice / ntaxrate",
+		"noriginalcurnetprice->noriginalcurprice",
+		"noriginalcurtaxnetprice->noriginalcurtaxprice ",
+		"norgqttaxnetprc->noriginalcurtaxprice",
+		"norgqtnetprc->noriginalcurprice",
+		"numof->int(nnumber / getColValue(bd_invbasdoc , unitweight , pk_invbasdoc , getColValue(bd_invmandoc , pk_invbasdoc , pk_invmandoc , cinventoryid)))",
+	};
+		
+	// 挂牌价参照设置
+	// add by river for 2012-08-17
+	private UIRefPane lpRef = null;
 
 	public boolean init(SCMUIContext ctx) {
 		return true;
@@ -186,6 +206,8 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		
 		return true;
 	}
+	
+	
 
 	public void afterEdit(BillEditEvent e, SCMUIContext ctx) {
 		
@@ -196,6 +218,21 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 					
 				if("storage".equals(e.getKey()))
 					afterSetStorage(e , ctx);
+				
+				if("period".equals(e.getKey()) || "iscredit".equals(e.getKey()))
+					afterSetPeriod(e , ctx);
+				
+			} else {
+				
+				if("nnumber".equals(e.getKey()))
+					afterSetNnumber(e , ctx);
+				
+				if("lastingprice".equals(e.getKey()))
+					afterSetLastingprice(e , ctx);
+				
+				if("noriginalcurtaxprice".equals(e.getKey()))
+					afterSetNoriginalcurtaxprice(e , ctx);
+				
 			}
 		} catch(Exception ex) {
 			Logger.error(e);
@@ -203,6 +240,17 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	}
 	
+	/**
+	 *  功能 ： 运输合同控制
+	 *  
+	 *  Author : river 
+	 *  
+	 *  Create : 2012-08-17
+	 *  
+	 * @param e
+	 * @param ctx
+	 * @throws Exception
+	 */
 	private final void afterSetPk_transport(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
 		Object pk_transport = ctx.getBillCardPanel().getHeadItem(e.getKey()).getValueObject();
@@ -237,6 +285,17 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		}
 	}
 	
+	/**
+	 *  功能 ：仓库控制
+	 *  
+	 *  Author : river 
+	 *  
+	 *  Create : 2012-08-17
+	 *  
+	 * @param e
+	 * @param ctx
+	 * @throws Exception
+	 */
 	private final void afterSetStorage(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
 		Object pk_stordoc = ctx.getBillCardPanel().getHeadItem(e.getKey()).getValueObject();
@@ -244,6 +303,191 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		Object storaddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+pk_stordoc+"'", new ColumnProcessor());
 		
 		ctx.getBillCardPanel().getHeadItem("storageaddress").setValue(storaddr);
+		
+	}
+	
+	/**
+	 *  功能 ： 执行期间控制
+	 *  
+	 *  Author : river 
+	 *  
+	 *  Create : 2012-08-17
+	 *  
+	 * @param e
+	 * @param ctx
+	 * @throws Exception
+	 */
+	private final void afterSetPeriod(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
+		AggregatedValueObject billVO = ctx.getBillCardPanel().getBillData().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
+		Boolean iscredit = new Boolean(ctx.getBillCardPanel().getHeadItem("iscredit").getValueObject().toString());
+		
+		if(period != null && !"".equals(period) && !iscredit) {
+			
+			Object settlemny = UAPQueryBS.iUAPQueryBS.executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and type = 2", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and type = 1", new ColumnProcessor());
+			
+			if(settlemny != null && !"".equals(settlemny)) {
+				
+				if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+					for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
+						ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), i, "lastingprice", "table");
+						ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), i, "settlementprice" , "table");
+						ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), i, "noriginalcurtaxprice" , "table");
+						
+						ctx.getBillCardPanel().execBodyFormulas(i, formulas);
+					}
+					
+					ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(false);
+					ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
+				}
+			} else if(count > 0) {
+				
+				if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+					for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
+						ctx.getBillCardPanel().setBodyValueAt(null, i, "lastingprice", "table");
+						ctx.getBillCardPanel().setBodyValueAt(null, i, "settlementprice" , "table");
+						ctx.getBillCardPanel().setBodyValueAt(null, i, "noriginalcurtaxprice" , "table");
+						
+						ctx.getBillCardPanel().execBodyFormulas(i, formulas);
+						
+						ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(new UITextField());
+						ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(false);
+						ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
+					}
+				}
+				
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(true);
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(true);
+				
+				if(lpRef == null) {
+				
+					lpRef = new UIRefPane();
+					lpRef.setRefModel(new LPriceRefPane());
+					lpRef.setWhereString("nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and type = 1");
+				
+				}
+				
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(lpRef);
+				
+			} else {
+				if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+					for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
+						ctx.getBillCardPanel().setBodyValueAt(null, i, "lastingprice", "table");
+						ctx.getBillCardPanel().setBodyValueAt(null, i, "settlementprice" , "table");
+						ctx.getBillCardPanel().setBodyValueAt(null, i, "noriginalcurtaxprice" , "table");
+						
+						ctx.getBillCardPanel().execBodyFormulas(i, formulas);
+						
+						ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(new UITextField());
+						ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(false);
+						ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
+						
+					}
+				}
+			}
+			
+			ctx.getBillCardPanel().getBodyItem("noriginalcurtaxprice").setEdit(false);
+			ctx.getBillCardPanel().getBodyItem("noriginalcurtaxprice").setEnabled(false);
+		
+		} else {
+			if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+				for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
+					ctx.getBillCardPanel().setBodyValueAt(null, i, "lastingprice", "table");
+					ctx.getBillCardPanel().setBodyValueAt(null, i, "settlementprice" , "table");
+					ctx.getBillCardPanel().setBodyValueAt(null, i, "noriginalcurtaxprice" , "table");
+					
+					ctx.getBillCardPanel().execBodyFormulas(i, formulas);
+					
+				}
+				
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(false);
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
+				
+				if(iscredit) {
+					ctx.getBillCardPanel().getBodyItem("noriginalcurtaxprice").setEdit(true);
+					ctx.getBillCardPanel().getBodyItem("noriginalcurtaxprice").setEnabled(true);
+				}
+			}
+		}
+	}
+	
+	/**
+	 *  功能 ： 数量控制
+	 *  
+	 *  Author : river 
+	 *  
+	 *  Create : 2012-08-17
+	 *  
+	 * @param e
+	 * @param ctx
+	 * @throws Exception
+	 */
+	private final void afterSetNnumber(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		AggregatedValueObject billVO = ctx.getBillCardPanel().getBillData().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
+		if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+			for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
+				
+				ctx.getBillCardPanel().execBodyFormulas(i, formulas);
+				
+			}
+		}
+		
+	}
+	
+	/**
+	 *  功能 ：挂牌价控制
+	 *  
+	 *  Author : river 
+	 *  
+	 *  Create : 2012-08-17
+	 *  
+	 * @param e
+	 * @param ctx
+	 * @throws Exception
+	 */
+	private final void afterSetLastingprice(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		if(e.getValue() != null && !"".equals(e.getValue())) {
+			ctx.getBillCardPanel().setBodyValueAt(null, e.getRow(), "settlementprice", "table");
+			ctx.getBillCardPanel().setBodyValueAt(new UFDouble(e.getValue().toString(),2), e.getRow(), "noriginalcurtaxprice", "table");
+			
+			ctx.getBillCardPanel().execBodyFormulas(e.getRow(), formulas);
+			
+		} else {
+			ctx.getBillCardPanel().setBodyValueAt(null, e.getRow(), "settlementprice", "table");
+			ctx.getBillCardPanel().setBodyValueAt(null, e.getRow(), "noriginalcurtaxprice", "table");
+			
+			ctx.getBillCardPanel().execBodyFormulas(e.getRow(), formulas);
+		}
+	}
+	
+	/**
+	 *  功能 ：当订单为信用证方式时，挂牌价不可选，挂牌价由含税单价获得。
+	 *  
+	 *  Author : river 
+	 *  
+	 *  Create : 2012-08-17
+	 *  
+	 * @param e
+	 * @param ctx
+	 * @throws Exception
+	 */
+	private final void afterSetNoriginalcurtaxprice(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		String[] formulas = new String[]{
+				"lastingprice->noriginalcurtaxprice",
+				"settlementprice->noriginalcurtaxprice",
+		};
+		
+		AggregatedValueObject billVO = ctx.getBillCardPanel().getBillData().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
+		if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
+			for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
+				ctx.getBillCardPanel().execBodyFormulas(i, formulas);
+				
+			}
+		}
 		
 	}
 
