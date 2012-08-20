@@ -1,18 +1,75 @@
 package nc.ui.ehpta.pub.btn;
 
+import nc.ui.trade.button.IBillButton;
 import nc.vo.trade.button.ButtonVO;
 
 public final class DefaultBillButton {
 	
-	public static final int DISABLED = 101; // 停用
-	public static final int ENABLED = 102; // 启用
-	public static final int DOCUMENT = 103; // 附件
-	public static final int MAKENEWCONTRACT = 104; // 合同变更
-	public static final int LINKQUERY = 105; // 联查
+	/**
+	 * 停用
+	 */
+	public static final int DISABLED = 101; 
 	
-	public static final int RECEIVABLE = 110; //　到款记录
-	public static final int DELIVERY = 111; // 发货记录
-	public static final int INVOICE = 112; // 开票记录
+	/**
+	 * 启用
+	 */
+	public static final int ENABLED = 102; 
+	
+	/**
+	 * 附件
+	 */
+	public static final int DOCUMENT = 103; 
+	
+	/**
+	 * 合同变更
+	 */
+	public static final int MAKENEWCONTRACT = 104; 
+	
+	/**
+	 * 联查
+	 */
+	public static final int LINKQUERY = 105;
+	
+	/**
+	 *  贴息维护
+	 */
+	public static final int Maintain = 106;
+	
+	/**
+	 * 到款记录
+	 */
+	public static final int RECEIVABLE = 110; 
+	
+	/**
+	 * 发货记录
+	 */
+	public static final int DELIVERY = 111; 
+	
+	/**
+	 * 开票记录
+	 */
+	public static final int INVOICE = 112; 
+	
+	/**
+	 * 统计 
+	 */
+	public static final int Statistics = 121; 
+	
+	/**
+	 *  批改
+	 */
+	public static final int Mark = 122;
+	
+	/**
+	 * 全选
+	 */
+	public static final int SelAll = 123;
+	
+	/**
+	 * 全消
+	 */
+	public static final int SelNone = 124;
+	
 	
 	public static final ButtonVO getDocumentButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
@@ -110,5 +167,71 @@ public final class DefaultBillButton {
 		return btnVO;
 	}
 	
+	public static final ButtonVO getMaintainButtonVO() {
+		
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(Maintain);
+		btnVO.setBtnCode("maintain");
+		btnVO.setBtnName("贴息维护");
+		btnVO.setBtnChinaName("贴息维护");
+		
+		btnVO.setChildAry(new int[] {
+				DefaultBillButton.Statistics,
+				DefaultBillButton.Mark,
+				DefaultBillButton.SelAll,
+				DefaultBillButton.SelNone,
+				
+		});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getStatisticsButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(Statistics);
+		btnVO.setBtnCode("statistics");
+		btnVO.setBtnName("统计");
+		btnVO.setBtnChinaName("统计");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getMarkButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(Mark);
+		btnVO.setBtnCode("mark");
+		btnVO.setBtnName("批改");
+		btnVO.setBtnChinaName("批改");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getSelAllButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(SelAll);
+		btnVO.setBtnCode("SelAll");
+		btnVO.setBtnName("全选");
+		btnVO.setBtnChinaName("全选");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getSelNoneButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(SelNone);
+		btnVO.setBtnCode("SelNone");
+		btnVO.setBtnName("全消");
+		btnVO.setBtnChinaName("全消");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
 	
 }

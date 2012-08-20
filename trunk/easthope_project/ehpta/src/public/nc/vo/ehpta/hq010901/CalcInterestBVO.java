@@ -19,80 +19,90 @@
  * @author ${vmObject.author}
  * @version Your Project 1.0
  */
-     public class CalcInterestVO extends SuperVO {
+     public class CalcInterestBVO extends SuperVO {
            
-             public String pk_corp;
+             public Integer days;
              public String def5;
-             public UFDate dmakedate;
+             public String billtype;
+             public UFBoolean calcflag;
              public Integer dr;
-             public String voperatorid;
-             public String vapprovenote;
-             public String pk_billtype;
-             public Integer vbillstatus;
+             public String custname;
+             public String pk_receivable;
+             public String transtype;
              public String def7;
-             public String pk_busitype;
-             public String ts;
+             public String djzbid;
              public String def6;
+             public String ts;
+             public String interestto;
              public String pk_calcinterest;
-             public String vbillno;
-             public String period;
+             public UFDouble interestmny;
+             public UFDouble rate;
              public String def10;
+             public String memo;
+             public UFDouble remny;
              public String def8;
              public String def1;
-             public UFDate dapprovedate;
-             public String pk_custdoc;
-             public String vapproveid;
+             public String version;
+             public UFDouble actualmny;
              public String def2;
+             public String contno;
+             public String pk_calcinterest_b;
              public String def4;
              public String def3;
              public String def9;
+             public UFDate redate;
             
-             public static final String  PK_CORP="pk_corp";   
+             public static final String  DAYS="days";   
              public static final String  DEF5="def5";   
-             public static final String  DMAKEDATE="dmakedate";   
+             public static final String  BILLTYPE="billtype";   
+             public static final String  CALCFLAG="calcflag";   
              public static final String  DR="dr";   
-             public static final String  VOPERATORID="voperatorid";   
-             public static final String  VAPPROVENOTE="vapprovenote";   
-             public static final String  PK_BILLTYPE="pk_billtype";   
-             public static final String  VBILLSTATUS="vbillstatus";   
+             public static final String  CUSTNAME="custname";   
+             public static final String  PK_RECEIVABLE="pk_receivable";   
+             public static final String  TRANSTYPE="transtype";   
              public static final String  DEF7="def7";   
-             public static final String  PK_BUSITYPE="pk_busitype";   
-             public static final String  TS="ts";   
+             public static final String  DJZBID="djzbid";   
              public static final String  DEF6="def6";   
+             public static final String  TS="ts";   
+             public static final String  INTERESTTO="interestto";   
              public static final String  PK_CALCINTEREST="pk_calcinterest";   
-             public static final String  VBILLNO="vbillno";   
-             public static final String  PERIOD="period";   
+             public static final String  INTERESTMNY="interestmny";   
+             public static final String  RATE="rate";   
              public static final String  DEF10="def10";   
+             public static final String  MEMO="memo";   
+             public static final String  REMNY="remny";   
              public static final String  DEF8="def8";   
              public static final String  DEF1="def1";   
-             public static final String  DAPPROVEDATE="dapprovedate";   
-             public static final String  PK_CUSTDOC="pk_custdoc";   
-             public static final String  VAPPROVEID="vapproveid";   
+             public static final String  VERSION="version";   
+             public static final String  ACTUALMNY="actualmny";   
              public static final String  DEF2="def2";   
+             public static final String  CONTNO="contno";   
+             public static final String  PK_CALCINTEREST_B="pk_calcinterest_b";   
              public static final String  DEF4="def4";   
              public static final String  DEF3="def3";   
              public static final String  DEF9="def9";   
+             public static final String  REDATE="redate";   
       
     
         /**
-	   * 属性pk_corp的Getter方法.
+	   * 属性days的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @return String
+	   * @return Integer
 	   */
-	 public String getPk_corp() {
-		 return pk_corp;
+	 public Integer getDays() {
+		 return days;
 	  }   
 	  
      /**
-	   * 属性pk_corp的Setter方法.
+	   * 属性days的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newPk_corp String
+	   * @param newDays Integer
 	   */
-	public void setPk_corp(String newPk_corp) {
+	public void setDays(Integer newDays) {
 		
-		pk_corp = newPk_corp;
+		days = newDays;
 	 } 	  
        
         /**
@@ -117,24 +127,45 @@
 	 } 	  
        
         /**
-	   * 属性dmakedate的Getter方法.
+	   * 属性billtype的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @return UFDate
+	   * @return String
 	   */
-	 public UFDate getDmakedate() {
-		 return dmakedate;
+	 public String getBilltype() {
+		 return billtype;
 	  }   
 	  
      /**
-	   * 属性dmakedate的Setter方法.
+	   * 属性billtype的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newDmakedate UFDate
+	   * @param newBilltype String
 	   */
-	public void setDmakedate(UFDate newDmakedate) {
+	public void setBilltype(String newBilltype) {
 		
-		dmakedate = newDmakedate;
+		billtype = newBilltype;
+	 } 	  
+       
+        /**
+	   * 属性calcflag的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return UFBoolean
+	   */
+	 public UFBoolean getCalcflag() {
+		 return calcflag;
+	  }   
+	  
+     /**
+	   * 属性calcflag的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newCalcflag UFBoolean
+	   */
+	public void setCalcflag(UFBoolean newCalcflag) {
+		
+		calcflag = newCalcflag;
 	 } 	  
        
         /**
@@ -159,87 +190,66 @@
 	 } 	  
        
         /**
-	   * 属性voperatorid的Getter方法.
+	   * 属性custname的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
 	   * @return String
 	   */
-	 public String getVoperatorid() {
-		 return voperatorid;
+	 public String getCustname() {
+		 return custname;
 	  }   
 	  
      /**
-	   * 属性voperatorid的Setter方法.
+	   * 属性custname的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newVoperatorid String
+	   * @param newCustname String
 	   */
-	public void setVoperatorid(String newVoperatorid) {
+	public void setCustname(String newCustname) {
 		
-		voperatorid = newVoperatorid;
+		custname = newCustname;
 	 } 	  
        
         /**
-	   * 属性vapprovenote的Getter方法.
+	   * 属性pk_receivable的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
 	   * @return String
 	   */
-	 public String getVapprovenote() {
-		 return vapprovenote;
+	 public String getPk_receivable() {
+		 return pk_receivable;
 	  }   
 	  
      /**
-	   * 属性vapprovenote的Setter方法.
+	   * 属性pk_receivable的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newVapprovenote String
+	   * @param newPk_receivable String
 	   */
-	public void setVapprovenote(String newVapprovenote) {
+	public void setPk_receivable(String newPk_receivable) {
 		
-		vapprovenote = newVapprovenote;
+		pk_receivable = newPk_receivable;
 	 } 	  
        
         /**
-	   * 属性pk_billtype的Getter方法.
+	   * 属性transtype的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
 	   * @return String
 	   */
-	 public String getPk_billtype() {
-		 return pk_billtype;
+	 public String getTranstype() {
+		 return transtype;
 	  }   
 	  
      /**
-	   * 属性pk_billtype的Setter方法.
+	   * 属性transtype的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newPk_billtype String
+	   * @param newTranstype String
 	   */
-	public void setPk_billtype(String newPk_billtype) {
+	public void setTranstype(String newTranstype) {
 		
-		pk_billtype = newPk_billtype;
-	 } 	  
-       
-        /**
-	   * 属性vbillstatus的Getter方法.
-	   *
-	   * 创建日期:2012-8-20
-	   * @return Integer
-	   */
-	 public Integer getVbillstatus() {
-		 return vbillstatus;
-	  }   
-	  
-     /**
-	   * 属性vbillstatus的Setter方法.
-	   *
-	   * 创建日期:2012-8-20
-	   * @param newVbillstatus Integer
-	   */
-	public void setVbillstatus(Integer newVbillstatus) {
-		
-		vbillstatus = newVbillstatus;
+		transtype = newTranstype;
 	 } 	  
        
         /**
@@ -264,45 +274,24 @@
 	 } 	  
        
         /**
-	   * 属性pk_busitype的Getter方法.
+	   * 属性djzbid的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
 	   * @return String
 	   */
-	 public String getPk_busitype() {
-		 return pk_busitype;
+	 public String getDjzbid() {
+		 return djzbid;
 	  }   
 	  
      /**
-	   * 属性pk_busitype的Setter方法.
+	   * 属性djzbid的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newPk_busitype String
+	   * @param newDjzbid String
 	   */
-	public void setPk_busitype(String newPk_busitype) {
+	public void setDjzbid(String newDjzbid) {
 		
-		pk_busitype = newPk_busitype;
-	 } 	  
-       
-        /**
-	   * 属性ts的Getter方法.
-	   *
-	   * 创建日期:2012-8-20
-	   * @return UFDateTime
-	   */
-	 public String getTs() {
-		 return ts;
-	  }   
-	  
-     /**
-	   * 属性ts的Setter方法.
-	   *
-	   * 创建日期:2012-8-20
-	   * @param newTs UFDateTime
-	   */
-	public void setTs(String newTs) {
-		
-		ts = newTs;
+		djzbid = newDjzbid;
 	 } 	  
        
         /**
@@ -327,6 +316,48 @@
 	 } 	  
        
         /**
+	   * 属性ts的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return UFDateTime
+	   */
+	 public String getTs() {
+		 return ts;
+	  }   
+	  
+     /**
+	   * 属性ts的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newTs UFDateTime
+	   */
+	public void setTs(String newTs) {
+		
+		ts = newTs;
+	 } 	  
+       
+        /**
+	   * 属性interestto的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return String
+	   */
+	 public String getInterestto() {
+		 return interestto;
+	  }   
+	  
+     /**
+	   * 属性interestto的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newInterestto String
+	   */
+	public void setInterestto(String newInterestto) {
+		
+		interestto = newInterestto;
+	 } 	  
+       
+        /**
 	   * 属性pk_calcinterest的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
@@ -348,45 +379,45 @@
 	 } 	  
        
         /**
-	   * 属性vbillno的Getter方法.
+	   * 属性interestmny的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @return String
+	   * @return UFDouble
 	   */
-	 public String getVbillno() {
-		 return vbillno;
+	 public UFDouble getInterestmny() {
+		 return interestmny;
 	  }   
 	  
      /**
-	   * 属性vbillno的Setter方法.
+	   * 属性interestmny的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newVbillno String
+	   * @param newInterestmny UFDouble
 	   */
-	public void setVbillno(String newVbillno) {
+	public void setInterestmny(UFDouble newInterestmny) {
 		
-		vbillno = newVbillno;
+		interestmny = newInterestmny;
 	 } 	  
        
         /**
-	   * 属性period的Getter方法.
+	   * 属性rate的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @return String
+	   * @return UFDouble
 	   */
-	 public String getPeriod() {
-		 return period;
+	 public UFDouble getRate() {
+		 return rate;
 	  }   
 	  
      /**
-	   * 属性period的Setter方法.
+	   * 属性rate的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newPeriod String
+	   * @param newRate UFDouble
 	   */
-	public void setPeriod(String newPeriod) {
+	public void setRate(UFDouble newRate) {
 		
-		period = newPeriod;
+		rate = newRate;
 	 } 	  
        
         /**
@@ -408,6 +439,48 @@
 	public void setDef10(String newDef10) {
 		
 		def10 = newDef10;
+	 } 	  
+       
+        /**
+	   * 属性memo的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return String
+	   */
+	 public String getMemo() {
+		 return memo;
+	  }   
+	  
+     /**
+	   * 属性memo的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newMemo String
+	   */
+	public void setMemo(String newMemo) {
+		
+		memo = newMemo;
+	 } 	  
+       
+        /**
+	   * 属性remny的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return UFDouble
+	   */
+	 public UFDouble getRemny() {
+		 return remny;
+	  }   
+	  
+     /**
+	   * 属性remny的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newRemny UFDouble
+	   */
+	public void setRemny(UFDouble newRemny) {
+		
+		remny = newRemny;
 	 } 	  
        
         /**
@@ -453,66 +526,45 @@
 	 } 	  
        
         /**
-	   * 属性dapprovedate的Getter方法.
-	   *
-	   * 创建日期:2012-8-20
-	   * @return UFDate
-	   */
-	 public UFDate getDapprovedate() {
-		 return dapprovedate;
-	  }   
-	  
-     /**
-	   * 属性dapprovedate的Setter方法.
-	   *
-	   * 创建日期:2012-8-20
-	   * @param newDapprovedate UFDate
-	   */
-	public void setDapprovedate(UFDate newDapprovedate) {
-		
-		dapprovedate = newDapprovedate;
-	 } 	  
-       
-        /**
-	   * 属性pk_custdoc的Getter方法.
+	   * 属性version的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
 	   * @return String
 	   */
-	 public String getPk_custdoc() {
-		 return pk_custdoc;
+	 public String getVersion() {
+		 return version;
 	  }   
 	  
      /**
-	   * 属性pk_custdoc的Setter方法.
+	   * 属性version的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newPk_custdoc String
+	   * @param newVersion String
 	   */
-	public void setPk_custdoc(String newPk_custdoc) {
+	public void setVersion(String newVersion) {
 		
-		pk_custdoc = newPk_custdoc;
+		version = newVersion;
 	 } 	  
        
         /**
-	   * 属性vapproveid的Getter方法.
+	   * 属性actualmny的Getter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @return String
+	   * @return UFDouble
 	   */
-	 public String getVapproveid() {
-		 return vapproveid;
+	 public UFDouble getActualmny() {
+		 return actualmny;
 	  }   
 	  
      /**
-	   * 属性vapproveid的Setter方法.
+	   * 属性actualmny的Setter方法.
 	   *
 	   * 创建日期:2012-8-20
-	   * @param newVapproveid String
+	   * @param newActualmny UFDouble
 	   */
-	public void setVapproveid(String newVapproveid) {
+	public void setActualmny(UFDouble newActualmny) {
 		
-		vapproveid = newVapproveid;
+		actualmny = newActualmny;
 	 } 	  
        
         /**
@@ -534,6 +586,48 @@
 	public void setDef2(String newDef2) {
 		
 		def2 = newDef2;
+	 } 	  
+       
+        /**
+	   * 属性contno的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return String
+	   */
+	 public String getContno() {
+		 return contno;
+	  }   
+	  
+     /**
+	   * 属性contno的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newContno String
+	   */
+	public void setContno(String newContno) {
+		
+		contno = newContno;
+	 } 	  
+       
+        /**
+	   * 属性pk_calcinterest_b的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return String
+	   */
+	 public String getPk_calcinterest_b() {
+		 return pk_calcinterest_b;
+	  }   
+	  
+     /**
+	   * 属性pk_calcinterest_b的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newPk_calcinterest_b String
+	   */
+	public void setPk_calcinterest_b(String newPk_calcinterest_b) {
+		
+		pk_calcinterest_b = newPk_calcinterest_b;
 	 } 	  
        
         /**
@@ -599,6 +693,27 @@
 		def9 = newDef9;
 	 } 	  
        
+        /**
+	   * 属性redate的Getter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @return UFDate
+	   */
+	 public UFDate getRedate() {
+		 return redate;
+	  }   
+	  
+     /**
+	   * 属性redate的Setter方法.
+	   *
+	   * 创建日期:2012-8-20
+	   * @param newRedate UFDate
+	   */
+	public void setRedate(UFDate newRedate) {
+		
+		redate = newRedate;
+	 } 	  
+       
        
     /**
 	  * 验证对象各属性之间的数据逻辑正确性.
@@ -614,8 +729,8 @@
                                                       // fields that cannot be null.
        		  // 检查是否为不允许空的字段赋了空值,你可能需要修改下面的提示信息:
 	
-	   		if (pk_calcinterest == null) {
-			errFields.add(new String("pk_calcinterest"));
+	   		if (pk_calcinterest_b == null) {
+			errFields.add(new String("pk_calcinterest_b"));
 			  }	
 	   	
 	    StringBuffer message = new StringBuffer();
@@ -640,7 +755,7 @@
 	  */
 	public java.lang.String getParentPKFieldName() {
 	  	 
-	 	    return null;
+	 		return "pk_calcinterest";
 	 	
 	}   
     
@@ -651,7 +766,7 @@
 	  * @return java.lang.String
 	  */
 	public java.lang.String getPKFieldName() {
-	 	  return "pk_calcinterest";
+	 	  return "pk_calcinterest_b";
 	 	}
     
 	/**
@@ -662,7 +777,7 @@
 	 */
 	public java.lang.String getTableName() {
 				
-		return "ehpta_calc_interest";
+		return "ehpta_calc_interest_b";
 	}    
     
     /**
@@ -670,7 +785,7 @@
 	  *
 	  * 创建日期:2012-8-20
 	  */
-	public CalcInterestVO() {
+	public CalcInterestBVO() {
 			
 			   super();	
 	  }    
@@ -679,12 +794,12 @@
 	 * 使用主键进行初始化的构造子.
 	 *
 	 * 创建日期:2012-8-20
-	 * @param newPk_calcinterest 主键值
+	 * @param newPk_calcinterest_b 主键值
 	 */
-	 public CalcInterestVO(String newPk_calcinterest) {
+	 public CalcInterestBVO(String newPk_calcinterest_b) {
 		
 		// 为主键字段赋值:
-		 pk_calcinterest = newPk_calcinterest;
+		 pk_calcinterest_b = newPk_calcinterest_b;
 	
     	}
     
@@ -697,7 +812,7 @@
 	  */
 	   public String getPrimaryKey() {
 				
-		 return pk_calcinterest;
+		 return pk_calcinterest_b;
 	   
 	   }
 
@@ -705,11 +820,11 @@
 	  * 设置对象标识,用来唯一定位对象.
 	  *
 	  * 创建日期:2012-8-20
-	  * @param newPk_calcinterest  String    
+	  * @param newPk_calcinterest_b  String    
 	  */
-	 public void setPrimaryKey(String newPk_calcinterest) {
+	 public void setPrimaryKey(String newPk_calcinterest_b) {
 				
-				pk_calcinterest = newPk_calcinterest; 
+				pk_calcinterest_b = newPk_calcinterest_b; 
 				
 	 } 
            
@@ -721,7 +836,7 @@
 	   */
 	 public String getEntityName() {
 				
-	   return "ehpta_calc_interest"; 
+	   return "ehpta_calc_interest_b"; 
 				
 	 } 
 } 
