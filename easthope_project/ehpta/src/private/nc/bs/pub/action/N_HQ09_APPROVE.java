@@ -11,19 +11,19 @@ import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.uap.pf.PFBusinessException;
 /**
- * 备注：PTA挂结价维护的审批
+ * 备注：贴息计算的审批
 单据动作执行中的动态执行类的动态执行类。
  *
- * 创建日期：(2012-7-4)
+ * 创建日期：(2012-8-20)
  * @author 平台脚本生成
  */
-public class N_HQ03_APPROVE extends AbstractCompiler2 {
+public class N_HQ09_APPROVE extends AbstractCompiler2 {
 private java.util.Hashtable m_methodReturnHas=new java.util.Hashtable();
 private Hashtable m_keyHas=null;
 /**
- * N_HQ03_APPROVE 构造子注解。
+ * N_HQ09_APPROVE 构造子注解。
  */
-public N_HQ03_APPROVE() {
+public N_HQ09_APPROVE() {
 	super();
 }
 /*
@@ -34,7 +34,7 @@ public Object runComClass(PfParameterVO vo) throws BusinessException {
 try{
 	super.m_tmpVo=vo;
 	//####该组件为单动作工作流处理开始...不能进行修改####
-	Object m_sysflowObj= procActionFlow(vo);
+Object m_sysflowObj= procActionFlow(vo);
 	if (m_sysflowObj!=null){
 		return m_sysflowObj;
 	}

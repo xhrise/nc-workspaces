@@ -1,8 +1,11 @@
 package nc.ui.ehpta.hq010901;
 
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
+import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
 import nc.ui.trade.base.IBillOperate;
@@ -27,9 +30,14 @@ import nc.vo.trade.pub.IBillStatus;
  * @author author
  * @version tempProject version
  */
-public class ClientUI extends nc.ui.trade.manage.BillManageUI
-		implements ILinkQuery {
+public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
+		ILinkQuery {
 
+	private final String[] bodyFamulas = new String[]{
+			"interestmny->(remny * days * rate / 100) / 360",
+			"actualmny->interestmny",
+		};
+	
 	protected AbstractManageController createController() {
 		return new ClientUICtrl();
 	}
@@ -88,6 +96,13 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			btnVo3.setBtnCode(null);
 			addPrivateButton(btnVo3);
 		}
+		
+		addPrivateButton(DefaultBillButton.getMaintainButtonVO());
+		addPrivateButton(DefaultBillButton.getStatisticsButtonVO());
+		addPrivateButton(DefaultBillButton.getMarkButtonVO());
+		addPrivateButton(DefaultBillButton.getSelAllButtonVO());
+		addPrivateButton(DefaultBillButton.getSelNoneButtonVO());
+		
 	}
 
 	/**
@@ -113,7 +128,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			}
 		}
 	}
-	
+
 	protected ManageEventHandler createEventHandler() {
 		return new EventHandler(this, getUIControl());
 	}
@@ -131,8 +146,17 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 
 	protected void initSelfData() {
+		getBillListPanel().setMultiSelect(true);
+		getBillCardPanel().setBodyMultiSelect(true);
+		
+		
 	}
-
+	
+	@Override
+	protected boolean isSetRowNormalState() {
+		return false;
+	}
+	
 	public void setDefaultData() throws Exception {
 		BillField fileDef = BillField.getInstance();
 		String billtype = getUIControl().getBillType();
@@ -141,10 +165,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() };
+				fileDef.getField_BillStatus(),"dmakedate" };
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() };
+				billtype, new Integer(IBillStatus.FREE).toString(),_getDate() };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -154,10 +178,21 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if (item != null)
 				item.setValue(values[i]);
 		}
+		
 	}
-	
+
 	@Override
 	protected String getBillNo() throws Exception {
 		return GeneraterBillNO.getInstanse().build(getUIControl().getBillType(), _getCorp().getPk_corp());
 	}
+	
+	@Override
+	public void afterEdit(BillEditEvent e) {
+		super.afterEdit(e);
+		
+		if("rate".equals(e.getKey()))
+			getBillCardPanel().execBodyFormulas(e.getRow(), bodyFamulas);
+				
+	}
+	
 }
