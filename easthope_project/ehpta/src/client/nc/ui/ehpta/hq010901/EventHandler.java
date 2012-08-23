@@ -16,7 +16,10 @@ import nc.ui.ehpta.pub.convert.MarkDlg;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.pub.ButtonObject;
+import nc.ui.pub.beans.UICheckBox;
 import nc.ui.pub.beans.UIDialog;
+import nc.ui.pub.beans.UIRefPane;
+import nc.ui.pub.beans.UITextField;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.business.HYPubBO_Client;
@@ -43,10 +46,7 @@ import nc.vo.trade.pub.HYBillVO;
 @SuppressWarnings({"unchecked" , "rawtypes"})
 public class EventHandler extends ManageEventHandler {
 
-	private final String[] bodyFamulas = new String[]{
-		"interestmny->(remny * days * rate / 100) / 360",
-		"actualmny->interestmny",
-	};
+	protected Object oldPk_custdoc = null;
 	
 	public EventHandler(BillManageUI billUI, IControllerBase control) {
 		super(billUI, control);
@@ -85,8 +85,19 @@ public class EventHandler extends ManageEventHandler {
 	
 	@Override
 	protected void onBoEdit() throws Exception {
+		String primaryKey = getBillCardPanelWrapper().getBillVOFromUI().getParentVO().getPrimaryKey();
+		if(primaryKey != null && !"".equals(primaryKey))
+			oldPk_custdoc = getBillCardPanelWrapper().getBillVOFromUI().getParentVO().getAttributeValue("pk_custdoc");
 		
 		super.onBoEdit();
+	}
+	
+	@Override
+	protected void onBoCancel() throws Exception {
+		
+		super.onBoCancel();
+		
+		oldPk_custdoc = null;
 	}
 	
 	@Override
@@ -94,15 +105,66 @@ public class EventHandler extends ManageEventHandler {
 		
 		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel() , getBillCardPanelWrapper().getBillVOFromUI() , getBillTableCode());
 		
-		AggregatedValueObject billVO = getBillUI().getChangedVOFromUI();
+		AggregatedValueObject billVO = getBillCardPanelWrapper().getBillVOFromUI();
+		
+		if(billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+			UFDate redate = (UFDate) billVO.getChildrenVO()[0].getAttributeValue("redate");
+			if(redate != null) {
+				String period = (String) billVO.getParentVO().getAttributeValue("period");
+				if(!((redate.getYear() + "-" + (redate.getMonth() < 10 ? "0" + redate.getMonth() : "" + redate.getMonth())).equals(period))) {
+					getBillCardPanelWrapper().getBillCardPanel().setHeadItem("period", redate.getYear() + "-" + (redate.getMonth() < 10 ? "0" + redate.getMonth() : "" + redate.getMonth()));
+					throw new Exception("表体统计的数据与表头期间不一致，期间自动修改为正确期间");
+				}
+			}
+		}
+		
 		if(billVO.getParentVO().getPrimaryKey() == null || "".equals(billVO.getParentVO().getPrimaryKey()))
 			super.onBoSave();
 		else {
 			
 			HYPubBO_Client.deleteByWhereClause(CalcInterestBVO.class, " 1 = 1 and pk_calcinterest = '"+billVO.getParentVO().getPrimaryKey()+"' ");
-			super.onBoSave();
-		}
+			CalcInterestBVO[] bodyVOs = (CalcInterestBVO[]) billVO.getChildrenVO();
 			
+			for(CalcInterestBVO bodyVO : bodyVOs) {
+				bodyVO.setPk_calcinterest(billVO.getParentVO().getPrimaryKey());
+			}
+			
+			HYPubBO_Client.insertAry(bodyVOs);
+			AggregatedValueObject newBillVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName(), billVO.getParentVO().getPrimaryKey());
+			
+			setSaveOperateState();
+			
+			int currRow = getBufferData().getCurrentRow();
+			getBufferData().setVOAt(currRow, newBillVO);
+			getBufferData().setCurrentRow(currRow);
+			
+		}
+		
+		validPrevious();
+			
+	}
+	
+	/**
+	 * 功能 ： 保存后续验证
+	 * 
+	 * Author : river 
+	 * 
+	 * Create : 2012-08-21
+	 * 
+	 * @throws Exception
+	 */
+	protected final void validPrevious() throws Exception {
+		Object period = getBufferData().getCurrentVO().getParentVO().getAttributeValue("period");
+		String prePeriod = "";
+		if(period != null) {
+			period = period + "-01";
+			UFDate periodDate = new UFDate(period.toString());
+			prePeriod = periodDate.getYear() + "-" + (periodDate.getMonth() - 1 < 10 ? "0" + (periodDate.getMonth() - 1) : "" + (periodDate.getMonth() - 1));
+		}
+		
+		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_interest where period = '"+prePeriod+"'", new ColumnProcessor());
+		if(count == 0) 
+			getBillUI().showWarningMessage("前一期间的贴息单未统计...");
 	}
 	
 	protected void onBoSelAll() throws Exception {
@@ -113,6 +175,15 @@ public class EventHandler extends ManageEventHandler {
 		selectAll( false);
 	}
 	
+	/**
+	 * 功能 ： 全选或全消行记录
+	 * 
+	 * Author : river 
+	 * 
+	 * Create : 2012-08-21
+	 * 
+	 * @throws Exception
+	 */
 	private final void selectAll( boolean isNeedSelected) throws Exception {
 		int row = getBillCardPanelWrapper().getBillVOFromUI().getChildrenVO().length;
 		BillModel headModel = getBillCardPanelWrapper().getBillCardPanel().getBillModel(getBillTableCode()[0]);
@@ -144,6 +215,11 @@ public class EventHandler extends ManageEventHandler {
 		if(interest.getPeriod() == null || "".equals(interest.getPeriod()))
 			throw new Exception("请选择表头期间后再进行统计");
 		
+		// 暂时有问题，注释之。
+//		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1) , 0) from ehpta_calc_interest where period = '"+interest.getPeriod()+"' and nvl(dr,0)=0", new ColumnProcessor());
+//		if(count > 0)
+//			throw new Exception("当前期间已统计，请弃审并删除当前期间统计的记录后再做统计操作。");
+		
 		UFDate period = new UFDate(interest.getPeriod() + "-01");
 		String lastDay = CalcFunc.bulder(period);
 		
@@ -165,7 +241,7 @@ public class EventHandler extends ManageEventHandler {
 				
 				"zb.pj_jsfs def1" , 
 				"fb.hbbm def2" ,
-				"fb.hbbm def3" ,
+				"cuman.pk_cumandoc def3" ,
 		});
 		
 		StringBuilder builder = new StringBuilder();
@@ -182,7 +258,8 @@ public class EventHandler extends ManageEventHandler {
 			builder.append(" where zb.zyx6 is not null and zb.effectdate >= '"+period.toString()+"' and zb.effectdate <= '"+endPeriod.toString()+"' and cuman.pk_corp = '"+_getCorp().getPk_corp()+"' ");
 	
 		builder.append(" and nvl(zb.dr,0)=0 and nvl(fb.dr,0)=0 and nvl(contract.dr,0)=0 and nvl(bala.dr,0)=0 and nvl(cubas.dr,0)=0 and nvl(cuman.dr,0)=0 ");
-		builder.append(" and zb.djzt = 3 ");
+		builder.append(" and zb.djzt = 3 and (cuman.custflag = '0' or cuman.custflag = '2') ");
+		builder.append(" and (select nvl(count(1),0) from ehpta_calc_interest_b where pk_receivable = zb.vouchid and nvl(dr,0)=0) = 0 ");
 		
 		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new MapListProcessor());
 		
@@ -197,8 +274,9 @@ public class EventHandler extends ManageEventHandler {
 					interestB.setAttributeValue(attr, ConvertFunc.change(CalcInterestBVO.class, attr, retMap.get(attr)));
 				
 					if(((Integer)retMap.get("days")) > 0) { 
+						
 						interestB.setAttributeValue("interestto", "东方希望集团有限公司");
-						interestB.setAttributeValue("def2", "0001A8100000000043HA");
+						interestB.setAttributeValue("def2", "0001B81000000001L83W");
 					}
 					
 				}
@@ -214,6 +292,21 @@ public class EventHandler extends ManageEventHandler {
 			billVO.setChildrenVO(interestBs);
 			getBillCardPanelWrapper().setCardData(billVO);
 			
+		} else {
+			AggregatedValueObject billVO = getBufferData().getCurrentVO();
+			int currRow = getBufferData().getCurrentRow();
+			if(billVO != null && billVO.getParentVO() != null) {
+				billVO.getParentVO().setAttributeValue("pk_custdoc", oldPk_custdoc);
+				
+				getBufferData().setVOAt(currRow, billVO);
+				getBufferData().setCurrentRow(currRow);
+			} else {
+				billVO = getBillCardPanelWrapper().getBillVOFromUI();
+				billVO.getParentVO().setAttributeValue("pk_custdoc", oldPk_custdoc);
+				getBillCardPanelWrapper().setCardData(billVO);
+			}
+			
+			getBillUI().showWarningMessage("没有可统计的记录...");
 		}
 	}
 	
@@ -248,6 +341,15 @@ public class EventHandler extends ManageEventHandler {
 		afterOnButton();
 	}
 	
+	/**
+	 * 功能 ： 批改按钮操作
+	 * 
+	 * Author : river 
+	 * 
+	 * Create : 2012-08-21
+	 * 
+	 * @throws Exception
+	 */
 	protected void onBoMark() throws Exception {
 		
 		MarkDlg markDlg = MarkDlg.getInstance(getBillUI() , getUIController().getBillType());
@@ -262,10 +364,18 @@ public class EventHandler extends ManageEventHandler {
 				selBodyVOs = (CalcInterestBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
 			
 			for(CalcInterestBVO selbodyVO : selBodyVOs) {
-				
 				for(CalcInterestBVO bodyVO : bodyVOs) {
 					if(selbodyVO.getDef4().equals(bodyVO.getDef4())) {
-						bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcInterestBVO.class, markDlg.getFieldRef().getRefCode(), markDlg.getTxtValue().getText()));
+						
+						if(markDlg.getTxtValue() instanceof UITextField) {
+							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcInterestBVO.class, markDlg.getFieldRef().getRefCode(), ((UITextField)markDlg.getTxtValue()).getText()));
+						} else if(markDlg.getTxtValue() instanceof UICheckBox) {
+							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcInterestBVO.class, markDlg.getFieldRef().getRefCode(), new UFBoolean(((UICheckBox)markDlg.getTxtValue()).isSelected())));
+						} else if(markDlg.getTxtValue() instanceof UIRefPane) {
+							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcInterestBVO.class, markDlg.getFieldRef().getRefCode(), ((UIRefPane)markDlg.getTxtValue()).getRefName()));
+							bodyVO.setAttributeValue("def2", ConvertFunc.change(CalcInterestBVO.class, markDlg.getFieldRef().getRefCode(), ((UIRefPane)markDlg.getTxtValue()).getRefPK()));
+						}
+						
 						break;
 					}
 				}
@@ -278,7 +388,9 @@ public class EventHandler extends ManageEventHandler {
 			getBillCardPanelWrapper().setCardData(billVO);
 			
 			for(int row = 0 , count = bodyVOs.length ; row < count ; row ++) 
-				getBillCardPanelWrapper().getBillCardPanel().execBodyFormulas(row, bodyFamulas);
+				getBillCardPanelWrapper().getBillCardPanel().execBodyFormulas(row, ((ClientUI)getBillUI()).bodyFamulas);
+			
+			
 		}
 	}
 	
@@ -289,6 +401,24 @@ public class EventHandler extends ManageEventHandler {
 		afterOnBoAudit();
 	}
 	
+	@Override
+	protected void onBoCancelAudit() throws Exception {
+		
+		super.onBoCancelAudit();
+		
+		afterOnBoCancelAudit();
+		
+	}
+	
+	/**
+	 * 功能 ： 审核后续操作
+	 * 
+	 * Author : river 
+	 * 
+	 * Create : 2012-08-21
+	 * 
+	 * @throws Exception
+	 */
 	protected final void afterOnBoAudit() throws Exception {
 
 		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) {
@@ -313,10 +443,10 @@ public class EventHandler extends ManageEventHandler {
 			List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
 			
 			for(CalcInterestBVO bodyVO : currBodyVOs) {
-				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1)) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
+				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
 				
 				if(count == 0) {
-					try { UAPQueryBS.iUAPQueryBS.executeQuery("update table arap_djzb set zyx8 = 'Y' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
+					try { UAPQueryBS.iUAPQueryBS.executeQuery("update arap_djzb set zyx8 = 'Y' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
 					adjustList.add(createAdjust(bodyVO));
 				}	
 			}
@@ -341,6 +471,88 @@ public class EventHandler extends ManageEventHandler {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 功能 ： 弃审后续操作
+	 * 
+	 * Author : river 
+	 * 
+	 * Create : 2012-08-21
+	 * 
+	 * @throws Exception
+	 */
+	protected final void afterOnBoCancelAudit() throws Exception {
+		
+		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.FREE) {
+			Object userObj = new ClientUICheckRuleGetter();
+			CalcInterestBVO[] currBodyVOs = (CalcInterestBVO[]) getBufferData().getCurrentVO().getChildrenVO();
+			
+			List<String> adjustList = new ArrayList<String>();
+			for(CalcInterestBVO bodyVO : currBodyVOs) {
+				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
+				
+				if(count > 0) {
+					try { UAPQueryBS.iUAPQueryBS.executeQuery("update arap_djzb set zyx8 = 'N' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
+					adjustList.add("'" + bodyVO.getPk_receivable() + "'");
+				}	
+			}
+			
+			SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and nvl(dr,0) = 0 ");
+			
+			List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
+			for (SuperVO superVO : superVos) {
+				HYBillVO billVO = new HYBillVO();
+				billVO.setParentVO(superVO);
+				billVOs.add(billVO);
+			}
+			
+			if (billVOs != null && billVOs.size() > 0) {
+				for (AggregatedValueObject billVO : billVOs) {
+
+					try {
+						getBusinessAction().unapprove(billVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
+					
+					} catch (Exception e) {
+						Logger.error(e);
+						throw new Exception(e);
+					}
+					
+					try {
+						SuperVO adjust = HYPubBO_Client.queryByPrimaryKey( AdjustVO.class, billVO.getParentVO().getPrimaryKey());
+						HYBillVO newBillVO = new HYBillVO();
+						newBillVO.setParentVO(adjust);
+
+						getBusinessAction().delete(newBillVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
+					
+					} catch (Exception e) {
+
+						Logger.error(e);
+						throw new Exception(e);
+						
+					}
+
+				}
+
+			}
+			
+			for(CalcInterestBVO bodyVO : currBodyVOs) {
+				bodyVO.setCalcflag(new UFBoolean("N"));
+			}
+			
+			HYPubBO_Client.updateAry(currBodyVOs);
+			
+			AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(new String[]{
+					HYBillVO.class.getName(),
+					CalcInterestVO.class.getName(),
+					CalcInterestBVO.class.getName(),
+			}, getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
+			
+			getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
+			getBufferData().setCurrentRow(getBufferData().getCurrentRow());
+			
+		}
+			
 	}
 	
 	/**
