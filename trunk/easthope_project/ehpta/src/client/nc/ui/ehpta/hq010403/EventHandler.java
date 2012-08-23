@@ -97,7 +97,7 @@ public class EventHandler extends ManageEventHandler {
 		if(currAggVO != null && currAggVO.getParentVO() != null) {
 			String def2 = (String) currAggVO.getParentVO().getAttributeValue("def2");
 			if(def2 != null && "Y".equals(def2))
-				throw new Exception ("当前记录由收款单推式生成，不能进行弃审操作！");
+				throw new Exception ("当前记录为推式生成，不能进行弃审操作！");
 		}
 		
 		super.onBoCancelAudit();

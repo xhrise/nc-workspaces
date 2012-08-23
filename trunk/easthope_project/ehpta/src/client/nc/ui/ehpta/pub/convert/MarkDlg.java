@@ -1,22 +1,33 @@
 package nc.ui.ehpta.pub.convert;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.border.Border;
 
+import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.MapProcessor;
+import nc.ui.bd.ref.AbstractRefModel;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.ref.TempletItemRefPane;
 import nc.ui.pub.beans.UIButton;
+import nc.ui.pub.beans.UICheckBox;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.beans.UILabel;
 import nc.ui.pub.beans.UIPanel;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.beans.UITextField;
+import nc.ui.pub.beans.ValueChangedEvent;
+import nc.ui.pub.beans.ValueChangedListener;
+import nc.ui.pub.beans.textfield.UITextType;
 
 /**
  * 消息筛选条件设置对话框
@@ -39,10 +50,12 @@ public class MarkDlg extends UIDialog implements ActionListener {
 
 	private UIRefPane fieldRef = null;
 	
-	private UITextField txtValue = null;
+	private Component txtValue = null;
 	
 	private static String pk_billtype = null;
 
+	protected MarkDlg mark = null;
+	
 	private MarkDlg() {
 		
 	}
@@ -52,6 +65,7 @@ public class MarkDlg extends UIDialog implements ActionListener {
 
 		init();
 
+		mark = this;
 	}
 	
 	public static final MarkDlg getInstance(Container parent , String pk_billtype ) throws Exception {
@@ -154,10 +168,9 @@ public class MarkDlg extends UIDialog implements ActionListener {
 
 	}
 
-	private void initListener() {
+	private void initListener() throws Exception {
 		getBtnOK().addActionListener(this);
 		getBtnCancel().addActionListener(this);
-
 	}
 
 	/**
@@ -229,12 +242,98 @@ public class MarkDlg extends UIDialog implements ActionListener {
 			fieldRef.setRefModel(new TempletItemRefPane()); 
 			fieldRef.setWhereString(" 1 = 1 and pk_billtypecode = '"+pk_billtype+"' and showflag = 1 and pos = 1 and editflag = 1 ");
 			fieldRef.setPreferredSize(new Dimension(249 , 22));
+			fieldRef.addValueChangedListener(new ValueChangedListener() {
+				
+				public void valueChanged(ValueChangedEvent e) {
+					try {
+						UIRefPane source = (UIRefPane) e.getSource();
+						Map retMap = (HashMap) UAPQueryBS.iUAPQueryBS.executeQuery("select datatype , reftype from pub_billtemplet_b where pk_billtemplet_b = '"+source.getRefPK()+"'", new MapProcessor());
+						
+						// datatype数据类型引用自 IRefPane 接口
+						switch(Integer.valueOf(retMap.get("datatype").toString())) {
+						
+							case 0 :
+								txtValue = new UITextField();
+								((UITextField)txtValue).setTextType(UITextType.TextStr);
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								break;
+							
+							case 1 : 
+								
+								txtValue = new UITextField();
+								((UITextField)txtValue).setTextType(UITextType.TextInt);
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								
+								break;
+								
+							case 2 : 
+								txtValue = new UITextField();
+								((UITextField)txtValue).setTextType(UITextType.TextDbl);
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								
+								break;
+								
+							case 3 : 
+								txtValue = new UITextField();
+								((UITextField)txtValue).setTextType(UITextType.TextDate);
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								
+								break;
+								
+							case 4 : 
+								txtValue = new UICheckBox();
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								break;
+								
+							case 5 : 
+								txtValue = new UIRefPane();
+								if(retMap.get("reftype") != null) {
+									if("<".equals(retMap.get("reftype").toString().charAt(0)) && ">".equals(retMap.get("reftype").toString().charAt(retMap.get("reftype").toString().length() - 1))) {
+										String refModeName = retMap.get("reftype").toString().substring(1 , retMap.get("reftype").toString().length() - 1);	
+										((UIRefPane)txtValue).setRefModel((AbstractRefModel) Class.forName(refModeName).newInstance());
+									} else 
+										((UIRefPane)txtValue).setRefNodeName(retMap.get("reftype").toString().split(",")[0]);
+								
+								}
+								
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								break;
+								
+							default :
+								txtValue = new UITextField();
+								txtValue.setPreferredSize(new java.awt.Dimension(249, 22));
+								break;
+									
+						}
+						
+						btnCancel = null;
+
+						btnOK = null;
+
+						btnPanel = null;
+
+						contentPanel = null;
+
+						filterPanel = null;
+
+						title = null;
+
+						mark.init();
+						mark.setVisible(false);
+						mark.repaint();
+						mark.setVisible(true);
+						
+					} catch(Exception ex) {
+						Logger.error(ex.getMessage());
+					}
+				}
+			});
 		}
 		
 		return fieldRef;
 	}
 	
-	public UITextField getTxtValue() {
+	public Component getTxtValue() {
 		if(txtValue == null) {
 			txtValue = new UITextField();
 			txtValue.setPreferredSize(new java.awt.Dimension(249, 22));

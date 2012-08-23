@@ -3,9 +3,11 @@ package nc.ui.ehpta.hq010901;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.beans.constenum.DefaultConstEnum;
+import nc.ui.pub.bill.BillCardBeforeEditListener;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
-import nc.ui.pub.bill.BillModel;
+import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
 import nc.ui.trade.base.IBillOperate;
@@ -33,10 +35,11 @@ import nc.vo.trade.pub.IBillStatus;
 public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		ILinkQuery {
 
-	private final String[] bodyFamulas = new String[]{
-			"interestmny->(remny * days * rate / 100) / 360",
-			"actualmny->interestmny",
-		};
+	protected final String[] bodyFamulas = new String[] {
+		"interestmny->(remny * days * rate / 100) / 360",
+		"actualmny->interestmny",
+//		"interestto->getColValue(bd_cubasdoc,custname,pk_cubasdoc,getColValue(bd_cumandoc,pk_cubasdoc,pk_cumandoc,interestto))" ,
+	};
 	
 	protected AbstractManageController createController() {
 		return new ClientUICtrl();
@@ -193,6 +196,16 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		if("rate".equals(e.getKey()))
 			getBillCardPanel().execBodyFormulas(e.getRow(), bodyFamulas);
 				
+		if("interestto".equals(e.getKey())) {	
+			if(e.getValue() instanceof DefaultConstEnum && e.getValue() != null )
+				getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getValue(), e.getRow(), "def2");
+		}
+	}
+	
+	@Override
+	public boolean beforeEdit(BillEditEvent e) {
+		
+		return true;
 	}
 	
 }

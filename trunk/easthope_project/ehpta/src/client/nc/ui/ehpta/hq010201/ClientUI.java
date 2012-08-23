@@ -167,9 +167,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
 		getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
 		
-		getBillListPanel().setMultiSelect(true);
-		getBillCardPanel().setBodyMultiSelect(true);
-		
+		getBillListPanel().setParentMultiSelect(true);
 
 	}
 	

@@ -39,9 +39,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 	private static final long serialVersionUID = -2862050814411394246L;
 
-	private EventHandler eventHandler = null;
+	protected EventHandler eventHandler = null;
 
-	private ClientUICtrl controller = null;
+	protected ClientUICtrl controller = null;
 
 	protected ClientUICtrl getController() {
 		if (controller == null)
@@ -111,7 +111,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			addPrivateButton(btnVo3);
 		}
 	}
-
+	
 	/**
 	 * 注册前台校验类
 	 */
@@ -214,6 +214,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				
 				if("piersfee".equals(e.getKey()) || "storcarfee".equals(e.getKey()) || "storshipfee".equals(e.getKey()) || "inlandshipfee".equals(e.getKey()) || "carfee".equals(e.getKey()))
 					afterSetTransprice(e);
+				
+				if("defestoraddr".equals(e.getKey()))
+					afterSetDefestoraddr(e);
 					
 			} else {
 				
@@ -351,6 +354,16 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		
 	}
 	
+	private final void afterSetDefestoraddr(BillEditEvent e) throws Exception { 
+		
+		if(e.getValue() == null)
+			getBillCardPanel().setBodyValueAt(null, e.getRow(), "estoraddr");
+		
+		else 
+			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getValue(), e.getRow(), "estoraddr");
+		
+	}
+	
 	@Override
 	public boolean beforeEdit(BillEditEvent e) {
 		
@@ -360,13 +373,27 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			
 			if(transtype != null && !"".equals(transtype)) {
 				if("upper".equals(transtype)) {
-					if("shipprice".equals(e.getKey()) || "dieselprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()) || "ashipprice".equals(e.getKey()) || "defpk_sstordoc".equals(e.getKey()) || "defpk_estordoc".equals(e.getKey()) || "defpk_sendtype".equals(e.getKey()) || "memo".equals(e.getKey()) )
+					if("shipprice".equals(e.getKey()) || 
+						"dieselprice".equals(e.getKey()) || 
+						"shipregulation".equals(e.getKey()) || 
+						"ashipprice".equals(e.getKey()) || 
+						"defpk_sstordoc".equals(e.getKey()) || 
+						"defpk_estordoc".equals(e.getKey()) || 
+						"defpk_sendtype".equals(e.getKey()) || 
+						"memo".equals(e.getKey()) || 
+						"defestoraddr".equals(e.getKey()))
+						
 						return true;
 					else 
 						return false;
 					
 				} else if("under".equals(transtype)) {
-					if(!("shipprice".equals(e.getKey()) || "dieselprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()) || "ashipprice".equals(e.getKey())))
+					if(!("shipprice".equals(e.getKey()) || 
+						"dieselprice".equals(e.getKey()) || 
+						"shipregulation".equals(e.getKey()) || 
+						"ashipprice".equals(e.getKey())) || 
+						"defestoraddr".equals(e.getKey()))
+						
 						return true;
 					else 
 						return false;
