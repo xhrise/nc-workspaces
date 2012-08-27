@@ -59,8 +59,13 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		if("保存".equals(bo.getName())) 
 			beforeOnBoSave(ctx);
 		
-		else if("审核".equals(bo.getName()))
+		else if("审核".equals(bo.getName())) {
+			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getIctxpanel()).strShowState))
+				throw new BusinessException("列表状态不能进行审核操作，请转至卡片界面操作。");
+			
 			beforeOnBoAudit(ctx);
+			
+		}
 		
 	}
 	

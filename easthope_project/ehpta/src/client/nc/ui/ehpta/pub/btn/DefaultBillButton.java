@@ -36,6 +36,16 @@ public final class DefaultBillButton {
 	public static final int Maintain = 106;
 	
 	/**
+	 *  确认
+	 */
+	public static final int Confirm = 107;
+	
+	/**
+	 *  取消确认
+	 */
+	public static final int Cancelconfirm = 108;
+	
+	/**
 	 * 到款记录
 	 */
 	public static final int RECEIVABLE = 110; 
@@ -228,6 +238,30 @@ public final class DefaultBillButton {
 		btnVO.setBtnCode("SelNone");
 		btnVO.setBtnName("全消");
 		btnVO.setBtnChinaName("全消");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getConfirmButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(Confirm);
+		btnVO.setBtnCode("Confirm");
+		btnVO.setBtnName("确认");
+		btnVO.setBtnChinaName("确认");
+		
+		btnVO.setChildAry(new int[] {});
+		
+		return btnVO;
+	}
+	
+	public static final ButtonVO getCancelconfirmButtonVO() {
+		ButtonVO btnVO = new ButtonVO();
+		btnVO.setBtnNo(Cancelconfirm);
+		btnVO.setBtnCode("Cancelconfirm");
+		btnVO.setBtnName("取消确认");
+		btnVO.setBtnChinaName("取消确认");
 		
 		btnVO.setChildAry(new int[] {});
 		
