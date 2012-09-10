@@ -1,28 +1,28 @@
-package nc.ui.ehpta.hq010910;
+package nc.ui.ehpta.hq010920;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.ISingleController;
 import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
-import nc.vo.ehpta.hq010910.CalcSettlementVO;
+import nc.vo.ehpta.hq010920.CalcUpperTransfeeVO;
 import nc.vo.trade.pub.HYBillVO;
+
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
- * 
+ *
  * <p>
- * 在此处添加此类的描述信息
+ *     在此处添加此类的描述信息
  * </p>
- * 
+ *
  * Create on 2006-4-6 16:00:51
- * 
+ *
  * @author authorName
  * @version tempProject version
  */
 
-public class ClientUICtrl extends AbstractManageController implements
-		ISingleController {
+public class ClientUICtrl extends AbstractManageController implements ISingleController{
 
 	public String[] getCardBodyHideCol() {
 		return null;
@@ -42,7 +42,7 @@ public class ClientUICtrl extends AbstractManageController implements
 		return new int[] { IBillButton.Query, DefaultBillButton.Statistics,
 				DefaultBillButton.Confirm, DefaultBillButton.Cancelconfirm,
 				IBillButton.SelAll, IBillButton.SelNone,
-				IBillButton.Commit, IBillButton.Audit,IBillButton.CancelAudit,IBillButton.Card
+				IBillButton.Commit, IBillButton.Audit,IBillButton.Card
 
 		};
 
@@ -57,13 +57,15 @@ public class ClientUICtrl extends AbstractManageController implements
 	}
 
 	public String getBillType() {
-		return "HQ10";
+		return "HQ11";
 	}
 
 	public String[] getBillVoName() {
-		return new String[] { HYBillVO.class.getName(),
-				CalcSettlementVO.class.getName(),
-				CalcSettlementVO.class.getName() };
+		return new String[]{
+			HYBillVO.class.getName(),
+			CalcUpperTransfeeVO.class.getName(),
+			CalcUpperTransfeeVO.class.getName()
+		};
 	}
 
 	public String getBodyCondition() {
@@ -98,32 +100,31 @@ public class ClientUICtrl extends AbstractManageController implements
 		return true;
 	}
 
-	public boolean isLoadCardFormula() {
+	public boolean isLoadCardFormula() {		
 		return true;
 	}
 
-	public String[] getListBodyHideCol() {
+	public String[] getListBodyHideCol() {	
 		return null;
 	}
 
-	public String[] getListHeadHideCol() {
+	public String[] getListHeadHideCol() {		
 		return null;
 	}
 
-	public boolean isShowListRowNo() {
+	public boolean isShowListRowNo() {		
 		return true;
 	}
 
 	public boolean isShowListTotal() {
 		return true;
 	}
-
+	
 	/**
 	 * 是否单表
-	 * 
 	 * @return boolean true:单表体，false:单表头
-	 */
+	 */ 
 	public boolean isSingleDetail() {
-		return false; // 单表头
+		return false; //单表头
 	}
 }

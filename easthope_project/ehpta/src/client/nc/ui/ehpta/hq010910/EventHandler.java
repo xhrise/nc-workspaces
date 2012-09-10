@@ -9,9 +9,12 @@ import nc.ui.ehpta.hq010901.ClientUICheckRuleGetter;
 import nc.ui.ehpta.pub.IAdjustType;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.calc.CalcFunc;
 import nc.ui.ehpta.pub.convert.ConvertFunc;
+import nc.ui.ehpta.pub.dlg.PeriodDlg;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.pf.PfUtilClient;
 import nc.ui.trade.business.HYPubBO_Client;
@@ -68,8 +71,26 @@ public class EventHandler extends ManageEventHandler {
 
 	protected final void onBoStatistics() throws Exception {
 
-		UFDate firstDate = new UFDate(_getDate().getYear() + "-" + _getDate().getMonth() + "-01");
-		View_CalcSettlementVO[] vsettleVOs = (View_CalcSettlementVO[]) HYPubBO_Client.queryByCondition(View_CalcSettlementVO.class, " cmakedate >= '"+firstDate.toString()+"' and cmakedate <= '" + _getDate().toString() + "' and nvl(settleflag , 'N') = 'N' ");
+		PeriodDlg peroidDlg = new PeriodDlg(getBillUI());
+		
+		if(peroidDlg.showModal() != UIDialog.ID_OK)
+			return ;
+		
+		if(peroidDlg.getFieldRef().getRefName() == null || "".equals(peroidDlg.getFieldRef().getRefName())) {
+			
+			getBufferData().clear();
+			updateBuffer();
+			
+			throw new Exception("会计期间不能为空...");
+			
+		}
+		
+		String peroid = peroidDlg.getFieldRef().getRefName();
+		
+		UFDate firstDate = new UFDate(peroid + "-01");
+		UFDate lastDate = new UFDate(peroid + "-" + CalcFunc.builder(firstDate));
+		
+		View_CalcSettlementVO[] vsettleVOs = (View_CalcSettlementVO[]) HYPubBO_Client.queryByCondition(View_CalcSettlementVO.class, " cmakedate >= '"+firstDate.toString()+"' and cmakedate <= '" + lastDate.toString() + "' and nvl(settleflag , 'N') = 'N' ");
 
 		if (vsettleVOs != null && vsettleVOs.length > 0) {
 			int row = 0;
@@ -399,9 +420,9 @@ public class EventHandler extends ManageEventHandler {
 	@Override
 	protected void onBoCancelAudit() throws Exception {
 		
-		throw new Exception("审核后的数据不能进行弃审操作");
+//		throw new Exception("审核后的数据不能进行弃审操作");
 		
-//		super.onBoCancelAudit();
+		super.onBoCancelAudit();
 	}
 	
 	/**
