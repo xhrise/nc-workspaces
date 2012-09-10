@@ -7,6 +7,7 @@ import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ehpta.pub.ref.LPriceRefPane;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIRefPane;
@@ -60,7 +61,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			beforeOnBoSave(ctx);
 		
 		else if("审核".equals(bo.getName())) {
-			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getIctxpanel()).strShowState))
+			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))
 				throw new BusinessException("列表状态不能进行审核操作，请转至卡片界面操作。");
 			
 			beforeOnBoAudit(ctx);
@@ -434,10 +435,21 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		AggregatedValueObject billVO = ctx.getBillCardPanel().getBillData().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
 		if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
 			for(int i = 0 , j = billVO.getChildrenVO().length ; i < j ; i ++) {
-				
+
 				ctx.getBillCardPanel().execBodyFormulas(i, formulas);
 				
 			}
+		}
+		
+		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		
+		if(selVO != null) {
+			UFDouble noriginalcursummny = new UFDouble("0" , 2);
+			for(CircularlyAccessibleValueObject vo : selVO.getChildrenVO()) {
+				noriginalcursummny = noriginalcursummny.add(vo.getAttributeValue("noriginalcursummny") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("noriginalcursummny").toString()));
+			}
+		
+			ctx.getBillCardPanel().execHeadFormula("nheadsummny->" + noriginalcursummny.toString());
 		}
 		
 	}
@@ -466,6 +478,20 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 			ctx.getBillCardPanel().execBodyFormulas(e.getRow(), formulas);
 		}
+		
+		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		
+		if(selVO != null) {
+			UFDouble noriginalcursummny = new UFDouble("0" , 2);
+			for(CircularlyAccessibleValueObject vo : selVO.getChildrenVO()) {
+				noriginalcursummny = noriginalcursummny.add(vo.getAttributeValue("noriginalcursummny") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("noriginalcursummny").toString()));
+			}
+		
+			ctx.getBillCardPanel().execHeadFormula("nheadsummny->" + noriginalcursummny.toString());
+		}
+		
+		
+		
 	}
 	
 	/**
@@ -492,6 +518,17 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				ctx.getBillCardPanel().execBodyFormulas(i, formulas);
 				
 			}
+		}
+		
+		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		
+		if(selVO != null) {
+			UFDouble noriginalcursummny = new UFDouble("0" , 2);
+			for(CircularlyAccessibleValueObject vo : selVO.getChildrenVO()) {
+				noriginalcursummny = noriginalcursummny.add(vo.getAttributeValue("noriginalcursummny") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("noriginalcursummny").toString()));
+			}
+		
+			ctx.getBillCardPanel().execHeadFormula("nheadsummny->" + noriginalcursummny.toString());
 		}
 		
 	}

@@ -24,8 +24,8 @@ public class CalcFunc {
 	 * @return
 	 * @throws Exception
 	 */
-	public static final String bulder(Object date) throws Exception {
-		
+	public static final String builder(Object date) throws Exception {
+
 		if(date == null)
 			throw new Exception("ÈÕÆÚ is NULL");
 		
