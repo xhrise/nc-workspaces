@@ -1,6 +1,7 @@
 package nc.ui.ehpta.hq010920;
 
 import java.awt.Container;
+
 import nc.ui.trade.businessaction.IPFACTION;
 import nc.ui.trade.check.BeforeActionCHK;
 import nc.vo.pub.AggregatedValueObject;
@@ -11,7 +12,6 @@ import nc.vo.trade.checkrule.ICompareRule;
 import nc.vo.trade.checkrule.ISpecialChecker;
 import nc.vo.trade.checkrule.IUniqueRule;
 import nc.vo.trade.checkrule.IUniqueRules;
-import nc.vo.trade.checkrule.UniqueRule;
 import nc.vo.trade.checkrule.VOChecker;
 
 

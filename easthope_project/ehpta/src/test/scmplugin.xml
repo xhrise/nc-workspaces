@@ -805,7 +805,7 @@
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
 				<field>
-					<!--运输输同-->
+					<!--运输单价-->
 					<dbfieldname>pk_transport</dbfieldname>
 					<vofieldname>pk_transport</vofieldname>
 					<dbfieldtype>12</dbfieldtype>
@@ -815,7 +815,27 @@
 					<allownull>Y</allownull>
 					<precision></precision>
 					<showprop>
-						<showname>运输输同</showname>
+						<showname>运输单价</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--运输单价-->
+					<dbfieldname>transport</dbfieldname>
+					<vofieldname>transport</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>运输单价</showname>
 						<isshow>Y</isshow>
 						<tabcode>main</tabcode>
 						<showformula/>

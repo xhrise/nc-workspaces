@@ -1,10 +1,14 @@
 package nc.ui.ehpta.hq010920;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.bill.BillCellEditor;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
+import nc.ui.pub.query.QueryConditionClient;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
@@ -30,7 +34,13 @@ import nc.vo.trade.pub.IBillStatus;
  */
 public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		ILinkQuery {
-
+	
+	protected QueryConditionClient condition = null;
+	
+	protected final String[] bodyFamulas = new String[] {
+			"paymny-> transmny - outmny",
+	};
+	
 	protected AbstractManageController createController() {
 		return new ClientUICtrl();
 	}
@@ -90,11 +100,18 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			addPrivateButton(btnVo3);
 		}
 		
+		addPrivateButton(DefaultBillButton.getMaintainButtonVO());
 		addPrivateButton(DefaultBillButton.getStatisticsButtonVO());
-		addPrivateButton(DefaultBillButton.getConfirmButtonVO());
-		addPrivateButton(DefaultBillButton.getCancelconfirmButtonVO());
+		addPrivateButton(DefaultBillButton.getMarkButtonVO());
+		addPrivateButton(DefaultBillButton.getSelAllButtonVO());
+		addPrivateButton(DefaultBillButton.getSelNoneButtonVO());
 	}
 
+	@Override
+	protected boolean isSetRowNormalState() {
+		return false;
+	}
+	
 	/**
 	 * 注册前台校验类
 	 */
@@ -136,6 +153,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 
 	protected void initSelfData() {
+		
+		getBillListPanel().setMultiSelect(true);
+		getBillCardPanel().setBodyMultiSelect(true);
 	}
 
 	public void setDefaultData() throws Exception {
@@ -146,10 +166,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() };
+				fileDef.getField_BillStatus() , "dmakedate" };
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() };
+				billtype, new Integer(IBillStatus.FREE).toString() , _getDate() };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -183,5 +203,50 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		}
 
 		return super.getExtendStatus(vo);
+	}
+	
+	/**
+	 * 实例化查询模版。 创建日期：(2001-8-28 16:18:43)
+	 * 
+	 * @return nc.bs.pub.query.QueryCondition
+	 */
+	protected QueryConditionClient getConditionClient() {
+		if (condition == null) {
+			try {
+				
+				condition = new QueryConditionClient(this);
+				condition.setName("QueryConditionClient1");
+				condition.setSize(700, 400);
+				
+				condition.setTempletID(_getCorp().getPk_corp(), "HQ010920", _getOperator(), getBusinessType());
+				
+				condition.setCurPKCorp(_getCorp().getPk_corp());
+				condition.setCurUserID(_getOperator());
+				condition.setCurFunCode("HQ010920");
+				
+				// 隐藏常规页签
+				condition.setNormalShow(false);
+				
+			} catch (Exception e) {
+				
+			}
+		
+		}
+		
+		return condition;
+	}
+	
+	@Override
+	protected String getBillNo() throws Exception {
+		return GeneraterBillNO.getInstanse().build(getUIControl().getBillType(), _getCorp().getPk_corp());
+	}
+	
+	@Override
+	public void afterEdit(BillEditEvent e) {
+
+		super.afterEdit(e);
+		
+		if(e.getSource() instanceof BillCellEditor)
+			getBillCardPanel().execBodyFormulas(e.getRow(), bodyFamulas);
 	}
 }
