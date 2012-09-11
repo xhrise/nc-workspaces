@@ -29,8 +29,8 @@ import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.ehpta.hq010901.CalcInterestBVO;
 import nc.vo.ehpta.hq010901.CalcInterestVO;
-import nc.vo.fp.combase.pub01.IBillStatus;
 import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
@@ -140,8 +140,36 @@ public class EventHandler extends ManageEventHandler {
 			
 		}
 		
+		afterOnBoSave();
+		
 		validPrevious();
 			
+		
+	}
+	
+	@Override
+	protected void onBoDelete() throws Exception {
+		AggregatedValueObject currAggVO = getBufferData().getCurrentVO();
+		
+		super.onBoDelete();
+		
+		if(currAggVO != null) {
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_interest where pk_calcinterest = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			if(count > 0) {
+				if(currAggVO.getChildrenVO() != null && currAggVO.getChildrenVO().length > 0) {
+					SuperVO[] vos = (SuperVO[]) currAggVO.getChildrenVO().clone();
+					for(SuperVO vo : vos) {
+						vo.setAttributeValue("dr", 1);
+					}
+					
+					HYPubBO_Client.updateAry(vos);
+				}
+				
+				afterOnBoDelete(currAggVO);
+			}
+		}
+		
+		
 	}
 	
 	/**
@@ -259,7 +287,7 @@ public class EventHandler extends ManageEventHandler {
 	
 		builder.append(" and nvl(zb.dr,0)=0 and nvl(fb.dr,0)=0 and nvl(contract.dr,0)=0 and nvl(bala.dr,0)=0 and nvl(cubas.dr,0)=0 and nvl(cuman.dr,0)=0 ");
 		builder.append(" and zb.djzt = 3 and (cuman.custflag = '0' or cuman.custflag = '2') ");
-		builder.append(" and (select nvl(count(1),0) from ehpta_calc_interest_b where pk_receivable = zb.vouchid and nvl(dr,0)=0) = 0 ");
+		builder.append(" and (select nvl(count(1),0) from ehpta_calc_interest_b itstb left join ehpta_calc_interest itst on itst.pk_calcinterest = itstb.pk_calcinterest where pk_receivable = zb.vouchid and nvl(itst.dr, 0) = 0 and nvl(itstb.dr, 0) = 0 ) = 0 ");
 		
 		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new MapListProcessor());
 		
@@ -293,19 +321,6 @@ public class EventHandler extends ManageEventHandler {
 			getBillCardPanelWrapper().setCardData(billVO);
 			
 		} else {
-			AggregatedValueObject billVO = getBufferData().getCurrentVO();
-			int currRow = getBufferData().getCurrentRow();
-			if(billVO != null && billVO.getParentVO() != null) {
-				billVO.getParentVO().setAttributeValue("pk_custdoc", oldPk_custdoc);
-				
-				getBufferData().setVOAt(currRow, billVO);
-				getBufferData().setCurrentRow(currRow);
-			} else {
-				billVO = getBillCardPanelWrapper().getBillVOFromUI();
-				billVO.getParentVO().setAttributeValue("pk_custdoc", oldPk_custdoc);
-				getBillCardPanelWrapper().setCardData(billVO);
-			}
-			
 			getBillUI().showWarningMessage("没有可统计的记录...");
 		}
 	}
@@ -398,7 +413,9 @@ public class EventHandler extends ManageEventHandler {
 	public void onBoAudit() throws Exception {
 		super.onBoAudit();
 		
-		afterOnBoAudit();
+		// 保存时调用
+		// modify by river for 2012-09-11
+//		afterOnBoAudit();
 	}
 	
 	@Override
@@ -406,12 +423,14 @@ public class EventHandler extends ManageEventHandler {
 		
 		super.onBoCancelAudit();
 		
-		afterOnBoCancelAudit();
+		// 删除时调用
+		// modify by river for 2012-09-11
+//		afterOnBoCancelAudit();
 		
 	}
 	
 	/**
-	 * 功能 ： 审核后续操作
+	 * 功能 ： 保存后续操作
 	 * 
 	 * Author : river 
 	 * 
@@ -419,9 +438,10 @@ public class EventHandler extends ManageEventHandler {
 	 * 
 	 * @throws Exception
 	 */
-	protected final void afterOnBoAudit() throws Exception {
+	protected final void afterOnBoSave() throws Exception {
 
-		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) {
+		// 保存时调用，不再需要判断单据状态
+//		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) {
 			
 			CalcInterestBVO[] currBodyVOs = (CalcInterestBVO[]) getBufferData().getCurrentVO().getChildrenVO();
 			
@@ -470,11 +490,11 @@ public class EventHandler extends ManageEventHandler {
 
 				}
 			}
-		}
+//		}
 	}
 	
 	/**
-	 * 功能 ： 弃审后续操作
+	 * 功能 ：删除后续操作
 	 * 
 	 * Author : river 
 	 * 
@@ -482,14 +502,18 @@ public class EventHandler extends ManageEventHandler {
 	 * 
 	 * @throws Exception
 	 */
-	protected final void afterOnBoCancelAudit() throws Exception {
+	protected final void afterOnBoDelete(AggregatedValueObject currAggVO) throws Exception {
 		
-		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.FREE) {
+		//　删除时调用，不再需要判断单据状态
+//		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.FREE) {
 			Object userObj = new ClientUICheckRuleGetter();
-			CalcInterestBVO[] currBodyVOs = (CalcInterestBVO[]) getBufferData().getCurrentVO().getChildrenVO();
 			
 			List<String> adjustList = new ArrayList<String>();
-			for(CalcInterestBVO bodyVO : currBodyVOs) {
+			
+			if(currAggVO == null || currAggVO.getChildrenVO() == null || currAggVO.getChildrenVO().length == 0)
+				return ;
+			
+			for(CalcInterestBVO bodyVO : (CalcInterestBVO[])currAggVO.getChildrenVO()) {
 				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
 				
 				if(count > 0) {
@@ -498,7 +522,7 @@ public class EventHandler extends ManageEventHandler {
 				}	
 			}
 			
-			SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and nvl(dr,0) = 0 ");
+			SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and type = 2 and nvl(dr,0) = 0 ");
 			
 			List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
 			for (SuperVO superVO : superVos) {
@@ -536,22 +560,13 @@ public class EventHandler extends ManageEventHandler {
 
 			}
 			
-			for(CalcInterestBVO bodyVO : currBodyVOs) {
+			for(CalcInterestBVO bodyVO : (CalcInterestBVO[])currAggVO.getChildrenVO()) {
 				bodyVO.setCalcflag(new UFBoolean("N"));
 			}
 			
-			HYPubBO_Client.updateAry(currBodyVOs);
+			HYPubBO_Client.updateAry((CalcInterestBVO[])currAggVO.getChildrenVO());
 			
-			AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(new String[]{
-					HYBillVO.class.getName(),
-					CalcInterestVO.class.getName(),
-					CalcInterestBVO.class.getName(),
-			}, getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
-			
-			getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
-			getBufferData().setCurrentRow(getBufferData().getCurrentRow());
-			
-		}
+//		}
 			
 	}
 	

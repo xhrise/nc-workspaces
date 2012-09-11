@@ -14,7 +14,7 @@ public class TransportRefPane2 extends AbstractRefModel {
 		setRefNodeName("运输合同");
 		setRefTitle("运输合同");
 		setFieldCode(new String[] {
-			"pk_transport",
+			"pk_transport_b",
 			"vbillno",
 			"transtype",
 			"carrier",
@@ -34,7 +34,7 @@ public class TransportRefPane2 extends AbstractRefModel {
 		
 //		setHiddenFieldCode(new String[]{"pk_transport"});
 		
-		setPkFieldCode("pk_transport");
+		setPkFieldCode("pk_transport_b");
 		
 		setRefCodeField("price");
 		
@@ -42,7 +42,7 @@ public class TransportRefPane2 extends AbstractRefModel {
 		
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append(" (select transcont.pk_transport, ");
+		builder.append(" (select transcontb.pk_transport_b, ");
 		builder.append(" transcont.vbillno, ");
 		builder.append(" case when transcont.transtype = 'upper' then '上游运输合同' when transcont.transtype = 'under' then '下游运输合同' else '' end transtype, ");
 		builder.append(" bas.custname carrier, ");
