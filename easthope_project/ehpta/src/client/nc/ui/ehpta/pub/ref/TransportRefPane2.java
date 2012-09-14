@@ -51,7 +51,8 @@ public class TransportRefPane2 extends AbstractRefModel {
 		builder.append(" transcont.dr, "); 
 		builder.append(" transcont.vbillstatus, ");
 		builder.append(" send.sendname, ");
-		builder.append(" case when transcont.transtype = 'upper' then transcontb.ashipprice when transcont.transtype = 'under' then transcontb.transprice else 0 end price ");
+		builder.append(" case when transcont.transtype = 'upper' then transcontb.ashipprice when transcont.transtype = 'under' then transcontb.transprice else 0 end price , ");
+		builder.append(" transcont.pk_transport ");
 		builder.append(" from ehpta_transport_contract transcont ");
 		builder.append(" left join bd_cumandoc man on man.pk_cumandoc = transcont.pk_carrier ");
 		builder.append(" left join bd_cubasdoc bas on bas.pk_cubasdoc = man.pk_cubasdoc ");

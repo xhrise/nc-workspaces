@@ -31,6 +31,7 @@ public class ExtGeneralUIPlugin implements IScmUIPlugin{
 	}
 
 	public boolean beforeEdit(BillEditEvent e, SCMUIContext ctx) {
+		
 		return true;
 	}
 

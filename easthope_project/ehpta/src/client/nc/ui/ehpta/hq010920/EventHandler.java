@@ -267,11 +267,17 @@ public class EventHandler extends ManageEventHandler {
 	 */
 	private final void afterOnButton() {
 		
-		if(getBillUI().getBillOperate() == IBillOperate.OP_EDIT || getBillUI().getBillOperate() == IBillOperate.OP_ADD) {
+		if(getBillUI().getBillOperate() == IBillOperate.OP_ADD) {
 			getButtonManager().getButton(DefaultBillButton.Maintain).setEnabled(true);
+		} else if(getBillUI().getBillOperate() == IBillOperate.OP_EDIT) {
+			getButtonManager().getButton(DefaultBillButton.Maintain).setEnabled(true);
+			getButtonManager().getButton(DefaultBillButton.Statistics).setEnabled(false);
 		} else {
 			getButtonManager().getButton(DefaultBillButton.Maintain).setEnabled(false);
-		}
+			getButtonManager().getButton(DefaultBillButton.Statistics).setEnabled(true);
+		} 
+		
+		
 		
 		getBillUI().updateButtons();
 		

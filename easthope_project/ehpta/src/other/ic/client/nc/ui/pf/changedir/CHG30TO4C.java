@@ -134,7 +134,7 @@ public class CHG30TO4C extends nc.ui.pf.change.VOConversionUI {
 
 				"H_pk_transport->H_pk_transport", "H_concode->H_concode",
 				"H_salecode->H_vreceiptcode", "H_pk_contract->H_pk_contract",
-
+				"H_contracttype->H_contracttype" , 
 		};
 	}
 
