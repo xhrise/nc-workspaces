@@ -339,11 +339,15 @@ public class EventHandler extends ManageEventHandler {
 	 */
 	private final void afterOnButton() {
 		
-		if(getBillUI().getBillOperate() == IBillOperate.OP_EDIT || getBillUI().getBillOperate() == IBillOperate.OP_ADD) {
+		if(getBillUI().getBillOperate() == IBillOperate.OP_ADD) {
 			getButtonManager().getButton(DefaultBillButton.Maintain).setEnabled(true);
+		} else if(getBillUI().getBillOperate() == IBillOperate.OP_EDIT) {
+			getButtonManager().getButton(DefaultBillButton.Maintain).setEnabled(true);
+			getButtonManager().getButton(DefaultBillButton.Statistics).setEnabled(false);
 		} else {
 			getButtonManager().getButton(DefaultBillButton.Maintain).setEnabled(false);
-		}
+			getButtonManager().getButton(DefaultBillButton.Statistics).setEnabled(true);
+		} 
 		
 		getBillUI().updateButtons();
 		
@@ -451,11 +455,7 @@ public class EventHandler extends ManageEventHandler {
 			
 			HYPubBO_Client.updateAry(currBodyVOs);
 			
-			AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(new String[]{
-					HYBillVO.class.getName(),
-					CalcInterestVO.class.getName(),
-					CalcInterestBVO.class.getName(),
-			}, getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
+			AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName(), getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
 			
 			getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
 			getBufferData().setCurrentRow(getBufferData().getCurrentRow());

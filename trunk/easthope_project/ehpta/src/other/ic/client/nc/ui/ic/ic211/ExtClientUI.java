@@ -3,9 +3,13 @@ package nc.ui.ic.ic211;
 import java.awt.Container;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.MapListProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ic.auditdlg.ClientUIInAndOut;
 import nc.ui.ic.pub.RefMsg;
 import nc.ui.ic.pub.bill.GeneralBillClientUI;
@@ -20,11 +24,11 @@ import nc.ui.ic.pub.tools.GenMethod;
 import nc.ui.ml.NCLangRes;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.FramePanel;
-import nc.ui.pub.beans.UICheckBox;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
+import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.change.PfChangeBO_Client;
 import nc.ui.pub.linkoperate.ILinkType;
@@ -59,8 +63,6 @@ import nc.vo.scm.pub.SCMEnv;
 import nc.vo.scm.pub.session.ClientLink;
 import nc.vo.scm.pub.smart.SmartFieldMeta;
 import nc.vo.scm.so.RushLinkQueryVO;
-
-import com.ufida.iufo.pub.tools.AppDebug;
 
 /**
  * 销售出库单 创建日期：(2001-11-23 15:39:43)
@@ -846,7 +848,20 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 					ICButtonConst.BTN_ASSIST_COOP_45))
 				onCoop45Save();
 			else {
+				String boName = bo.getName();
+				
 				super.onButtonClicked(bo);
+				
+				if("卡片显示".equals(boName) || "首页".equals(boName) || "上页".equals(boName) || "下页".equals(boName) || "末页".equals(boName) || "取消".equals(boName)) {
+					getBillCardPanel().execHeadFormulas(new String[]{
+							"contracttype->getColValue(ic_general_h , contracttype , cgeneralhid , cgeneralhid)",
+							"storprice->getColValue(ic_general_h , pk_storcontract_b , cgeneralhid , cgeneralhid)",
+							"transprice->getColValue(ic_general_h , pk_transport_b , cgeneralhid , cgeneralhid)",
+							
+						});
+					
+				}
+					
 			}
 
 		}
@@ -984,6 +999,9 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 				}
 				execExtendFormula(alListData);
 				if (alListData != null && alListData.size() > 0) {
+					
+					alListData = setContractManager(alListData);
+					
 					setScaleOfListData(alListData);
 					setM_alListData(alListData);
 					setListHeadData();
@@ -1037,6 +1055,60 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 						"4008busi", "UPP4008busi-000252")/* @res "查询出错：" */
 						+ e.getMessage());
 			}
+			
+			getBillCardPanel().execHeadFormulas(new String[]{
+				"contracttype->getColValue(ic_general_h , contracttype , cgeneralhid , cgeneralhid)",
+				"storprice->getColValue(ic_general_h , pk_storcontract_b , cgeneralhid , cgeneralhid)",
+				"transprice->getColValue(ic_general_h , pk_transport_b , cgeneralhid , cgeneralhid)",
+				
+			});
+		}
+		
+		/**
+		 * 功能 : 设置PTA销售订单参照过来的相关合同字段的值
+		 * 
+		 * Author ： river
+		 * 
+		 * Create ： 2012-09-13
+		 * 
+		 * @param alListData
+		 * @throws Exception
+		 */
+		protected final ArrayList<GeneralBillVO> setContractManager(ArrayList<GeneralBillVO> alListData) throws Exception {
+			
+			List<String> pkList = new ArrayList<String>();
+			for(GeneralBillVO alData : alListData) {
+				pkList.add("'" + alData.getPrimaryKey() + "'");
+			}
+			
+			String[] fieldArr = new String[]{
+					"cgeneralhid" ,
+					"concode" ,
+					"pk_transport" ,
+					"transprice" ,
+					"storprice" ,
+					"contracttype" ,
+					"salecode" ,
+					"pk_storcontract_b" ,
+					"pk_transport_b" ,
+					"pk_contract" ,
+			};
+			
+			String sqlField = ConvertFunc.change(fieldArr);
+			
+			List<Map> retList = (List<Map>) UAPQueryBS.iUAPQueryBS.executeQuery("select "+sqlField+" from ic_general_h where cgeneralhid in ("+ConvertFunc.change(pkList.toArray(new String[0]))+")", new MapListProcessor());
+			
+			if(retList != null && retList.size() > 0) {
+				for(GeneralBillVO alData : alListData) 
+					for(Map map : retList) 
+						if(alData.getPrimaryKey().equals(map.get("cgeneralhid"))) 
+							for(String filed : fieldArr)
+								alData.getParentVO().setAttributeValue(filed, map.get(filed));
+			}
+			
+			
+			return alListData;
+			
 		}
 
 		/**
@@ -2836,6 +2908,155 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 
 		} while (al_repeatitems.size() > 0);
 		return al_splitBills;
+	}
+	
+	@Override
+	public boolean beforeEdit(BillItemEvent e) {
+		
+		if("storprice".equals(e.getItem().getKey())) {
+			Object cwarehouseid = getBillCardPanel().getHeadItem("cwarehouseid").getValueObject();
+			//　0001A810000000000JB9　-> 自提
+			if("0001A810000000000JB9".equals(getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject()))
+				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
+			else 
+				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and pk_stordoc = '"+cwarehouseid+"' ");
+		} else if("transprice".equals(e.getItem().getKey())) {
+			// 0001A810000000000JB9 -> 自提
+			if("0001A810000000000JB9".equals(getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject()))
+				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
+			else 
+				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and nvl(dr,0)=0 and pk_corp = '"+getCorpPrimaryKey()+"' and vbillstatus = 1 and pk_transport = '"+getBillCardPanel().getHeadItem("pk_transport").getValueObject()+"'");
+		}
+		
+		return super.beforeEdit(e);
+	}
+	
+	/**
+	 * 重写表头编辑后处理
+	 */
+	@Override
+	public void afterEdit(BillEditEvent e) {
+		super.afterEdit(e);
+		
+		try {
+			if("transprice".equals(e.getKey()))
+				afterTransprice(e);
+		
+			else if("storprice".equals(e.getKey()))
+				afterStorprice(e);
+			
+			else if("cdilivertypeid".equals(e.getKey()))
+				afterCdilivertypeid(e);
+				
+		} catch(Exception e1) {
+			Logger.error(e1.getMessage());
+		}
+			
+	}
+	
+	protected final void afterTransprice(BillEditEvent e) throws Exception {
+		getBillCardPanel().getHeadItem("pk_transport_b").setValue(((UIRefPane)e.getSource()).getRefPK());
+		
+	}
+	
+	protected final void afterStorprice(BillEditEvent e) throws Exception {
+		getBillCardPanel().getHeadItem("pk_storcontract_b").setValue(((UIRefPane)e.getSource()).getRefPK());
+		
+	}
+	
+	protected final void afterCdilivertypeid(BillEditEvent e) throws Exception {
+		
+		if("自提".equals(((UIRefPane)e.getSource()).getRefName())) {
+			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setPK(null);
+			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setValue(null);
+			getBillCardPanel().getHeadItem("pk_storcontract_b").setValue(null);
+			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setEnabled(false);
+			
+			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setPK(null);
+			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setValue(null);
+			getBillCardPanel().getHeadItem("pk_transport_b").setValue(null);
+			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setEnabled(false);
+		} else {
+			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setEnabled(true);
+			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setEnabled(true);
+		}
+		
+	}
+	
+	/**
+	 * 重写保存方法，保存自定义添加的几个字段的值
+	 * 
+	 * Overrider ： river
+	 * 
+	 * Date ： 2012-09-13
+	 * 
+	 */
+	@Override
+	public boolean onSave() {
+		boolean retType = false;
+		
+		GeneralBillVO voInputBill = getBillVO();
+		
+		/* 在此添加验证 ： 如果运输方式为自提时运输单价及装卸费不需要填写 ， 否则这2个字段为必填  by river */
+		if(voInputBill != null && voInputBill.getParentVO() != null) {
+			
+			Object cdilivertypeid = getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject();
+			if(cdilivertypeid != null && !"0001A810000000000JB9".equals(cdilivertypeid)) {
+				if(getBillCardPanel().getHeadItem("storprice").getValueObject() == null || "".equals(getBillCardPanel().getHeadItem("storprice").getValueObject())) {
+					showErrorMessage("表头[ 装卸费 ] 不能为空！");
+					return false;
+				}
+				
+				if(getBillCardPanel().getHeadItem("transprice").getValueObject() == null || "".equals(getBillCardPanel().getHeadItem("transprice").getValueObject())) {
+					showErrorMessage("表头[ 运输单价 ] 不能为空！");
+					return false;
+				}
+			}
+				
+		}
+		
+		retType = super.onSave();
+		
+		afterOnSave(voInputBill , retType);
+		
+		return retType;
+	}
+	
+	protected final void afterOnSave(GeneralBillVO voInputBill , boolean retType) {
+		
+		GeneralBillVO newBill = getBillVO();
+		
+		if(retType && newBill != null && newBill.getPrimaryKey() != null) {
+			
+			Object concode = voInputBill.getParentVO().getAttributeValue("concode");
+			Object pk_transport = voInputBill.getParentVO().getAttributeValue("pk_transport");
+			Object transprice = ((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName();
+			Object storprice = ((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).getRefName();
+			Object contracttype = voInputBill.getParentVO().getAttributeValue("contracttype");
+			Object salecode = voInputBill.getParentVO().getAttributeValue("salecode");
+			Object pk_storcontract_b = getBillCardPanel().getHeadItem("pk_storcontract_b").getValueObject();
+			Object pk_transport_b = getBillCardPanel().getHeadItem("pk_transport_b").getValueObject();
+			Object pk_contract = voInputBill.getParentVO().getAttributeValue("pk_contract");
+			
+			try { 
+				
+				String sqlField = ConvertFunc.change(new String[]{
+						" concode = '" + (concode == null ? "" : concode) + "' " ,
+						" pk_transport = '" + (pk_transport == null ? "" : pk_transport) + "' " ,
+						" transprice = '" + (transprice == null ? "" : transprice) + "' " ,
+						" storprice = '" + (storprice == null ? "" : storprice) + "' " ,
+						" contracttype = '" + (contracttype == null ? "" : contracttype) + "' " ,
+						" salecode = '" + (salecode == null ? "" : salecode) + "' " ,
+						" pk_storcontract_b = '" + (pk_storcontract_b == null ? "" : pk_storcontract_b) + "' " ,
+						" pk_transport_b = '" + (pk_transport_b == null ? "" : pk_transport_b) + "' " ,
+						" pk_contract = '"+(pk_contract == null ? "" : pk_contract)+"' " ,
+				});
+				
+				UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set "+sqlField+" where cgeneralhid = '"+newBill.getPrimaryKey()+"'", null); 
+			
+			} catch(Exception ex) { }
+		}
+		
 	}
 	
 }

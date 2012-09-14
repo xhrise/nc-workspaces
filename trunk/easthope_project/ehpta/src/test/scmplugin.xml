@@ -805,7 +805,7 @@
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
 				<field>
-					<!--运输单价-->
+					<!--运输合同-->
 					<dbfieldname>pk_transport</dbfieldname>
 					<vofieldname>pk_transport</vofieldname>
 					<dbfieldtype>12</dbfieldtype>
@@ -814,6 +814,46 @@
 					<length>20</length>
 					<allownull>Y</allownull>
 					<precision></precision>
+					<showprop>
+						<showname>运输合同</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--运输合同子表主键-->
+					<dbfieldname>pk_transport_b</dbfieldname>
+					<vofieldname>pk_transport_b</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>运输合同子表主键</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--运输单价-->
+					<dbfieldname>transprice</dbfieldname>
+					<vofieldname>transprice</vofieldname>
+					<dbfieldtype>3</dbfieldtype>
+					<vofieldtype>1</vofieldtype>
+					<persistence>Y</persistence>
+					<length>28</length>
+					<allownull>Y</allownull>
+					<precision>8</precision>
 					<showprop>
 						<showname>运输单价</showname>
 						<isshow>Y</isshow>
@@ -825,9 +865,9 @@
 					</showprop>
 				</field>
 				<field>
-					<!--运输单价-->
-					<dbfieldname>transport</dbfieldname>
-					<vofieldname>transport</vofieldname>
+					<!--仓储合同子表主键-->
+					<dbfieldname>pk_storcontract_b</dbfieldname>
+					<vofieldname>pk_storcontract_b</vofieldname>
 					<dbfieldtype>12</dbfieldtype>
 					<vofieldtype>3</vofieldtype>
 					<persistence>Y</persistence>
@@ -835,7 +875,27 @@
 					<allownull>Y</allownull>
 					<precision></precision>
 					<showprop>
-						<showname>运输单价</showname>
+						<showname>仓储合同子表主键</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--仓储单价-->
+					<dbfieldname>storprice</dbfieldname>
+					<vofieldname>storprice</vofieldname>
+					<dbfieldtype>3</dbfieldtype>
+					<vofieldtype>1</vofieldtype>
+					<persistence>Y</persistence>
+					<length>28</length>
+					<allownull>Y</allownull>
+					<precision>8</precision>
+					<showprop>
+						<showname>仓储单价</showname>
 						<isshow>Y</isshow>
 						<tabcode>main</tabcode>
 						<showformula/>
@@ -962,7 +1022,7 @@
 			<!--UI扩展 -->
 			<cbilltypecode>4C</cbilltypecode>
 			<!--单据类型 -->
-			 <nodecode>HQ010801</nodecode> 
+			<nodecode>HQ010801</nodecode> 
 			<!--节点号 -->
 			<extenduiclassname>nc.ui.ic.ic211.ExtClientUI</extenduiclassname>
 			<!--被扩展的UI类 -->
