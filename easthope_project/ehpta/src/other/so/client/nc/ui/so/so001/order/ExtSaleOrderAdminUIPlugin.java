@@ -66,11 +66,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 			beforeOnBoAudit(ctx);
 			
+		} else if("弃审".equals(bo.getName())) {
+			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))
+				throw new BusinessException("列表状态不能进行弃审操作，请转至卡片界面操作。");
+			
+			beforeOnBoCancleAudit(ctx);
 		}
 		
 	}
 	
-	private final void beforeOnBoSave(SCMUIContext ctx) throws BusinessException {
+	protected final void beforeOnBoSave(SCMUIContext ctx) throws BusinessException {
 		BillItem contypeItem = ctx.getBillCardPanel().getBillData().getHeadItem("contracttype");
 		if(contypeItem != null && contypeItem.getValueObject() != null) {
 			BillItem conItem = ctx.getBillCardPanel().getBillData().getHeadItem("pk_contract");
@@ -164,7 +169,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		}
 	}
 
-	private final void beforeOnBoAudit(SCMUIContext ctx) throws BusinessException {
+	protected final void beforeOnBoAudit(SCMUIContext ctx) throws BusinessException {
 		BillItem contypeItem = ctx.getBillCardPanel().getBillData().getHeadItem("contracttype");
 		if(contypeItem != null && contypeItem.getValueObject() != null) {
 			BillItem conItem = ctx.getBillCardPanel().getBillData().getHeadItem("pk_contract");
@@ -181,6 +186,14 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				throw new BusinessException("合同余额小于本次提货金额，审核失败!");
 			
 		}
+	}
+	
+	protected final void beforeOnBoCancleAudit(SCMUIContext ctx) throws BusinessException {
+		Object csaleid = ctx.getBillCardPanel().getBillData().getHeadItem("csaleid").getValueObject();
+		Object settleflag = UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(settleflag,'N') from so_sale where csaleid = '"+csaleid+"'", new ColumnProcessor());
+	
+		if("Y".equals(settleflag))
+			throw new BusinessException("挂结价差已结算，不能进行弃审操作！");
 	}
 	
 	public void afterButtonClicked(ButtonObject bo, SCMUIContext ctx)

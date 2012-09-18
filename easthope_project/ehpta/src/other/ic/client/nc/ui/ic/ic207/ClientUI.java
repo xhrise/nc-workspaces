@@ -2,9 +2,12 @@ package nc.ui.ic.ic207;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ic.pub.bill.GeneralBillHelper;
 import nc.ui.ic.pub.bill.ICButtonConst;
 import nc.ui.ic.pub.bill.initref.RefFilter;
@@ -929,6 +932,58 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		getBillCardPanel().getHeadItem("vuserdef1").setValue(((UIRefPane)e.getSource()).getRefName());
 		getBillCardPanel().getHeadItem("vuserdef2").setValue(((UIRefPane)e.getSource()).getRefPK());
 		
+	}
+	
+	@Override
+	public void onButtonClicked(ButtonObject bo) {
+		// 取消签字前操作
+		// add by river for 2012-09-18
+		try {
+			Boolean check = true;
+			if("取消签字".equals(bo.getName())) 
+				check = beforeOnCancleAudit(); 
+		
+			if(check)
+				super.onButtonClicked(bo);
+				
+		} catch(Exception e) {
+			Logger.error(e.getMessage());
+		}
+	}
+	
+	/**
+	 *  功能 ： 其他入库单 - 取消签字前操作
+	 *  
+	 *  @author river
+	 *  
+	 *  Create Date : 2012-09-18
+	 *  
+	 * @return 
+	 * @throws Exception
+	 */
+	protected final Boolean beforeOnCancleAudit() throws Exception {
+		
+		List<GeneralBillVO> list = getSelectedBills();
+		if(list == null || list.size() == 0)
+			return true;
+
+		for(GeneralBillVO billVO : list) {
+			Object vuserdef3 = ((GeneralBillVO )list.get(0)).getParentVO().getAttributeValue("vuserdef3");
+			
+			if(vuserdef3 == null || "".equals(vuserdef3)) {
+				vuserdef3 = UAPQueryBS.iUAPQueryBS.executeQuery("select decode(vuserdef3 , 'Y' , 'Y' , 'N' , 'N' , 'N') from ic_general_h where cgeneralhid = '"+((GeneralBillVO )list.get(0)).getPrimaryKey()+"'", new ColumnProcessor());
+			}
+			
+			if("Y".equals(vuserdef3)) {
+				
+				showErrorMessage("选中的记录中存在上游运费已经结算了的记录，不能进行取消签字操作！");
+				return false;
+			}
+				
+		
+		}
+		
+		return true;
 	}
 
 }

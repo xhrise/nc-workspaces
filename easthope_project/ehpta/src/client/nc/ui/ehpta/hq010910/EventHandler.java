@@ -420,9 +420,9 @@ public class EventHandler extends ManageEventHandler {
 	@Override
 	protected void onBoCancelAudit() throws Exception {
 		
-//		throw new Exception("审核后的数据不能进行弃审操作");
+		throw new Exception("审核后的数据不能进行弃审操作");
 		
-		super.onBoCancelAudit();
+//		super.onBoCancelAudit();
 	}
 	
 	/**
