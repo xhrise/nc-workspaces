@@ -1,4 +1,4 @@
-package nc.ui.ehpta.hq010202;
+package nc.ui.ehpta.hq010940;
 
 import java.io.Serializable;
 import nc.vo.trade.pub.IBDGetCheckClass2;
@@ -21,7 +21,7 @@ public class ClientUICheckRuleGetter implements IBDGetCheckClass2,Serializable {
 	 * 前台校验类
 	 */
 	public String getUICheckClass() {
-		return "nc.ui.ehpta.hq010202.ClientUICheckRule";
+		return "nc.ui.ehpta.hq010940.ClientUICheckRule";
 	}
 
 	/**

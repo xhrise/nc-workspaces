@@ -1,4 +1,4 @@
-package nc.ui.ehpta.hq010202;
+package nc.ui.ehpta.hq010940;
 
 import java.awt.Container;
 import nc.ui.trade.businessaction.IPFACTION;
@@ -14,20 +14,20 @@ import nc.vo.trade.checkrule.IUniqueRules;
 import nc.vo.trade.checkrule.UniqueRule;
 import nc.vo.trade.checkrule.VOChecker;
 
-
 /**
  * <b> 前台校验类 </b><br>
- *
+ * 
  * <p>
- *     在此处添加此类的描述信息
+ * 在此处添加此类的描述信息
  * </p>
- *
- *
+ * 
+ * 
  * @author author
  * @version tempProject 1.0
  */
 
-public class ClientUICheckRule extends BeforeActionCHK  implements ICheckRules,IUniqueRules,ICheckRules2{
+public class ClientUICheckRule extends BeforeActionCHK implements ICheckRules,
+		IUniqueRules, ICheckRules2 {
 
 	/**
 	 * 返回表头唯一规则，仅用于后台检查。
@@ -40,27 +40,26 @@ public class ClientUICheckRule extends BeforeActionCHK  implements ICheckRules,I
 	 * 返回表体唯一规则，仅用于前台检查。
 	 */
 	public IUniqueRule[] getItemUniqueRules(String tablecode) {
-		IUniqueRule[] unique = null;		
-		
-		
-		return unique;			
+		IUniqueRule[] unique = null;
+
+		return unique;
 	}
-	
+
 	/**
 	 * 返回特殊检查类。 如果VOChecker不能满足要求，可以用此类来检查。
 	 */
 	public ISpecialChecker getSpecialChecker() {
 		return null;
 	}
-	
+
 	/**
 	 * 是否允许表体为空
 	 */
 	public boolean isAllowEmptyBody(String tablecode) {
-			return false;
+		return false;
 	}
-	
-		public ICheckRule[] getHeadCheckRules() {
+
+	public ICheckRule[] getHeadCheckRules() {
 		return null;
 	}
 
@@ -91,19 +90,20 @@ public class ClientUICheckRule extends BeforeActionCHK  implements ICheckRules,I
 	public String[] getItemUFDoubleField(String tablecode) {
 		return null;
 	}
-	
-	public void runBatchClass(Container parent, String billType, String actionName, AggregatedValueObject[] vos, Object[] obj) throws Exception {
+
+	public void runBatchClass(Container parent, String billType,
+			String actionName, AggregatedValueObject[] vos, Object[] obj)
+			throws Exception {
 	}
 
-
-	public void runClass(Container parent, String billType, String actionName, AggregatedValueObject vo, Object obj) throws Exception {
-		if(actionName.equals(IPFACTION.SAVE))
-		{	
-			if(!VOChecker.check(vo,this ))
-				throw new nc.vo.pub.BusinessException(VOChecker.getErrorMessage());
+	public void runClass(Container parent, String billType, String actionName,
+			AggregatedValueObject vo, Object obj) throws Exception {
+		if (actionName.equals(IPFACTION.SAVE)) {
+			if (!VOChecker.check(vo, this))
+				throw new nc.vo.pub.BusinessException(
+						VOChecker.getErrorMessage());
 		}
-		
-	}
 
+	}
 
 }

@@ -46,10 +46,10 @@ public class AdjustVO extends SuperVO {
 	public UFDate dapprovedate;
 	public String reason;
 	public String vapproveid;
-	public String def2;
+	public UFBoolean def2;
 	public String def4;
 	public String pk_adjust;
-	public String def3;
+	public UFBoolean def3;
 	public String def9;
 	public Integer dr;
 	public String ts;
@@ -683,7 +683,7 @@ public class AdjustVO extends SuperVO {
 	 * 
 	 * @return String
 	 */
-	public String getDef2() {
+	public UFBoolean getDef2() {
 		return def2;
 	}
 
@@ -695,7 +695,7 @@ public class AdjustVO extends SuperVO {
 	 * @param newDef2
 	 *            String
 	 */
-	public void setDef2(String newDef2) {
+	public void setDef2(UFBoolean newDef2) {
 
 		def2 = newDef2;
 	}
@@ -755,7 +755,7 @@ public class AdjustVO extends SuperVO {
 	 * 
 	 * @return String
 	 */
-	public String getDef3() {
+	public UFBoolean getDef3() {
 		return def3;
 	}
 
@@ -767,7 +767,7 @@ public class AdjustVO extends SuperVO {
 	 * @param newDef3
 	 *            String
 	 */
-	public void setDef3(String newDef3) {
+	public void setDef3(UFBoolean newDef3) {
 
 		def3 = newDef3;
 	}
