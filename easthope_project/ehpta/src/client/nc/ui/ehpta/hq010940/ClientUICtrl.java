@@ -1,10 +1,11 @@
-package nc.ui.ehpta.hq010202;
+package nc.ui.ehpta.hq010940;
 
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.businessaction.IBusinessActionType;
 import nc.ui.trade.button.IBillButton;
-import nc.vo.ehpta.hq010202.StorfareBVO;
-import nc.vo.ehpta.hq010202.StorfareVO;
+import nc.vo.ehpta.hq010940.CalcStorfeeBVO;
+import nc.vo.ehpta.hq010940.CalcStorfeeHVO;
 import nc.vo.trade.pub.HYBillVO;
 
 /**
@@ -28,38 +29,39 @@ public class ClientUICtrl extends AbstractManageController {
 
 	public int[] getCardButtonAry() {
 
-		return new int[] { IBillButton.Query, IBillButton.Edit,
-				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
-				IBillButton.Return, IBillButton.SelAll, IBillButton.SelNone,
-				IBillButton.ExportBill };
+		return new int[] { IBillButton.Query, IBillButton.Add,
+				IBillButton.Edit, IBillButton.Refresh, IBillButton.Save,
+				IBillButton.Cancel, IBillButton.Delete,
+				DefaultBillButton.Maintain, IBillButton.Commit,
+				IBillButton.Audit, IBillButton.CancelAudit,
+				IBillButton.ApproveInfo, IBillButton.Brow, IBillButton.Return };
 
 	}
 
 	public int[] getListButtonAry() {
-		return new int[] { IBillButton.Query, IBillButton.Edit,
-				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
-				IBillButton.Card, IBillButton.SelAll, IBillButton.SelNone,
-				IBillButton.ExportBill
+		return new int[] { IBillButton.Query, IBillButton.Add,
+				IBillButton.Edit, IBillButton.Refresh, IBillButton.Delete,
+				IBillButton.Card
 
 		};
 
 	}
 
 	public boolean isShowCardRowNo() {
-		return false;
+		return true;
 	}
 
 	public boolean isShowCardTotal() {
-		return false;
+		return true;
 	}
 
 	public String getBillType() {
-		return "HQ05";
+		return "HQ13";
 	}
 
 	public String[] getBillVoName() {
 		return new String[] { HYBillVO.class.getName(),
-				StorfareVO.class.getName(), StorfareBVO.class.getName() };
+				CalcStorfeeHVO.class.getName(), CalcStorfeeBVO.class.getName() };
 	}
 
 	public String getBodyCondition() {
@@ -95,7 +97,7 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isLoadCardFormula() {
-		return false;
+		return true;
 	}
 
 	public String[] getListBodyHideCol() {
@@ -107,11 +109,11 @@ public class ClientUICtrl extends AbstractManageController {
 	}
 
 	public boolean isShowListRowNo() {
-		return false;
+		return true;
 	}
 
 	public boolean isShowListTotal() {
-		return false;
+		return true;
 	}
 
 }

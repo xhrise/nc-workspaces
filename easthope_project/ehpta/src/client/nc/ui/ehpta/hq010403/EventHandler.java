@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.valid.Validata;
+import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.filesystem.FileManageUI;
 import nc.ui.trade.base.IBillOperate;
@@ -40,6 +41,37 @@ public class EventHandler extends ManageEventHandler {
 
 			break;
 		}
+	}
+	
+	@Override
+	protected void onBoCard() throws Exception {
+		super.onBoCard();
+		
+		afterOnButton();
+	}
+	
+	@Override
+	public void onButton(ButtonObject bo) {
+
+		super.onButton(bo);
+		
+		afterOnButton();
+		
+	}
+	
+	/**
+	 * 点击按钮后的处理
+	 */
+	private final void afterOnButton() {
+		
+		if(getBillUI().getBillOperate() == IBillOperate.OP_ADD || getBillUI().getBillOperate() == IBillOperate.OP_EDIT) {
+			getButtonManager().getButton(DefaultBillButton.DOCUMENT).setEnabled(false);
+		} else {
+			getButtonManager().getButton(DefaultBillButton.DOCUMENT).setEnabled(true);
+		} 
+		
+		getBillUI().updateButtons();
+		
 	}
 	
 	private final void documentManage() throws BusinessException {

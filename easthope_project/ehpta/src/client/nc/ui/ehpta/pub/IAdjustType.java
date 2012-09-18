@@ -26,4 +26,15 @@ public interface IAdjustType {
 	 * 运补
 	 */
 	public final String Subsidies = "5";
+	
+	/**
+	 * 仓储费
+	 */
+	public final String Storfee = "6";
+	
+	/**
+	 * 装卸费
+	 */
+	public final String Handlingfee = "7";
+	
 }

@@ -141,6 +141,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 
 	protected void initSelfData() {
+		getBillListPanel().setMultiSelect(true);
+		getBillCardPanel().setBodyMultiSelect(true);
 	}
 
 	public void setDefaultData() throws Exception {
@@ -164,6 +166,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if (item != null)
 				item.setValue(values[i]);
 		}
+	}
+	
+	@Override
+	protected boolean isSetRowNormalState() {
+		return false;
 	}
 	
 	@Override

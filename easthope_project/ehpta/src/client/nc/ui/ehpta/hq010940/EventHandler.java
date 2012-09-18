@@ -1,4 +1,4 @@
-package nc.ui.ehpta.hq010930;
+package nc.ui.ehpta.hq010940;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,12 +28,13 @@ import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.ehpta.hq010403.AdjustVO;
-import nc.vo.ehpta.hq010930.CalcUnderTransfeeBVO;
-import nc.vo.ehpta.hq010930.CalcUnderTransfeeHVO;
+import nc.vo.ehpta.hq010940.CalcStorfeeBVO;
+import nc.vo.ehpta.hq010940.CalcStorfeeHVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.SuperVO;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
+import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.pub.HYBillVO;
 
 /**
@@ -51,34 +52,32 @@ public class EventHandler extends ManageEventHandler {
 	}
 
 	protected void onBoElse(int intBtn) throws Exception {
-		
 		switch (intBtn) {
-			case DefaultBillButton.Statistics :
+			case DefaultBillButton.Statistics:
 				onBoStatistics();
 				break;
-				
-			case DefaultBillButton.Mark :
+	
+			case DefaultBillButton.Mark:
 				onBoMark();
 				break;
-				
-			case DefaultBillButton.SelAll : 
+	
+			case DefaultBillButton.SelAll:
 				onBoSelAll();
 				break;
-				
-			case DefaultBillButton.SelNone : 
+	
+			case DefaultBillButton.SelNone:
 				onBoSelNone();
 				break;
-				
-			default :
-				
+	
+			default:
+	
 				break;
 		}
-		
 	}
 	
 	protected void onBoStatistics() throws Exception {
 		
-		CalcUnderTransfeeHVO undertrans = (CalcUnderTransfeeHVO) getBillCardPanelWrapper().getBillVOFromUI().getParentVO();
+		CalcStorfeeHVO undertrans = (CalcStorfeeHVO) getBillCardPanelWrapper().getBillVOFromUI().getParentVO();
 		
 		if(undertrans.getPeriod() == null || "".equals(undertrans.getPeriod()))
 			throw new Exception("请选择表头期间后再进行统计");
@@ -87,48 +86,67 @@ public class EventHandler extends ManageEventHandler {
 		String lastDay = CalcFunc.builder(period);
 		UFDate endPeriod = new UFDate(undertrans.getPeriod() + "-" + lastDay);
 		
-//		create or replace view vw_under_transfee as 
-//		select genh.cgeneralhid , genh.vbillcode cbillno , genb.cinventoryid def1 , invbas.invname def2 , genh.dbilldate sdate , 
-//		genh.cwarehouseid pk_sstordoc , stordoc.storname def3 , stordoc.storaddr saddress , 
-//		address.addrname eaddress , transcontb.piersfee , transcontb.inlandshipfee , transcontb.carfee , genh.pk_transport , genh.pk_transport_b ,
-//		genb.noutnum num , genh.transprice fee , (nvl(genh.transprice,0) * nvl(genb.noutnum,0)) transmny 
-//		,genb.cgeneralbid def5 , genh.ccustomerid def6 , genh.pk_contract def4
-//		from ic_general_h genh
-//		left join ic_general_b genb on genh.cgeneralhid = genb.cgeneralhid
-//		left join bd_stordoc stordoc on stordoc.pk_stordoc = genh.cwarehouseid
-//		left join ehpta_transport_contract_b transcontb on transcontb.pk_transport_b = genh.pk_transport_b
-//		left join bd_address address on address.pk_address = transcontb.estoraddr
+//		create or replace view vw_storfee as 
+//		select genb.vbatchcode , genh.cwarehouseid pk_stordoc , genh.pk_contract , genh.concode , decode(genh.contracttype , 10 , '现货合同' , 20 , '长单合同' , genh.contracttype) contracttype , 
+//		genb.cinventoryid pk_invmandoc , invbas.invname , 
+//		to_char(to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8)) , 'yyyy-MM-dd'),'yyyy-MM-dd') indate ,
+//		genh.dbilldate outdate , genh.ccustomerid pk_cumandoc , sale.vreceiptcode , 
+//		genb.cgeneralbid , genb.cgeneralhid , genh.vbillcode outcode , saleb.deliverydate overdate , genb.noutnum , 
+//		decode(storcontb.feetype , 1 , '仓库费' , 2 , '直驳费' , 3 , '船-库-船' , 4 , '船-库-车' , 5 , '直驳费（船-船）' , 6 , '直驳费（船-车）' , null) feetype , 
+//		storcontb.signprice , nvl(genb.noutnum,0) * nvl(storcontb.signprice,0) hmny , 
+//
+//		(case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1 stordays ,
+//		nvl(storcontb1.concesessionsday,0) freedays , 
+//		case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end days , 
+//		storcontb1.signprice storprice , 
+//		(case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end) * storcontb1.signprice * genb.noutnum stormny
+//
+//		from ic_general_h genh 
+//		left join ic_general_b genb on genb.cgeneralhid = genh.cgeneralhid
+//		left join so_sale sale on sale.csaleid = genb.csourcebillhid
+//		left join so_saleorder_b saleb on saleb.corder_bid = genb.csourcebillbid
+//		left join ehpta_storcontract_b storcontb on storcontb.pk_storcontract_b = genh.pk_storcontract_b
+//		left join ehpta_storcontract storcont on storcont.pk_stordoc = genh.cwarehouseid
+//		left join ehpta_storcontract_b storcontb1 on storcontb1.pk_storagedoc = storcont.pk_storagedoc
 //		left join bd_invbasdoc invbas on invbas.pk_invbasdoc = genb.cinvbasid
 //
-//		where decode(genh.vuserdef3 , 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N' and genh.concode is not null
-//		and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genh.transprice,0) > 0
-//		and genh.fbillflag = 3 and genh.daccountdate is not null
+//		where genh.daccountdate is not null 
+//
+//		and decode(genh.vuserdef4 , 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N' and genh.concode is not null
+//		and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genh.storprice,0) > 0
+//		and genb.vbatchcode is not null and nvl(storcontb1.feetype , '0') = '1'
+//		and storcont.vbillstatus = 1 and genh.fbillflag = 3
+//
+//		and nvl(genh.dr,0) = 0 and nvl(genb.dr,0) = 0 
+//		and nvl(sale.dr,0) = 0 and nvl(saleb.dr,0) = 0 
+//		and nvl(storcontb.dr,0) = 0 and nvl(storcont.dr,0) = 0 and nvl(storcontb1.dr,0) = 0 
+//		and nvl(invbas.dr , 0 ) = 0
 		
-		String sql = "select * from vw_under_transfee where sdate >= '"+period.toString()+"' and sdate <= '"+endPeriod.toString()+"'";
+		String sql = "select * from vw_storfee where outdate >= '"+period.toString()+"' and outdate <= '"+endPeriod.toString()+"'";
 		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
-			CalcUnderTransfeeBVO[] undertransBVOs = new CalcUnderTransfeeBVO[retList.size()];
+			CalcStorfeeBVO[] storfeeBVOs = new CalcStorfeeBVO[retList.size()];
 			int row = 0;
 			for(HashMap map : retList) {
 				
-				CalcUnderTransfeeBVO undertransBVO = new CalcUnderTransfeeBVO();
-				String[] Attribute = undertransBVO.getAttributeNames();
+				CalcStorfeeBVO storfeeBVO = new CalcStorfeeBVO();
+				String[] Attribute = storfeeBVO.getAttributeNames();
 				
 				for(String attr : Attribute) {
-					undertransBVO.setAttributeValue(attr, ConvertFunc.change(CalcUnderTransfeeBVO.class, attr, map.get(attr)));
+					storfeeBVO.setAttributeValue(attr, ConvertFunc.change(CalcStorfeeBVO.class, attr, map.get(attr)));
 				}
 				
-				undertransBVO.setAttributeValue("rowno", String.valueOf(row));
+				storfeeBVO.setAttributeValue("rowno", String.valueOf(row));
 				
-				undertransBVOs[row] = undertransBVO;
+				storfeeBVOs[row] = storfeeBVO;
 				
 				row ++;
 			}
 			
 			HYBillVO billVO = new HYBillVO();
 			billVO.setParentVO(getBillCardPanelWrapper().getBillVOFromUI().getParentVO());
-			billVO.setChildrenVO(undertransBVOs);
+			billVO.setChildrenVO(storfeeBVOs);
 			getBillCardPanelWrapper().setCardData(billVO);
 			
 		} else 
@@ -136,15 +154,6 @@ public class EventHandler extends ManageEventHandler {
 		
 	}
 	
-	/**
-	 * 功能 ： 批改按钮操作
-	 * 
-	 * Author : river 
-	 * 
-	 * Create : 2012-08-21
-	 * 
-	 * @throws Exception
-	 */
 	protected void onBoMark() throws Exception {
 		
 		MarkDlg markDlg = MarkDlg.getInstance(getBillUI() , getUIController().getBillType());
@@ -153,21 +162,21 @@ public class EventHandler extends ManageEventHandler {
 			if(markDlg.getFieldRef().getRefPK() == null || "".equals(markDlg.getFieldRef().getRefPK())) 
 				throw new Exception ("属性为空，不能进行批改操作。");
 			
-			CalcUnderTransfeeBVO[] bodyVOs = (CalcUnderTransfeeBVO[])getBillCardPanelWrapper().getBillVOFromUI().getChildrenVO();
-			CalcUnderTransfeeBVO[] selBodyVOs = (CalcUnderTransfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcUnderTransfeeBVO.class.getName());
+			CalcStorfeeBVO[] bodyVOs = (CalcStorfeeBVO[])getBillCardPanelWrapper().getBillVOFromUI().getChildrenVO();
+			CalcStorfeeBVO[] selBodyVOs = (CalcStorfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcStorfeeBVO.class.getName());
 			if(selBodyVOs == null || selBodyVOs.length == 0)
-				selBodyVOs = (CalcUnderTransfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+				selBodyVOs = (CalcStorfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
 			
-			for(CalcUnderTransfeeBVO selbodyVO : selBodyVOs) {
-				for(CalcUnderTransfeeBVO bodyVO : bodyVOs) {
+			for(CalcStorfeeBVO selbodyVO : selBodyVOs) {
+				for(CalcStorfeeBVO bodyVO : bodyVOs) {
 					if(selbodyVO.getRowno().equals(bodyVO.getRowno())) {
 						
 						if(markDlg.getTxtValue() instanceof UITextField) {
-							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcUnderTransfeeBVO.class, markDlg.getFieldRef().getRefCode(), ((UITextField)markDlg.getTxtValue()).getText()));
+							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcStorfeeBVO.class, markDlg.getFieldRef().getRefCode(), ((UITextField)markDlg.getTxtValue()).getText()));
 						} else if(markDlg.getTxtValue() instanceof UICheckBox) {
-							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcUnderTransfeeBVO.class, markDlg.getFieldRef().getRefCode(), new UFBoolean(((UICheckBox)markDlg.getTxtValue()).isSelected())));
+							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcStorfeeBVO.class, markDlg.getFieldRef().getRefCode(), new UFBoolean(((UICheckBox)markDlg.getTxtValue()).isSelected())));
 						} else if(markDlg.getTxtValue() instanceof UIRefPane) {
-							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcUnderTransfeeBVO.class, markDlg.getFieldRef().getRefCode(), ((UIRefPane)markDlg.getTxtValue()).getRefName()));
+							bodyVO.setAttributeValue(markDlg.getFieldRef().getRefCode(), ConvertFunc.change(CalcStorfeeBVO.class, markDlg.getFieldRef().getRefCode(), ((UIRefPane)markDlg.getTxtValue()).getRefName()));
 						}
 						
 						break;
@@ -180,14 +189,9 @@ public class EventHandler extends ManageEventHandler {
 			billVO.setParentVO(getBillCardPanelWrapper().getBillVOFromUI().getParentVO());
 			billVO.setChildrenVO(bodyVOs);
 			getBillCardPanelWrapper().setCardData(billVO);
-			
-//			for(int row = 0 , count = bodyVOs.length ; row < count ; row ++) 
-//				getBillCardPanelWrapper().getBillCardPanel().execBodyFormulas(row, ((ClientUI)getBillUI()).bodyFamulas);
-			
-			
 		}
 	}
-	
+
 	protected void onBoSelAll() throws Exception {
 		selectAll( true);
 	}
@@ -207,7 +211,7 @@ public class EventHandler extends ManageEventHandler {
 	 */
 	private final void selectAll( boolean isNeedSelected) throws Exception {
 		int row = getBillCardPanelWrapper().getBillVOFromUI().getChildrenVO().length;
-		BillModel headModel = getBillCardPanelWrapper().getBillCardPanel().getBillModel("ehpta_calc_under_transfee_b");
+		BillModel headModel = getBillCardPanelWrapper().getBillCardPanel().getBillModel("ehpta_calc_storfee_b");
 		if (isNeedSelected) {
 			for (int n = 0; n < row; n++) {
 				if (headModel.getRowState(n) != BillModel.SELECTED) {
@@ -263,7 +267,7 @@ public class EventHandler extends ManageEventHandler {
 	@Override
 	protected void onBoSave() throws Exception {
 		
-		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel(), getBillCardPanelWrapper().getBillVOFromUI(), new String[]{"ehpta_calc_under_transfee_b"});
+		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel(), getBillCardPanelWrapper().getBillVOFromUI(), new String[]{"ehpta_calc_storfee_b"});
 		
 		AggregatedValueObject billVO = getBillCardPanelWrapper().getBillVOFromUI();
 		
@@ -286,15 +290,6 @@ public class EventHandler extends ManageEventHandler {
 		
 	}
 	
-	/**
-	 * 功能 ： 保存后续验证
-	 * 
-	 * Author : river 
-	 * 
-	 * Create : 2012-08-21	
-	 * 
-	 * @throws Exception
-	 */
 	protected final void validPrevious() throws Exception {
 		Object period = getBufferData().getCurrentVO().getParentVO().getAttributeValue("period");
 		String prePeriod = "";
@@ -304,16 +299,16 @@ public class EventHandler extends ManageEventHandler {
 			prePeriod = periodDate.getYear() + "-" + (periodDate.getMonth() - 1 < 10 ? "0" + (periodDate.getMonth() - 1) : "" + (periodDate.getMonth() - 1));
 		}
 		
-		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_under_transfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
+		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_storfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
 		if(count == 0) 
-			getBillUI().showWarningMessage("前一期间的下游运费未统计...");
+			getBillUI().showWarningMessage("前一期间的仓储及装卸费未统计...");
 	}
 	
 	protected final void afterOnBoSave() throws Exception {
+
+		CalcStorfeeBVO[] currBodyVOs = (CalcStorfeeBVO[]) getBufferData().getCurrentVO().getChildrenVO();
 		
-		CalcUnderTransfeeBVO[] currBodyVOs = (CalcUnderTransfeeBVO[]) getBufferData().getCurrentVO().getChildrenVO();
-		
-		for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
+		for(CalcStorfeeBVO bodyVO : currBodyVOs) {
 			bodyVO.setSettleflag(new UFBoolean("Y"));
 			bodyVO.setSettledate(_getDate());
 		}
@@ -327,12 +322,13 @@ public class EventHandler extends ManageEventHandler {
 		
 		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
 		
-		for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
+		for(CalcStorfeeBVO bodyVO : currBodyVOs) {
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
-				adjustList.add(createAdjust(bodyVO));
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
+				adjustList.add(createAdjust(bodyVO , IAdjustType.Storfee , bodyVO.getStormny())); // 仓储费
+				adjustList.add(createAdjust(bodyVO , IAdjustType.Handlingfee , bodyVO.getHmny())); // 装卸费
 			}	
 		}
 		
@@ -355,8 +351,6 @@ public class EventHandler extends ManageEventHandler {
 
 			}
 		}
-		
-		
 	}
 	
 	@Override
@@ -366,17 +360,8 @@ public class EventHandler extends ManageEventHandler {
 		super.onBoDelete();
 		
 		if(currAggVO != null) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_under_transfee_h where pk_transfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_storfee_h where pk_storfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
 			if(count > 0) {
-				if(currAggVO.getChildrenVO() != null && currAggVO.getChildrenVO().length > 0) {
-					SuperVO[] vos = (SuperVO[]) currAggVO.getChildrenVO().clone();
-					for(SuperVO vo : vos) {
-						vo.setAttributeValue("dr", 1);
-					}
-					
-					HYPubBO_Client.updateAry(vos);
-				}
-				
 				afterOnBoDelete(currAggVO);
 			}
 		}
@@ -384,15 +369,6 @@ public class EventHandler extends ManageEventHandler {
 		
 	}
 	
-	/**
-	 * 功能 ：删除后续操作
-	 * 
-	 * Author : river 
-	 * 
-	 * Create : 2012-08-21
-	 * 
-	 * @throws Exception
-	 */
 	protected final void afterOnBoDelete(AggregatedValueObject currAggVO) throws Exception {
 		
 		Object userObj = new ClientUICheckRuleGetter();
@@ -402,16 +378,16 @@ public class EventHandler extends ManageEventHandler {
 		if(currAggVO == null || currAggVO.getChildrenVO() == null || currAggVO.getChildrenVO().length == 0)
 			return ;
 		
-		for(CalcUnderTransfeeBVO bodyVO : (CalcUnderTransfeeBVO[])currAggVO.getChildrenVO()) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
+		for(CalcStorfeeBVO bodyVO : (CalcStorfeeBVO[])currAggVO.getChildrenVO()) {
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count > 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
-				adjustList.add("'" + bodyVO.getDef5() + "'");
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
+				adjustList.add("'" + bodyVO.getCgeneralbid() + "'");
 			}	
 		}
 		
-		SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and type = "+IAdjustType.Subsidies+" and nvl(dr,0) = 0 ");
+		SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and ( type = "+IAdjustType.Storfee+" or type = "+IAdjustType.Handlingfee+" ) and nvl(dr,0) = 0 ");
 		
 		List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
 		for (SuperVO superVO : superVos) {
@@ -449,14 +425,13 @@ public class EventHandler extends ManageEventHandler {
 
 		}
 		
-		for(CalcUnderTransfeeBVO bodyVO : (CalcUnderTransfeeBVO[])currAggVO.getChildrenVO()) {
+		for(CalcStorfeeBVO bodyVO : (CalcStorfeeBVO[])currAggVO.getChildrenVO()) {
 			bodyVO.setSettleflag(new UFBoolean("N"));
 			bodyVO.setSettledate(null);
 		}
 		
-		HYPubBO_Client.updateAry((CalcUnderTransfeeBVO[])currAggVO.getChildrenVO());
+		HYPubBO_Client.updateAry((CalcStorfeeBVO[])currAggVO.getChildrenVO());
 		
-			
 	}
 	
 	/**
@@ -467,14 +442,14 @@ public class EventHandler extends ManageEventHandler {
 	 * @return
 	 * @throws Exception
 	 */
-	protected final HYBillVO createAdjust(CalcUnderTransfeeBVO bodyVO) throws Exception {
+	protected final HYBillVO createAdjust(CalcStorfeeBVO bodyVO , String type , UFDouble mny) throws Exception {
 		AdjustVO adjust = new AdjustVO();
-		adjust.setAttributeValue("type", IAdjustType.Subsidies);
-		adjust.setAttributeValue("reason", "下游运费结算录入");
-		adjust.setAttributeValue("mny", bodyVO.getTransmny());
-		adjust.setAttributeValue("pk_contract",bodyVO.getDef4());
-		adjust.setAttributeValue("pk_cubasdoc", bodyVO.getDef6());
-		adjust.setAttributeValue("memo", "下游运费结算推式生成");
+		adjust.setAttributeValue("type", type);
+		adjust.setAttributeValue("reason", type == IAdjustType.Storfee ? "仓储费结算录入" : type == IAdjustType.Handlingfee ? "装卸费结算录入" : null);
+		adjust.setAttributeValue("mny", mny);
+		adjust.setAttributeValue("pk_contract",bodyVO.getPk_contract());
+		adjust.setAttributeValue("pk_cubasdoc", bodyVO.getPk_cumandoc());
+		adjust.setAttributeValue("memo", type == IAdjustType.Storfee ? "仓储费结算推式生成" : type == IAdjustType.Handlingfee ? "装卸费结算推式生成" : null);
 		adjust.setAttributeValue("vbillno",GeneraterBillNO.getInstanse().build("HQ07", _getCorp().getPk_corp()));
 		adjust.setAttributeValue("adjustdate", _getDate());
 		adjust.setAttributeValue("managerid", _getOperator());
@@ -483,7 +458,7 @@ public class EventHandler extends ManageEventHandler {
 		adjust.setAttributeValue("pk_billtype", "HQ07");
 		adjust.setAttributeValue("voperatorid", _getOperator());
 		adjust.setAttributeValue("dmakedate", _getDate());
-		adjust.setAttributeValue("def1", bodyVO.getDef5());
+		adjust.setAttributeValue("def1", bodyVO.getCgeneralbid());
 		adjust.setAttributeValue("def2", "Y");
 		adjust.setAttributeValue("def3", "N");
 		
@@ -492,5 +467,5 @@ public class EventHandler extends ManageEventHandler {
 		
 		return billVO;
 	}
-
+	
 }

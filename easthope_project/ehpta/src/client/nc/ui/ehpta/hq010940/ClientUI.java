@@ -1,18 +1,22 @@
-package nc.ui.ehpta.hq010202;
+package nc.ui.ehpta.hq010940;
 
-import nc.vo.pub.CircularlyAccessibleValueObject;
-import nc.ui.trade.bill.AbstractManageController;
-import nc.ui.trade.bsdelegate.BusinessDelegator;
+import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
-import nc.ui.pub.linkoperate.*;
+import nc.ui.pub.linkoperate.ILinkQuery;
+import nc.ui.pub.linkoperate.ILinkQueryData;
+import nc.ui.trade.base.IBillOperate;
+import nc.ui.trade.bill.AbstractManageController;
+import nc.ui.trade.bill.BillTemplateWrapper;
+import nc.ui.trade.bsdelegate.BusinessDelegator;
+import nc.ui.trade.manage.ManageEventHandler;
+import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
-import nc.vo.pub.AggregatedValueObject;
-import nc.ui.trade.base.IBillOperate;
-import nc.ui.trade.bill.BillTemplateWrapper;
-import nc.ui.trade.manage.ManageEventHandler;
 
 /**
  * <b> 在此处简要描述此类的功能 </b>
@@ -86,6 +90,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			btnVo3.setBtnCode(null);
 			addPrivateButton(btnVo3);
 		}
+		
+		addPrivateButton(DefaultBillButton.getMaintainButtonVO());
+		addPrivateButton(DefaultBillButton.getStatisticsButtonVO());
+		addPrivateButton(DefaultBillButton.getMarkButtonVO());
+		addPrivateButton(DefaultBillButton.getSelAllButtonVO());
+		addPrivateButton(DefaultBillButton.getSelNoneButtonVO());
 	}
 
 	/**
@@ -129,6 +139,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 
 	protected void initSelfData() {
+		getBillListPanel().setMultiSelect(true);
+		getBillCardPanel().setBodyMultiSelect(true);
 	}
 
 	public void setDefaultData() throws Exception {
@@ -139,10 +151,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 
 		String[] itemkeys = new String[] { fileDef.getField_Corp(),
 				fileDef.getField_Operator(), fileDef.getField_Billtype(),
-				fileDef.getField_BillStatus() };
+				fileDef.getField_BillStatus() , "dmakedate"  };
 		Object[] values = new Object[] { pkCorp,
 				ClientEnvironment.getInstance().getUser().getPrimaryKey(),
-				billtype, new Integer(IBillStatus.FREE).toString() };
+				billtype, new Integer(IBillStatus.FREE).toString() , _getDate() };
 
 		for (int i = 0; i < itemkeys.length; i++) {
 			BillItem item = null;
@@ -152,6 +164,22 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			if (item != null)
 				item.setValue(values[i]);
 		}
+	}
+	
+	@Override
+	protected boolean isSetRowNormalState() {
+		return false;
+	}
+	
+	@Override
+	protected String getBillNo() throws Exception {
+		return GeneraterBillNO.getInstanse().build(getUIControl().getBillType(), _getCorp().getPk_corp());
+	}
+	
+	@Override
+	public void afterEdit(BillEditEvent e) {
 
+		super.afterEdit(e);
+		
 	}
 }
