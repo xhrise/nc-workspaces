@@ -31,6 +31,7 @@ import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.ehpta.hq010940.CalcStorfeeBVO;
 import nc.vo.ehpta.hq010940.CalcStorfeeHVO;
 import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
@@ -321,6 +322,7 @@ public class EventHandler extends ManageEventHandler {
 		getBufferData().setCurrentRow(getBufferData().getCurrentRow());
 		
 		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
+		List<String> flagPks = new ArrayList<String>();
 		
 		for(CalcStorfeeBVO bodyVO : currBodyVOs) {
 			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
@@ -329,7 +331,9 @@ public class EventHandler extends ManageEventHandler {
 				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
 				adjustList.add(createAdjust(bodyVO , IAdjustType.Storfee , bodyVO.getStormny())); // 仓储费
 				adjustList.add(createAdjust(bodyVO , IAdjustType.Handlingfee , bodyVO.getHmny())); // 装卸费
-			}	
+			}	else {
+				flagPks.add("'" + bodyVO.getCgeneralbid() + "'");
+			}
 		}
 		
 		if (adjustList != null && adjustList.size() > 0) {
@@ -349,6 +353,30 @@ public class EventHandler extends ManageEventHandler {
 					Logger.error(e);
 				}
 
+			}
+		}
+		
+		if(flagPks.size() > 0) {
+			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+			try { 
+				for(AdjustVO adjust : adjustArr) {
+					for(CalcStorfeeBVO bodyVO : currBodyVOs) {
+						if(adjust.getDef1().equals(bodyVO.getDef5())) {
+							
+							if(IAdjustType.Storfee.equals(adjust.getType()))
+								adjust.setMny(bodyVO.getStormny());
+							else if(IAdjustType.Handlingfee.equals(adjust.getType()))
+								adjust.setMny(bodyVO.getHmny());
+							
+						}
+							
+					}
+				}
+				
+				HYPubBO_Client.updateAry(adjustArr); 
+				
+			} catch(Exception e) { 
+				Logger.error(e.getMessage()); 
 			}
 		}
 	}
@@ -466,6 +494,28 @@ public class EventHandler extends ManageEventHandler {
 		billVO.setParentVO(adjust);
 		
 		return billVO;
+	}
+	
+	@Override
+	protected void onBoCancelAudit() throws Exception {
+		
+		CircularlyAccessibleValueObject[] bodyVOs = getBufferData().getCurrentVO().getChildrenVO();
+		List<String> flagPks = new ArrayList<String>();
+		for(CircularlyAccessibleValueObject bodyVO : bodyVOs) {
+			flagPks.add("'" + bodyVO.getAttributeValue("cgeneralbid") + "'");
+		}
+		
+		if(flagPks.size() > 0) {
+			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+			for(AdjustVO adjust : adjustArr) {
+				if("Y".equals(adjust.getDef4())) {
+					getBillUI().showErrorMessage("表体行中存在已被使用的记录，不能进行弃审操作！");
+					return ;
+				}
+			}
+		}
+		
+		super.onBoCancelAudit();
 	}
 	
 }

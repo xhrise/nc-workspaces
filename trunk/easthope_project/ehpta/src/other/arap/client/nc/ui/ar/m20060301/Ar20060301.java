@@ -11,6 +11,7 @@ import java.util.Vector;
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.VectorProcessor;
+import nc.ui.ehpta.pub.IAdjustType;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ButtonObject;
@@ -177,7 +178,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 								if (count == 0) {
 
 									AdjustVO adjust = new AdjustVO();
-									adjust.setAttributeValue("type", "1");
+									adjust.setAttributeValue("type", IAdjustType.Receivables);
 									adjust.setAttributeValue("reason", "ÊÕ¿îÂ¼Èë");
 									adjust.setAttributeValue("mny",
 											new UFDouble(ybje.toString()));

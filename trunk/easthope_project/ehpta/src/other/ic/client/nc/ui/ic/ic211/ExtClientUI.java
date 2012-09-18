@@ -8,6 +8,7 @@ import java.util.Map;
 
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.MapListProcessor;
+import nc.jdbc.framework.processor.MapProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ic.auditdlg.ClientUIInAndOut;
@@ -848,9 +849,22 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 					ICButtonConst.BTN_ASSIST_COOP_45))
 				onCoop45Save();
 			else {
-				String boName = bo.getName();
 				
-				super.onButtonClicked(bo);
+				String boName = bo.getName();
+				Boolean check = true;
+				// 修改针对取消签字按钮的BEFORE操作
+				// modify by river for 2012-09-19
+				try {
+					if("取消签字".equals(bo.getName())) {
+						check = beforeOnCancleSign();
+						
+					}
+				} catch(Exception e ) {
+					Logger.error(e);
+				}
+				
+				if(check)
+					super.onButtonClicked(bo);
 				
 				if("卡片显示".equals(boName) || "首页".equals(boName) || "上页".equals(boName) || "下页".equals(boName) || "末页".equals(boName) || "取消".equals(boName)) {
 					getBillCardPanel().execHeadFormulas(new String[]{
@@ -864,6 +878,37 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 					
 			}
 
+		}
+		
+		/**
+		 * 功能 ： 取消签字前操作
+		 * 
+		 * @author river
+		 * 
+		 * Create Date : 2012-09-19
+		 * 
+		 */
+		protected final Boolean beforeOnCancleSign() throws Exception {
+			
+			GeneralBillVO billVO = getCurVO();
+			Boolean check = true;
+			Map retMap = (Map) UAPQueryBS.iUAPQueryBS.executeQuery("select vuserdef3 , vuserdef4 from ic_general_h where cgeneralhid = '"+billVO.getPrimaryKey()+"'", new MapProcessor());
+			
+			if(retMap != null) {
+				if("Y".equals(retMap.get("vuserdef3"))) {
+					showErrorMessage("下游运费已经结算，不能进行弃审操作！");
+					check = false;
+				}
+				
+				if("Y".equals(retMap.get("vuserdef4"))) {
+					showErrorMessage("仓储费及装卸费已经结算，不能进行弃审操作！");
+					check = false;
+				}
+					
+			}
+			
+			return check;
+			
 		}
 
 		/**

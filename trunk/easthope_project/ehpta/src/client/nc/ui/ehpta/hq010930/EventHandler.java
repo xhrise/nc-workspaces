@@ -28,9 +28,11 @@ import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.ehpta.hq010403.AdjustVO;
+import nc.vo.ehpta.hq010901.CalcInterestBVO;
 import nc.vo.ehpta.hq010930.CalcUnderTransfeeBVO;
 import nc.vo.ehpta.hq010930.CalcUnderTransfeeHVO;
 import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
@@ -287,6 +289,40 @@ public class EventHandler extends ManageEventHandler {
 	}
 	
 	/**
+	 * 功能 ： 构造推入余额调整表的数据
+	 * 
+	 * 
+	 * @param bodyVO
+	 * @return
+	 * @throws Exception
+	 */
+	protected final HYBillVO createAdjust(CalcUnderTransfeeBVO bodyVO) throws Exception {
+		AdjustVO adjust = new AdjustVO();
+		adjust.setAttributeValue("type", IAdjustType.Subsidies);
+		adjust.setAttributeValue("reason", "下游运费结算录入");
+		adjust.setAttributeValue("mny", bodyVO.getTransmny());
+		adjust.setAttributeValue("pk_contract",bodyVO.getDef4());
+		adjust.setAttributeValue("pk_cubasdoc", bodyVO.getDef6());
+		adjust.setAttributeValue("memo", "下游运费结算推式生成");
+		adjust.setAttributeValue("vbillno",GeneraterBillNO.getInstanse().build("HQ07", _getCorp().getPk_corp()));
+		adjust.setAttributeValue("adjustdate", _getDate());
+		adjust.setAttributeValue("managerid", _getOperator());
+		adjust.setAttributeValue("vbillstatus", 8);
+		adjust.setAttributeValue("pk_corp", _getCorp().getPk_corp());
+		adjust.setAttributeValue("pk_billtype", "HQ07");
+		adjust.setAttributeValue("voperatorid", _getOperator());
+		adjust.setAttributeValue("dmakedate", _getDate());
+		adjust.setAttributeValue("def1", bodyVO.getDef5());
+		adjust.setAttributeValue("def2", "Y");
+		adjust.setAttributeValue("def3", "N");
+		
+		HYBillVO billVO = new HYBillVO();
+		billVO.setParentVO(adjust);
+		
+		return billVO;
+	}
+
+	/**
 	 * 功能 ： 保存后续验证
 	 * 
 	 * Author : river 
@@ -326,6 +362,7 @@ public class EventHandler extends ManageEventHandler {
 		getBufferData().setCurrentRow(getBufferData().getCurrentRow());
 		
 		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
+		List<String> flagPks = new ArrayList<String>();
 		
 		for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
 			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
@@ -333,7 +370,9 @@ public class EventHandler extends ManageEventHandler {
 			if(count == 0) {
 				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
 				adjustList.add(createAdjust(bodyVO));
-			}	
+			}	else {
+				flagPks.add("'" + bodyVO.getDef5() + "'");
+			}
 		}
 		
 		if (adjustList != null && adjustList.size() > 0) {
@@ -353,6 +392,23 @@ public class EventHandler extends ManageEventHandler {
 					Logger.error(e);
 				}
 
+			}
+		}
+		
+		if(flagPks.size() > 0) {
+			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+			try { 
+				for(AdjustVO adjust : adjustArr) {
+					for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
+						if(adjust.getDef1().equals(bodyVO.getDef5()))
+							adjust.setMny(bodyVO.getTransmny());
+							
+					}
+				}
+				
+				HYPubBO_Client.updateAry(adjustArr); 
+			} catch(Exception e) { 
+				Logger.error(e.getMessage()); 
 			}
 		}
 		
@@ -459,38 +515,26 @@ public class EventHandler extends ManageEventHandler {
 			
 	}
 	
-	/**
-	 * 功能 ： 构造推入余额调整表的数据
-	 * 
-	 * 
-	 * @param bodyVO
-	 * @return
-	 * @throws Exception
-	 */
-	protected final HYBillVO createAdjust(CalcUnderTransfeeBVO bodyVO) throws Exception {
-		AdjustVO adjust = new AdjustVO();
-		adjust.setAttributeValue("type", IAdjustType.Subsidies);
-		adjust.setAttributeValue("reason", "下游运费结算录入");
-		adjust.setAttributeValue("mny", bodyVO.getTransmny());
-		adjust.setAttributeValue("pk_contract",bodyVO.getDef4());
-		adjust.setAttributeValue("pk_cubasdoc", bodyVO.getDef6());
-		adjust.setAttributeValue("memo", "下游运费结算推式生成");
-		adjust.setAttributeValue("vbillno",GeneraterBillNO.getInstanse().build("HQ07", _getCorp().getPk_corp()));
-		adjust.setAttributeValue("adjustdate", _getDate());
-		adjust.setAttributeValue("managerid", _getOperator());
-		adjust.setAttributeValue("vbillstatus", 8);
-		adjust.setAttributeValue("pk_corp", _getCorp().getPk_corp());
-		adjust.setAttributeValue("pk_billtype", "HQ07");
-		adjust.setAttributeValue("voperatorid", _getOperator());
-		adjust.setAttributeValue("dmakedate", _getDate());
-		adjust.setAttributeValue("def1", bodyVO.getDef5());
-		adjust.setAttributeValue("def2", "Y");
-		adjust.setAttributeValue("def3", "N");
+	@Override
+	protected void onBoCancelAudit() throws Exception {
 		
-		HYBillVO billVO = new HYBillVO();
-		billVO.setParentVO(adjust);
+		CircularlyAccessibleValueObject[] bodyVOs = getBufferData().getCurrentVO().getChildrenVO();
+		List<String> flagPks = new ArrayList<String>();
+		for(CircularlyAccessibleValueObject bodyVO : bodyVOs) {
+			flagPks.add("'" + bodyVO.getAttributeValue("def5") + "'");
+		}
 		
-		return billVO;
+		if(flagPks.size() > 0) {
+			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+			for(AdjustVO adjust : adjustArr) {
+				if("Y".equals(adjust.getDef4())) {
+					getBillUI().showErrorMessage("表体行中存在已被使用的记录，不能进行弃审操作！");
+					return ;
+				}
+			}
+		}
+		
+		super.onBoCancelAudit();
 	}
 
 }

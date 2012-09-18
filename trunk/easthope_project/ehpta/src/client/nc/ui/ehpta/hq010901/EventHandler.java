@@ -425,6 +425,22 @@ public class EventHandler extends ManageEventHandler {
 	@Override
 	protected void onBoCancelAudit() throws Exception {
 		
+		CircularlyAccessibleValueObject[] bodyVOs = getBufferData().getCurrentVO().getChildrenVO();
+		List<String> flagPks = new ArrayList<String>();
+		for(CircularlyAccessibleValueObject bodyVO : bodyVOs) {
+			flagPks.add("'" + bodyVO.getAttributeValue("pk_receivable") + "'");
+		}
+		
+		if(flagPks.size() > 0) {
+			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+			for(AdjustVO adjust : adjustArr) {
+				if("Y".equals(adjust.getDef4())) {
+					getBillUI().showErrorMessage("表体行中存在已被使用的记录，不能进行弃审操作！");
+					return ;
+				}
+			}
+		}
+		
 		super.onBoCancelAudit();
 		
 		// 删除时调用
@@ -444,53 +460,70 @@ public class EventHandler extends ManageEventHandler {
 	 */
 	protected final void afterOnBoSave() throws Exception {
 
-		// 保存时调用，不再需要判断单据状态
-//		if(Integer.valueOf(getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) {
+		CalcInterestBVO[] currBodyVOs = (CalcInterestBVO[]) getBufferData().getCurrentVO().getChildrenVO();
+		
+		for(CalcInterestBVO bodyVO : currBodyVOs) {
+			bodyVO.setCalcflag(new UFBoolean("Y"));
+		}
+		
+		HYPubBO_Client.updateAry(currBodyVOs);
+		
+		AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName(), getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
+		
+		getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
+		getBufferData().setCurrentRow(getBufferData().getCurrentRow());
+		
+		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
+		List<String> flagPks = new ArrayList<String>();
+		
+		for(CalcInterestBVO bodyVO : currBodyVOs) {
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
 			
-			CalcInterestBVO[] currBodyVOs = (CalcInterestBVO[]) getBufferData().getCurrentVO().getChildrenVO();
-			
-			for(CalcInterestBVO bodyVO : currBodyVOs) {
-				bodyVO.setCalcflag(new UFBoolean("Y"));
+			if(count == 0) {
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("update arap_djzb set zyx8 = 'Y' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
+				adjustList.add(createAdjust(bodyVO));
+			} else {
+				flagPks.add("'" + bodyVO.getPk_receivable() + "'");
 			}
-			
-			HYPubBO_Client.updateAry(currBodyVOs);
-			
-			AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName(), getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
-			
-			getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
-			getBufferData().setCurrentRow(getBufferData().getCurrentRow());
-			
-			List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
-			
-			for(CalcInterestBVO bodyVO : currBodyVOs) {
-				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
-				
-				if(count == 0) {
-					try { UAPQueryBS.iUAPQueryBS.executeQuery("update arap_djzb set zyx8 = 'Y' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
-					adjustList.add(createAdjust(bodyVO));
-				}	
-			}
-			
-			if (adjustList != null && adjustList.size() > 0) {
-				Object userObj = new ClientUICheckRuleGetter();
-				AggregatedValueObject[] adjustAggVOs = HYPubBO_Client.saveBDs(adjustList.toArray(new HYBillVO[0]), userObj);
+		}
+		
+		if (adjustList != null && adjustList.size() > 0) {
+			Object userObj = new ClientUICheckRuleGetter();
+			AggregatedValueObject[] adjustAggVOs = HYPubBO_Client.saveBDs(adjustList.toArray(new HYBillVO[0]), userObj);
 
-				for (AggregatedValueObject billVO : adjustAggVOs) {
+			for (AggregatedValueObject billVO : adjustAggVOs) {
 
-					try {
-						SuperVO adjust = HYPubBO_Client.queryByPrimaryKey(AdjustVO.class, billVO.getParentVO().getPrimaryKey());
-						HYBillVO newBillVO = new HYBillVO();
-						newBillVO.setParentVO(adjust);
+				try {
+					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey(AdjustVO.class, billVO.getParentVO().getPrimaryKey());
+					HYBillVO newBillVO = new HYBillVO();
+					newBillVO.setParentVO(adjust);
 
-						getBusinessAction().approve(newBillVO,"HQ07", billVO.getParentVO().getAttributeValue("dmakedate").toString(), userObj);
+					getBusinessAction().approve(newBillVO,"HQ07", billVO.getParentVO().getAttributeValue("dmakedate").toString(), userObj);
 
-					} catch (Exception e) {
-						Logger.error(e);
-					}
-
+				} catch (Exception e) {
+					Logger.error(e);
 				}
+
 			}
-//		}
+		}
+		
+		if(flagPks.size() > 0) {
+			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+			
+			try {
+				for(AdjustVO adjust : adjustArr) {
+					for(CalcInterestBVO bodyVO : currBodyVOs) {
+						if(adjust.getDef1().equals(bodyVO.getPk_receivable()))
+							adjust.setMny(bodyVO.getActualmny());
+							
+					}
+				}
+			
+				HYPubBO_Client.updateAry(adjustArr); 
+			} catch(Exception e) { 
+				Logger.error(e.getMessage()); 
+			}
+		}
 	}
 	
 	/**
@@ -522,7 +555,7 @@ public class EventHandler extends ManageEventHandler {
 				}	
 			}
 			
-			SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and type = 2 and nvl(dr,0) = 0 ");
+			SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and type = "+IAdjustType.Discount+" and nvl(dr,0) = 0 ");
 			
 			List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
 			for (SuperVO superVO : superVos) {
