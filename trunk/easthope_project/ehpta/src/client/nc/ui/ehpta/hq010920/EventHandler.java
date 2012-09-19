@@ -220,15 +220,22 @@ public class EventHandler extends ManageEventHandler {
 	protected void onBoMark() throws Exception {
 		
 		MarkDlg markDlg = MarkDlg.getInstance(getBillUI() , getUIController().getBillType());
+		
+		CalcUpperTransfeeBVO[] selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcUpperTransfeeBVO.class.getName());
+		if(selBodyVOs == null || selBodyVOs.length == 0)
+			selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+		
+		if(selBodyVOs == null || selBodyVOs.length == 0) {
+			getBillUI().showErrorMessage("请至少选择一条记录进行批改操作。");
+			return ;
+		}
+		
 		if(markDlg.showModal() == UIDialog.ID_OK) {
 			
 			if(markDlg.getFieldRef().getRefPK() == null || "".equals(markDlg.getFieldRef().getRefPK())) 
 				throw new Exception ("属性为空，不能进行批改操作。");
 			
 			CalcUpperTransfeeBVO[] bodyVOs = (CalcUpperTransfeeBVO[])getBillCardPanelWrapper().getBillVOFromUI().getChildrenVO();
-			CalcUpperTransfeeBVO[] selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcUpperTransfeeBVO.class.getName());
-			if(selBodyVOs == null || selBodyVOs.length == 0)
-				selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
 			
 			for(CalcUpperTransfeeBVO selbodyVO : selBodyVOs) {
 				for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
