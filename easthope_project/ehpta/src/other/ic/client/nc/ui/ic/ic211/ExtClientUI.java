@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.MapListProcessor;
 import nc.jdbc.framework.processor.MapProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
@@ -3067,6 +3068,16 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		return retType;
 	}
 	
+	/**
+	 * 功能 ： 保存后续操作
+	 * 
+	 * @author river
+	 * 
+	 * Create date : 2012-09-19
+	 * 
+	 * @param voInputBill
+	 * @param retType
+	 */
 	protected final void afterOnSave(GeneralBillVO voInputBill , boolean retType) {
 		
 		GeneralBillVO newBill = getBillVO();
@@ -3083,6 +3094,11 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			Object pk_transport_b = getBillCardPanel().getHeadItem("pk_transport_b").getValueObject();
 			Object pk_contract = voInputBill.getParentVO().getAttributeValue("pk_contract");
 			
+			newBill.getParentVO().setAttributeValue("transprice", transprice);
+			newBill.getParentVO().setAttributeValue("storprice", storprice);
+			newBill.getParentVO().setAttributeValue("pk_storcontract_b", pk_storcontract_b);
+			newBill.getParentVO().setAttributeValue("pk_transport_b", pk_transport_b);
+			
 			try { 
 				
 				String sqlField = ConvertFunc.change(new String[]{
@@ -3098,8 +3114,17 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 				});
 				
 				UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set "+sqlField+" where cgeneralhid = '"+newBill.getPrimaryKey()+"'", null); 
-			
+				
 			} catch(Exception ex) { }
+			
+			// 更新数据后对TS字段重新取值，解决后续签字提示被修改、删除
+			try {
+				Object ts = UAPQueryBS.iUAPQueryBS.executeQuery("select ts from ic_general_h where cgeneralhid = '"+newBill.getPrimaryKey()+"'", new ColumnProcessor());
+				newBill.getParentVO().setAttributeValue("ts", ts);
+				
+				updateBillToList(newBill);
+				
+			} catch(Exception e) {}
 		}
 		
 	}
