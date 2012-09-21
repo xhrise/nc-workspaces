@@ -162,9 +162,17 @@ public class SaleInvoiceBtn {
   public ButtonObject m_boCustCredit =null ;
   public ButtonObject m_boPrifit = null ;
 
+  //合同余额
   // add by river for 2012-08-06
   public ButtonObject m_boContBalance = null;
 
+  // PTA合并开票
+  // add by river for 2012-09-20
+  public ButtonObject m_boPTAUnite = null;
+  
+  // PTA取消合并开票
+  // add by river for 2021-09-20
+  public ButtonObject m_boPTAUniteCancle = null;
 
   private ButtonObject[] aryButtonGroup = null;
 
@@ -397,7 +405,12 @@ public class SaleInvoiceBtn {
     m_boCancelTransfer = bt.getButton(ScmButtonConst.BTN_REF_CANCEL);
     m_boUnite = bt.getButton(BTN_UniteInvoice);
     m_boUniteCancel = bt.getButton(BTN_UniteCancel);// 放弃合并
-
+    
+    m_boPTAUnite = new ButtonObject("PTA合并开票" , "" , 0 , "PTA合并开票");
+    m_boPTAUniteCancle = new ButtonObject("PTA取消合并" , "" , 0 , "PTA取消合并");
+    m_boMaintain.addChildButton(m_boPTAUnite);
+    m_boMaintain.addChildButton(m_boPTAUniteCancle);
+    
     // 行操作
     // 增行，删行，插入行（增加），复制行，粘贴行 V55 新增卡片编辑、重排行号
     m_boLineOper = bt.getButton(ScmButtonConst.BTN_LINE);// 行操作

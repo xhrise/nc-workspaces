@@ -42,7 +42,7 @@ public class ClientUICtrl extends AbstractManageController implements
 	public int[] getListButtonAry() {
 		return new int[] { IBillButton.Query, IBillButton.Add,
 				IBillButton.Edit, IBillButton.Refresh, IBillButton.Delete,
-				DefaultBillButton.DOCUMENT, IBillButton.Card
+				DefaultBillButton.DOCUMENT, IBillButton.Card , DefaultBillButton.Confirm , DefaultBillButton.SelAll , DefaultBillButton.SelNone
 
 		};
 
