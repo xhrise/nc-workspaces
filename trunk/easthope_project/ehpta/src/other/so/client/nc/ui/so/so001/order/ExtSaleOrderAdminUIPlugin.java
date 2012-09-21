@@ -204,15 +204,31 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
 			Object[] obj = new Object[4];
 			if(num == -1) {
-				obj[0] = (String) ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+				
+				obj[0] =  ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+				obj[0] = obj[0] == null ? "" : obj[0];
+				
 				obj[1] = "";
+				
 				obj[2] = (String) ctx.getBillCardPanel().getHeadItem("csaleid").getValueObject();
+				obj[2] = obj[2] == null ? "" : obj[2];
+				
 				obj[3] = (String) ctx.getBillCardPanel().getHeadItem("concode").getValueObject();
+				obj[3] = obj[3] == null ? "" : obj[3];
+				
 			} else { 
+				
 				obj[0] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "pk_contract");
+				obj[0] = obj[0] == null ? "" : obj[0];
+				
 				obj[1] = "";
+				
 				obj[2] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "csaleid");
+				obj[2] = obj[2] == null ? "" : obj[2];
+				
 				obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
+				obj[3] = obj[3] == null ? "" : obj[3];
+				
 			}
 			
 			SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj);

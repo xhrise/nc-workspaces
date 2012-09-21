@@ -1763,9 +1763,11 @@ public class SaleInvoiceUI extends nc.ui.pub.ToftPanel implements
     if (e.getPos() == BillItem.HEAD) {
       onCard();
       // 如果是新单据,则需直接修改
-      if (getBillCardPanel().isNewBill()) {
-        onModify();
-      }
+      
+      // 双击时不在进行判断单据是否为新单据  // modify by river for 2012-09-21 
+//      if (getBillCardPanel().isNewBill()) {
+//        onModify();
+//      }
     }
   }
 

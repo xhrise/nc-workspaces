@@ -1,19 +1,28 @@
 package nc.ui.ehpta.hq010403;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import nc.bs.logging.Logger;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
+import nc.ui.so.so002.ExtSaleInvoiceUI;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.bill.AbstractManageController;
-import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
-import nc.vo.pub.AggregatedValueObject;
+import nc.ui.trade.business.HYPubBO_Client;
+import nc.ui.trade.button.IBillButton;
+import nc.uif.pub.exception.UifException;
+import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.SuperVO;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
+import nc.vo.trade.pub.HYBillVO;
 import nc.vo.trade.pub.IBillStatus;
 
 /**
@@ -35,6 +44,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	private EventHandler eventHandler = null;
 
 	private ClientUICtrl controller = null;
+	
+	protected ExtSaleInvoiceUI invUI = null;
 
 	protected ClientUICtrl getController() {
 		if (controller == null)
@@ -105,6 +116,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		}
 
 		addPrivateButton(DefaultBillButton.getDocumentButtonVO());
+		addPrivateButton(DefaultBillButton.getConfirmButtonVO());
+		addPrivateButton(DefaultBillButton.getSelAllButtonVO());
+		addPrivateButton(DefaultBillButton.getSelNoneButtonVO());
+		
 	}
 
 	/**
@@ -121,20 +136,66 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 
 	public void doQueryAction(ILinkQueryData querydata) {
-		String billId = querydata.getBillID();
-		if (billId != null) {
-			try {
-				setCurrentPanel(BillTemplateWrapper.CARDPANEL);
-				AggregatedValueObject vo = loadHeadData(billId);
-				getBufferData().addVOToBuffer(vo);
-				setListHeadData(new CircularlyAccessibleValueObject[] { vo
-						.getParentVO() });
-				getBufferData().setCurrentRow(getBufferData().getCurrentRow());
-				setBillOperate(IBillOperate.OP_NO_ADDANDEDIT);
-			} catch (Exception ex) {
-				ex.printStackTrace();
+		String whereSql = ((Object[])querydata.getUserObject())[0].toString();
+		invUI = (ExtSaleInvoiceUI) ((Object[])querydata.getUserObject())[1];
+		try {
+			getBufferData().clear();
+			
+			SuperVO[] adjustVOs = HYPubBO_Client.queryByCondition(AdjustVO.class, whereSql);
+			if(adjustVOs != null && adjustVOs.length > 0) {
+				
+				invUI.setAdjustVOs((AdjustVO[]) adjustVOs);
+				
+				List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
+				
+				for(SuperVO adjust : adjustVOs) {
+					
+					HYBillVO billVO = new HYBillVO();
+					billVO.setParentVO(adjust);
+					billVOs.add(billVO);
+				}
+				
+				getBufferData().addVOsToBuffer(billVOs.toArray(new HYBillVO[0]));
+				
+				if (getBufferData().getVOBufferSize() != 0) {
+
+					setListHeadData( getBufferData().getAllHeadVOsFromBuffer());
+					setBillOperate(IBillOperate.OP_NOTEDIT);
+					getBufferData().setCurrentRow(0);
+				} else {
+					setListHeadData(null);
+					setBillOperate(IBillOperate.OP_INIT);
+					getBufferData().setCurrentRow(-1);
+					showHintMessage( nc.ui.ml.NCLangRes.getInstance().getStrByID("uifactory", "UPPuifactory-000066")/* @res "没有查到任何满足条件的数据!" */);
+				}
+				
 			}
+			
+		} catch (Exception e) {
+			Logger.error(e);
 		}
+		
+		getButtonManager().getButton(IBillButton.Query).setVisible(false);
+		getButtonManager().getButton(IBillButton.Add).setVisible(false);
+		getButtonManager().getButton(IBillButton.Edit).setVisible(false);
+		getButtonManager().getButton(IBillButton.Refresh).setVisible(false);
+		getButtonManager().getButton(IBillButton.Delete).setVisible(false);
+		getButtonManager().getButton(IBillButton.Card).setVisible(false);
+		getButtonManager().getButton(DefaultBillButton.DOCUMENT).setVisible(false);
+		getButtonManager().getButton(IBillButton.Save).setVisible(false);
+		getButtonManager().getButton(IBillButton.Cancel).setVisible(false);
+		getButtonManager().getButton(IBillButton.Commit).setVisible(false);
+		getButtonManager().getButton(IBillButton.Audit).setVisible(false);
+		getButtonManager().getButton(IBillButton.CancelAudit).setVisible(false);
+		getButtonManager().getButton(IBillButton.ApproveInfo).setVisible(false);
+		getButtonManager().getButton(IBillButton.Brow).setVisible(false);
+		
+		getButtonManager().getButton(DefaultBillButton.Confirm).setVisible(true);
+		getButtonManager().getButton(DefaultBillButton.SelAll).setVisible(true);
+		getButtonManager().getButton(DefaultBillButton.SelNone).setVisible(true);
+		
+		updateButtons();
+		
 	}
 
 	protected EventHandler getEventHandler() {
@@ -163,6 +224,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 
 	protected void initSelfData() {
+		getBillListPanel().setMultiSelect(true);
+		getButtonManager().getButton(DefaultBillButton.Confirm).setVisible(false);
+		getButtonManager().getButton(DefaultBillButton.SelAll).setVisible(false);
+		getButtonManager().getButton(DefaultBillButton.SelNone).setVisible(false);
+		
+		updateButtons();
 	}
 
 	public void setDefaultData() throws Exception {
@@ -186,4 +253,5 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				item.setValue(values[i]);
 		}
 	}
+	
 }

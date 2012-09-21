@@ -14,6 +14,8 @@
 	<classpathentry kind="src" output="modules/ic/META-INF/classes" path="src/other/ic/private"/>
 	<classpathentry kind="src" output="modules/ic/client/classes" path="src/other/ic/client"/>
 	<classpathentry kind="src" output="modules/scmpub/client/classes" path="src/other/scmpub/client"/>
+	<classpathentry kind="src" output="modules/to/META-INF/classes" path="src/other/to/private"/>
+	<classpathentry kind="src" output="modules/to/client/classes" path="src/other/to/client"/>
 	<classpathentry kind="src" output="out/test" path="src/test"/>
 	<classpathentry kind="src" output="out/resources" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

@@ -1,17 +1,23 @@
 package nc.ui.ehpta.hq010403;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.List;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.pub.ButtonObject;
+import nc.ui.pub.IFuncWindow;
 import nc.ui.pub.beans.UIDialog;
+import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.filesystem.FileManageUI;
 import nc.ui.trade.base.IBillOperate;
 import nc.ui.trade.businessaction.IBusinessController;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
+import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 
@@ -31,16 +37,78 @@ public class EventHandler extends ManageEventHandler {
 
 	protected void onBoElse(int intBtn) throws Exception {
 		switch (intBtn) {
-		case DefaultBillButton.DOCUMENT:
-
-			documentManage();
-
-			break;
-
-		default:
-
-			break;
+			case DefaultBillButton.DOCUMENT:
+				documentManage();
+				break;
+				
+			case DefaultBillButton.Confirm : 
+				onBoConfirm();
+				break;
+				
+			case DefaultBillButton.SelAll : 
+				onBoSelAll();
+				break;
+				
+			case DefaultBillButton.SelNone : 
+				onBoSelNone();
+				break;
+				
+			default:
+	
+				break;
 		}
+	}
+	
+	protected final void onBoConfirm() throws Exception {
+		
+		Integer rowCount = ((ClientUI)getBillUI()).getBillListPanel().getHeadBillModel().getRowCount();
+		List<AdjustVO> adjustList = new ArrayList<AdjustVO>();
+		for(Integer row = 0 ; row < rowCount ; row++) {
+			
+			if(((ClientUI)getBillUI()).getBillListPanel().getHeadBillModel().getRowState(row) == BillModel.SELECTED) {
+				adjustList.add((AdjustVO) getBufferData().getVOByRowNo(row).getParentVO());
+			}
+			
+		}
+		
+		((ClientUI)getBillUI()).invUI.setAdjustVOs(adjustList.toArray(new AdjustVO[0]));
+		
+		((ClientUI)getBillUI()).invUI.onBoConfirm();
+		
+		Component comp = ((ClientUI)getBillUI()).getRootPane().getParent();
+		((IFuncWindow)comp).closeWindow();
+		
+	}
+	
+	@Override
+	protected void onBoSelAll() throws Exception {
+		selectAll((BillManageUI) getBillUI(), true);
+	}
+
+	@Override
+	protected void onBoSelNone() throws Exception {
+		selectAll((BillManageUI) getBillUI(), false);
+	}
+
+	public void selectAll(BillManageUI billUI, boolean isNeedSelected) {
+		int row = billUI.getBillListPanel().getHeadTable().getRowCount();
+		BillModel headModel = billUI.getBillListPanel().getHeadBillModel();
+		if (isNeedSelected) {
+			for (int n = 0; n < row; n++) {
+				if (headModel.getRowState(n) != BillModel.SELECTED) {
+					headModel.setRowState(n, BillModel.SELECTED);
+				}
+			}
+		} else {
+			for (int n = 0; n < row; n++) {
+				if (headModel.getRowState(n) != BillModel.UNSTATE) {
+					headModel.setRowState(n, BillModel.UNSTATE);
+				}
+			}
+		}
+
+		billUI.getBillListPanel().updateUI();
+		
 	}
 	
 	@Override
@@ -127,9 +195,15 @@ public class EventHandler extends ManageEventHandler {
 
 		AggregatedValueObject currAggVO = getBufferData().getCurrentVO();
 		if(currAggVO != null && currAggVO.getParentVO() != null) {
+			
 			String def2 = (String) currAggVO.getParentVO().getAttributeValue("def2");
 			if(def2 != null && "Y".equals(def2))
 				throw new Exception ("当前记录为推式生成，不能进行弃审操作！");
+			
+			String def4 = (String) currAggVO.getParentVO().getAttributeValue("def4");
+			if(def4 != null && "Y".equals(def4))
+				throw new Exception ("当前记录被使用，不能进行弃审操作！");
+			
 		}
 		
 		super.onBoCancelAudit();
