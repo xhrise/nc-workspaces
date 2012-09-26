@@ -7,7 +7,7 @@ public class VW_SaleContractBsVO extends SaleContractBsVO {
 	@Override
 	public String getTableName() {
 		
-//		create or replace view vw_sale_contract_bs as
+//		create or replace view vw_pta_sale_contract_bs as
 //		select contract_bs.pk_contract_b,
 //		       contract_bs.pk_contract,
 //		       contract_bs.pk_invbasdoc,
@@ -34,13 +34,13 @@ public class VW_SaleContractBsVO extends SaleContractBsVO {
 //		       contract_bs.def8,
 //		       contract_bs.def9,
 //		       contract_bs.def10
-//		  from ehpta_sale_contract_bs contract_bs 
+//		  from ehpta_sale_contract_bs contract_bs
 //		left join (select nvl(sum(saleb.nnumber),0) nnumber , sale.pk_contract from so_saleorder_b saleb left join so_sale sale on saleb.csaleid = sale.csaleid where nvl(sale.dr,0)=0 and nvl(saleb.dr,0)=0 group by sale.pk_contract) orderb on orderb.pk_contract = contract_bs.pk_contract
 //		left join bd_invmandoc invman on invman.pk_invmandoc = contract_bs.pk_invbasdoc
 //		left join bd_invbasdoc invbas on invbas.pk_invbasdoc = invman.pk_invbasdoc
 //		where nvl(to_number(contract_bs.num),0) > nvl(to_number(orderb.nnumber),0) and nvl(contract_bs.dr,0)=0;
 		
-		return "vw_sale_contract_bs"; // йсм╪
+		return "vw_pta_sale_contract_bs"; // йсм╪
 	}
 	
 

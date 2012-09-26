@@ -1,5 +1,7 @@
 package nc.ui.ehpta.hq010101;
 
+import javax.ws.rs.DELETE;
+
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
@@ -209,8 +211,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				if("defpk_sendtype".equals(e.getKey()))
 					afterSetDefpk_sendtype(e);
 				
-				if("shipprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()))
-					afterSetAshipprice(e);
+				// 上游运费表体不进行计算
+				// remove by river for 2012-09-24
+//				if("shipprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()))
+//					afterSetAshipprice(e);
 				
 				if("piersfee".equals(e.getKey()) || "storcarfee".equals(e.getKey()) || "storshipfee".equals(e.getKey()) || "inlandshipfee".equals(e.getKey()) || "carfee".equals(e.getKey()))
 					afterSetTransprice(e);

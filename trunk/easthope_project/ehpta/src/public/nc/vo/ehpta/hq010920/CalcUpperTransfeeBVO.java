@@ -29,7 +29,7 @@
              public String def17;
              public String def11;
              public String def14;
-             public String def7;
+             public UFDouble def7;
              public String eaddr;
              public String def16;
              public String def6;
@@ -44,7 +44,7 @@
              public String shipname;
              public String def18;
              public String def13;
-             public String def8;
+             public UFDouble def8;
              public String def1;
              public String sourceno;
              public UFDouble num;
@@ -62,7 +62,7 @@
              public UFDate settledate;
              public UFDate sdate;
              public String def3;
-             public String def9;
+             public UFDouble def9;
              public UFDouble dieselprice;
             
              public static final String  DEF5="def5";   
@@ -284,7 +284,7 @@
 	   * 创建日期:2012-9-11
 	   * @return String
 	   */
-	 public String getDef7() {
+	 public UFDouble getDef7() {
 		 return def7;
 	  }   
 	  
@@ -294,7 +294,7 @@
 	   * 创建日期:2012-9-11
 	   * @param newDef7 String
 	   */
-	public void setDef7(String newDef7) {
+	public void setDef7(UFDouble newDef7) {
 		
 		def7 = newDef7;
 	 } 	  
@@ -599,7 +599,7 @@
 	   * 创建日期:2012-9-11
 	   * @return String
 	   */
-	 public String getDef8() {
+	 public UFDouble getDef8() {
 		 return def8;
 	  }   
 	  
@@ -609,7 +609,7 @@
 	   * 创建日期:2012-9-11
 	   * @param newDef8 String
 	   */
-	public void setDef8(String newDef8) {
+	public void setDef8(UFDouble newDef8) {
 		
 		def8 = newDef8;
 	 } 	  
@@ -977,7 +977,7 @@
 	   * 创建日期:2012-9-11
 	   * @return String
 	   */
-	 public String getDef9() {
+	 public UFDouble getDef9() {
 		 return def9;
 	  }   
 	  
@@ -987,7 +987,7 @@
 	   * 创建日期:2012-9-11
 	   * @param newDef9 String
 	   */
-	public void setDef9(String newDef9) {
+	public void setDef9(UFDouble newDef9) {
 		
 		def9 = newDef9;
 	 } 	  

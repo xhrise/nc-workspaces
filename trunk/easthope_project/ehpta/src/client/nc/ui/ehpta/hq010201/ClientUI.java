@@ -235,7 +235,6 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 			} else {
 
-				getButtonManager().getButton(IBillButton.Edit).setEnabled(true);
 				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
 				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(true);
 

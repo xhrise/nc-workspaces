@@ -64,6 +64,7 @@ public class EventHandler extends ManageEventHandler {
 		updateBuffer();
 		getBufferData().setCurrentRow(currRow);
 		
+		getBillUI().updateButtons();
 	}
 
 }
