@@ -125,7 +125,7 @@ public class EventHandler extends ManageEventHandler {
 		UFDate endPeriod = new UFDate(uppertrans.getPeriod() + "-" + lastDay);
 		
 		// 统计上游运费视图
-//		create or replace view vw_upper_transfee as
+//		create or replace view vw_pta_upper_transfee as
 //		select ingenb.cgeneralhid def2,
 //		       trim(substr(ingenb.vbatchcode, 0, instr(ingenb.vbatchcode, ' - '))) shipname,
 //		       ingenh.vbillcode sourceno,
@@ -156,8 +156,10 @@ public class EventHandler extends ManageEventHandler {
 //		   and outgenb.csourcetype = '4K'
 //		   and outgenh.cbilltypecode = '4I'
 //		   and ingenh.cbilltypecode = '4A'
+//
 //		   and decode(ingenh.vuserdef3, 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N'
 //		   and outgenh.cwarehouseid = '1120A7100000000Z1ZJX'
+//
 //		   and nvl(ingenb.dr , 0 ) = 0
 //		   and nvl(ingenh.dr , 0 ) = 0
 //		   and nvl(outgenb.dr , 0 ) = 0
@@ -166,10 +168,11 @@ public class EventHandler extends ManageEventHandler {
 //		   and nvl(instor.dr , 0 ) = 0
 //		   and nvl(outstor.dr , 0 ) = 0
 //		   -- and nvl(inaddr.dr , 0 ) = 0
+//
 //		   and nvl(ingenh.fbillflag , 0) = 3
-//		   and nvl(outgenh.fbillflag , 0) = 3		
+//		   and nvl(outgenh.fbillflag , 0) = 3;
 		
-		String sql = "select * from vw_upper_transfee where edate >= '"+period.toString()+"' and edate <= '"+endPeriod.toString()+"'";
+		String sql = "select * from vw_pta_upper_transfee where edate >= '"+period.toString()+"' and edate <= '"+endPeriod.toString()+"'";
 		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
@@ -180,7 +183,6 @@ public class EventHandler extends ManageEventHandler {
 				CalcUpperTransfeeBVO uppertransBVO = new CalcUpperTransfeeBVO();
 				String[] Attribute = uppertransBVO.getAttributeNames();
 				for(String attr : Attribute) {
-					
 					if("outnum".equals(attr)) {
 						uppertransBVO.setAttributeValue(attr, new UFDouble(retMap.get("num").toString()).sub(new UFDouble(retMap.get("recnum").toString())));
 					} else 
@@ -255,17 +257,100 @@ public class EventHandler extends ManageEventHandler {
 				
 			}
 			
+			bodyVOs = execBodyFormulas(bodyVOs , markDlg.getFieldRef().getRefCode());
+			
 			HYBillVO billVO = new HYBillVO();
 			billVO.setParentVO(getBillCardPanelWrapper().getBillVOFromUI().getParentVO());
 			billVO.setChildrenVO(bodyVOs);
 			getBillCardPanelWrapper().setCardData(billVO);
 			
-			for(int row = 0 , count = bodyVOs.length ; row < count ; row ++) 
-				getBillCardPanelWrapper().getBillCardPanel().execBodyFormulas(row, ((ClientUI)getBillUI()).bodyFamulas);
+//			for(int row = 0 , count = bodyVOs.length ; row < count ; row ++) 
+//				getBillCardPanelWrapper().getBillCardPanel().execBodyFormulas(row, ((ClientUI)getBillUI()).bodyFamulas);
 			
 			
 		}
 	}
+	
+			
+	protected final CalcUpperTransfeeBVO[] execBodyFormulas(CalcUpperTransfeeBVO[] bodyVOs , String attr) throws Exception {
+		
+		if("dieselprice".equals(attr) || "rises".equals(attr)) {
+			
+			if("dieselprice".equals(attr)) {
+				
+				for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
+					
+					UFDouble rises = (UFDouble) bodyVO.getAttributeValue("rises");
+					UFDouble dieselprice = (UFDouble) bodyVO.getAttributeValue("dieselprice");
+					UFDouble def9 = (UFDouble) bodyVO.getAttributeValue("def9");
+					UFDouble recnum = (UFDouble) bodyVO.getAttributeValue("recnum");
+					UFDouble outmny = (UFDouble) bodyVO.getAttributeValue("outmny");
+					UFDouble def7 = (UFDouble) bodyVO.getAttributeValue("def7");
+					UFDouble def8 = (UFDouble) bodyVO.getAttributeValue("def8");
+					
+					rises = rises == null ? new UFDouble("0") : rises;
+					dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
+					def9 = def9 == null ? new UFDouble("0") : def9;
+					recnum = recnum == null ? new UFDouble("0") : recnum;
+					outmny = outmny == null ? new UFDouble("0") : outmny;
+					def7 = def7 == null ? new UFDouble("0") : def7;
+					def8 = def8 == null ? new UFDouble("0") : def8;
+					
+					UFDouble fee = def9.multiply(rises.div(100).add(1));
+					bodyVO.setAttributeValue("fee", fee);
+					
+					dieselprice = dieselprice.multiply(rises.div(100).add(1));
+					bodyVO.setAttributeValue("dieselprice", dieselprice);
+					
+					UFDouble transmny = recnum.multiply(fee);
+					bodyVO.setAttributeValue("transmny", transmny);
+					
+					bodyVO.setAttributeValue("paymny", transmny.sub(outmny));
+					
+				}
+				
+			} else if("rises".equals(attr)) {
+				
+				for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
+					
+					UFDouble rises = (UFDouble) bodyVO.getAttributeValue("rises");
+					UFDouble dieselprice = (UFDouble) bodyVO.getAttributeValue("dieselprice");
+					UFDouble def9 = (UFDouble) bodyVO.getAttributeValue("def9");
+					UFDouble recnum = (UFDouble) bodyVO.getAttributeValue("recnum");
+					UFDouble outmny = (UFDouble) bodyVO.getAttributeValue("outmny");
+					UFDouble def7 = (UFDouble) bodyVO.getAttributeValue("def7");
+					UFDouble def8 = (UFDouble) bodyVO.getAttributeValue("def8");
+					
+					rises = rises == null ? new UFDouble("0") : rises;
+					dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
+					def9 = def9 == null ? new UFDouble("0") : def9;
+					recnum = recnum == null ? new UFDouble("0") : recnum;
+					outmny = outmny == null ? new UFDouble("0") : outmny;
+					def7 = def7 == null ? new UFDouble("0") : def7;
+					def8 = def8 == null ? new UFDouble("0") : def8;
+					
+					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).abs().multiply(100).intValue() / def8.doubleValue()).intValue());
+					bodyVO.setAttributeValue("rises", newRises);
+					
+					UFDouble fee = def9.multiply(newRises.div(100).add(1));
+					bodyVO.setAttributeValue("fee", fee);
+					
+					UFDouble transmny = recnum.multiply(fee);
+					bodyVO.setAttributeValue("transmny", transmny);
+					
+					bodyVO.setAttributeValue("paymny", transmny.sub(outmny));
+					
+				}
+				
+			}
+		}
+		
+		
+		return bodyVOs;
+		
+			
+	}
+	
 	
 	/**
 	 * 点击按钮后的处理

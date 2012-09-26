@@ -89,11 +89,11 @@ public class EventHandler extends ManageEventHandler {
 		String lastDay = CalcFunc.builder(period);
 		UFDate endPeriod = new UFDate(undertrans.getPeriod() + "-" + lastDay);
 		
-//		create or replace view vw_under_transfee as 
-//		select genh.cgeneralhid , genh.vbillcode cbillno , genb.cinventoryid def1 , invbas.invname def2 , genh.dbilldate sdate , 
-//		genh.cwarehouseid pk_sstordoc , stordoc.storname def3 , stordoc.storaddr saddress , 
+//		create or replace view vw_pta_under_transfee as
+//		select genh.cgeneralhid , genh.vbillcode cbillno , genb.cinventoryid def1 , invbas.invname def2 , genh.dbilldate sdate ,
+//		genh.cwarehouseid pk_sstordoc , stordoc.storname def3 , stordoc.storaddr saddress ,
 //		address.addrname eaddress , transcontb.piersfee , transcontb.inlandshipfee , transcontb.carfee , genh.pk_transport , genh.pk_transport_b ,
-//		genb.noutnum num , genh.transprice fee , (nvl(genh.transprice,0) * nvl(genb.noutnum,0)) transmny 
+//		genb.noutnum num , genh.transprice fee , (nvl(genh.transprice,0) * nvl(genb.noutnum,0)) transmny
 //		,genb.cgeneralbid def5 , genh.ccustomerid def6 , genh.pk_contract def4
 //		from ic_general_h genh
 //		left join ic_general_b genb on genh.cgeneralhid = genb.cgeneralhid
@@ -104,9 +104,10 @@ public class EventHandler extends ManageEventHandler {
 //
 //		where decode(genh.vuserdef3 , 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N' and genh.concode is not null
 //		and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genh.transprice,0) > 0
-//		and genh.fbillflag = 3 and genh.daccountdate is not null
+//		and genh.fbillflag = 3
+//		and genh.daccountdate is not null;
 		
-		String sql = "select * from vw_under_transfee where sdate >= '"+period.toString()+"' and sdate <= '"+endPeriod.toString()+"'";
+		String sql = "select * from vw_pta_under_transfee where sdate >= '"+period.toString()+"' and sdate <= '"+endPeriod.toString()+"'";
 		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
@@ -369,48 +370,51 @@ public class EventHandler extends ManageEventHandler {
 			
 			if(count == 0) {
 				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
-				adjustList.add(createAdjust(bodyVO));
-			}	else {
-				flagPks.add("'" + bodyVO.getDef5() + "'");
-			}
+//				remove by river for 2012-09-24
+//				adjustList.add(createAdjust(bodyVO));
+			}	// else {
+//				flagPks.add("'" + bodyVO.getDef5() + "'");
+//			}
 		}
 		
-		if (adjustList != null && adjustList.size() > 0) {
-			Object userObj = new ClientUICheckRuleGetter();
-			AggregatedValueObject[] adjustAggVOs = HYPubBO_Client.saveBDs(adjustList.toArray(new HYBillVO[0]), userObj);
-
-			for (AggregatedValueObject billVO : adjustAggVOs) {
-
-				try {
-					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey(AdjustVO.class, billVO.getParentVO().getPrimaryKey());
-					HYBillVO newBillVO = new HYBillVO();
-					newBillVO.setParentVO(adjust);
-
-					getBusinessAction().approve(newBillVO,"HQ07", billVO.getParentVO().getAttributeValue("dmakedate").toString(), userObj);
-
-				} catch (Exception e) {
-					Logger.error(e);
-				}
-
-			}
-		}
-		
-		if(flagPks.size() > 0) {
-			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
-			try { 
-				for(AdjustVO adjust : adjustArr) {
-					for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
-						if(adjust.getDef1().equals(bodyVO.getDef5()))
-							adjust.setMny(bodyVO.getTransmny());
-							
-					}
-				}
-				
-				HYPubBO_Client.updateAry(adjustArr); 
-			} catch(Exception e) { 
-				Logger.error(e.getMessage()); 
-			}
-		}
+		// 下游运费不推送至余额调整表
+		//　remove by river for 2012-09-24
+//		if (adjustList != null && adjustList.size() > 0) {
+//			Object userObj = new ClientUICheckRuleGetter();
+//			AggregatedValueObject[] adjustAggVOs = HYPubBO_Client.saveBDs(adjustList.toArray(new HYBillVO[0]), userObj);
+//
+//			for (AggregatedValueObject billVO : adjustAggVOs) {
+//
+//				try {
+//					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey(AdjustVO.class, billVO.getParentVO().getPrimaryKey());
+//					HYBillVO newBillVO = new HYBillVO();
+//					newBillVO.setParentVO(adjust);
+//
+//					getBusinessAction().approve(newBillVO,"HQ07", billVO.getParentVO().getAttributeValue("dmakedate").toString(), userObj);
+//
+//				} catch (Exception e) {
+//					Logger.error(e);
+//				}
+//
+//			}
+//		}
+//		
+//		if(flagPks.size() > 0) {
+//			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+//			try { 
+//				for(AdjustVO adjust : adjustArr) {
+//					for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
+//						if(adjust.getDef1().equals(bodyVO.getDef5()))
+//							adjust.setMny(bodyVO.getTransmny());
+//							
+//					}
+//				}
+//				
+//				HYPubBO_Client.updateAry(adjustArr); 
+//			} catch(Exception e) { 
+//				Logger.error(e.getMessage()); 
+//			}
+//		}
 		
 		
 	}

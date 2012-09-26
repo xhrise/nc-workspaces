@@ -253,43 +253,8 @@ public class EventHandler extends ManageEventHandler {
 		
 		UFDate endPeriod = new UFDate(interest.getPeriod() + "-" + lastDay);
 		
-		String sqlField = ConvertFunc.change(new String[]{
-				"distinct cubas.custname custname" ,
-				"zb.vouchid pk_receivable" , 
-				"zb.djbh djzbid" , 
-				"contract.pk_contract def5" ,
-				"contract.vbillno contno" , 
-				"to_char(contract.version) version" , 
-				"case when contract.contype = '现货合同' then '10' when contract.contype = '长单合同' then '20' else '' end transtype" , 
-				"zb.effectdate redate" , 
-				"fb.dfybje remny" , 
-				"cubas.custname interestto" , 
-				"case when zb.effectdate is null or zb.effectdate = '' then 0 else (to_date(to_char(sysdate, 'yyyy-MM-dd') ,'yyyy-MM-dd') - to_date(zb.effectdate,'yyyy-MM-dd') + 1) end days " ,
-				"bala.balanname billtype" ,
-				
-				"zb.pj_jsfs def1" , 
-				"fb.hbbm def2" ,
-				"cuman.pk_cumandoc def3" ,
-		});
-		
-		StringBuilder builder = new StringBuilder();
-		builder.append(" select "+ sqlField +" from arap_djzb zb  ");
-		builder.append(" left join arap_djfb fb on fb.vouchid = zb.vouchid  ");
-		builder.append(" left join ehpta_sale_contract contract on zb.zyx6 = contract.pk_contract ");
-		builder.append(" left join bd_balatype bala on bala.pk_balatype = zb.pj_jsfs ");
-		builder.append(" left join bd_cubasdoc cubas on cubas.pk_cubasdoc = fb.hbbm ");
-		builder.append(" left join bd_cumandoc cuman on cuman.pk_cubasdoc = cubas.pk_cubasdoc ");
-		
-		if(interest.getPk_custdoc() != null && !"".equals(interest.getPk_custdoc()))
-			builder.append(" where zb.zyx6 is not null and zb.effectdate >= '"+period.toString()+"' and zb.effectdate <= '"+endPeriod.toString()+"' and cuman.pk_cumandoc = '"+interest.getPk_custdoc()+"' and cuman.pk_corp = '"+_getCorp().getPk_corp()+"' ");
-		else 
-			builder.append(" where zb.zyx6 is not null and zb.effectdate >= '"+period.toString()+"' and zb.effectdate <= '"+endPeriod.toString()+"' and cuman.pk_corp = '"+_getCorp().getPk_corp()+"' ");
-	
-		builder.append(" and nvl(zb.dr,0)=0 and nvl(fb.dr,0)=0 and nvl(contract.dr,0)=0 and nvl(bala.dr,0)=0 and nvl(cubas.dr,0)=0 and nvl(cuman.dr,0)=0 ");
-		builder.append(" and zb.djzt = 3 and (cuman.custflag = '0' or cuman.custflag = '2') ");
-		builder.append(" and (select nvl(count(1),0) from ehpta_calc_interest_b itstb left join ehpta_calc_interest itst on itst.pk_calcinterest = itstb.pk_calcinterest where pk_receivable = zb.vouchid and nvl(itst.dr, 0) = 0 and nvl(itstb.dr, 0) = 0 ) = 0 ");
-		
-		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new MapListProcessor());
+		String sqlString = "select * from vw_pta_interest where redate >= '"+period.toString()+"' and redate <= '"+endPeriod.toString()+"' and pk_corp = '"+_getCorp().getPk_corp()+"'";
+		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sqlString, new MapListProcessor());
 		
 		if(retList != null && retList.size() > 0) {
 			CalcInterestBVO[] interestBs = new CalcInterestBVO[retList.size()];

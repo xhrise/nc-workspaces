@@ -16,7 +16,7 @@ import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
-import nc.vo.pub.lang.UFBoolean;
+import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
@@ -37,9 +37,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	
 	protected QueryConditionClient condition = null;
 	
-	protected final String[] bodyFamulas = new String[] {
-			"paymny-> transmny - outmny",
-	};
+//	protected final String[] bodyFamulas = new String[] {
+//			"rises->int(abs(dieselprice / def7 - 1 ) * 100 / def8)",
+//			"fee->def9 * (1 + (rises / 100))",	
+//			"transmny->recnum * fee",
+//			"paymny-> transmny - outmny",
+//	};
 	
 	protected AbstractManageController createController() {
 		return new ClientUICtrl();
@@ -246,7 +249,56 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 
 		super.afterEdit(e);
 		
-		if(e.getSource() instanceof BillCellEditor)
-			getBillCardPanel().execBodyFormulas(e.getRow(), bodyFamulas);
+		if(e.getSource() instanceof BillCellEditor) {
+			
+//			getBillCardPanel().execBodyFormulas(e.getRow(), bodyFamulas);
+			if("dieselprice".equals(e.getKey()) || "rises".equals(e.getKey())) {
+				
+				UFDouble rises = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "rises");
+				UFDouble dieselprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "dieselprice");
+				UFDouble def9 = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "def9");
+				UFDouble recnum = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "recnum");
+				UFDouble outmny = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "outmny");
+				UFDouble def7 = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "def7");
+				UFDouble def8 = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "def8");
+				
+				rises = rises == null ? new UFDouble("0") : rises;
+				dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
+				def9 = def9 == null ? new UFDouble("0") : def9;
+				recnum = recnum == null ? new UFDouble("0") : recnum;
+				outmny = outmny == null ? new UFDouble("0") : outmny;
+				def7 = def7 == null ? new UFDouble("0") : def7;
+				def8 = def8 == null ? new UFDouble("0") : def8;
+				
+				if("rises".equals(e.getKey())) {
+					
+					UFDouble fee = def9.multiply(rises.div(100).add(1));
+					getBillCardPanel().setBodyValueAt(fee, e.getRow(), "fee");
+					
+					dieselprice = dieselprice.multiply(rises.div(100).add(1));
+					getBillCardPanel().setBodyValueAt(dieselprice, e.getRow(), "dieselprice");
+					
+					UFDouble transmny = recnum.multiply(fee);
+					getBillCardPanel().setBodyValueAt(transmny, e.getRow(), "transmny");
+					
+					getBillCardPanel().setBodyValueAt(transmny.sub(outmny), e.getRow(), "paymny");
+					
+				} else if("dieselprice".equals(e.getKey())) {
+					
+					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).abs().multiply(100).intValue() / def8.doubleValue()).intValue());
+					getBillCardPanel().setBodyValueAt(newRises, e.getRow(), "rises");
+					
+					UFDouble fee = def9.multiply(newRises.div(100).add(1));
+					getBillCardPanel().setBodyValueAt(fee, e.getRow(), "fee");
+					
+					UFDouble transmny = recnum.multiply(fee);
+					getBillCardPanel().setBodyValueAt(transmny, e.getRow(), "transmny");
+					
+					getBillCardPanel().setBodyValueAt(transmny.sub(outmny), e.getRow(), "paymny");
+					
+				}
+			}
+			
+		}
 	}
 }
