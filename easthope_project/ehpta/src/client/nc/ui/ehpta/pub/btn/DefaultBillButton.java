@@ -80,6 +80,56 @@ public final class DefaultBillButton {
 	 */
 	public static final int SelNone = 124;
 	
+	/**
+	 * 辅助功能
+	 */
+	public static final int Support = 131;
+	
+	/**
+	 * 推入余额调整单
+	 */
+	public static final int DataIn = 132;
+	
+	/**
+	 * 取消推入
+	 */
+	public static final int CancleDataIn = 133;
+	
+	public static final ButtonVO getSupportButtonVO() {
+		ButtonVO btnVo = new ButtonVO();
+		btnVo.setBtnNo(Support);
+		btnVo.setBtnCode("Support");
+		btnVo.setBtnName("辅助功能");
+		btnVo.setBtnChinaName("辅助功能");
+
+		btnVo.setChildAry(new int[] { DataIn , CancleDataIn });
+
+		return btnVo;
+	}
+	
+	public static final ButtonVO getDataInButtonVO() {
+		ButtonVO btnVo = new ButtonVO();
+		btnVo.setBtnNo(DataIn);
+		btnVo.setBtnCode("DataIn");
+		btnVo.setBtnName("推入余额调整单");
+		btnVo.setBtnChinaName("推入余额调整单");
+
+		btnVo.setChildAry(new int[] { });
+
+		return btnVo;
+	}
+	
+	public static final ButtonVO getCancleDataInButtonVO() {
+		ButtonVO btnVo = new ButtonVO();
+		btnVo.setBtnNo(CancleDataIn);
+		btnVo.setBtnCode("CancleDataIn");
+		btnVo.setBtnName("取消推入");
+		btnVo.setBtnChinaName("取消推入");
+
+		btnVo.setChildAry(new int[] { });
+
+		return btnVo;
+	}
 	
 	public static final ButtonVO getDocumentButtonVO() {
 		ButtonVO btnVo = new ButtonVO();

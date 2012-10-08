@@ -1,0 +1,1 @@
+alter table so_saleorder_b add rebateflag char(1)

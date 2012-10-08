@@ -441,27 +441,27 @@ public class EventHandler extends ManageEventHandler {
 	protected final void afterOnBoSave() throws Exception {
 		
 			
-			CalcUpperTransfeeBVO[] currBodyVOs = (CalcUpperTransfeeBVO[]) getBufferData().getCurrentVO().getChildrenVO();
+		CalcUpperTransfeeBVO[] currBodyVOs = (CalcUpperTransfeeBVO[]) getBufferData().getCurrentVO().getChildrenVO();
+		
+		for(CalcUpperTransfeeBVO bodyVO : currBodyVOs) {
+			bodyVO.setSettleflag(new UFBoolean("Y"));
+			bodyVO.setSettledate(_getDate());
+		}
+		
+		HYPubBO_Client.updateAry(currBodyVOs);
+		
+		AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName() , getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
+		
+		getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
+		getBufferData().setCurrentRow(getBufferData().getCurrentRow());
+		
+		for(CalcUpperTransfeeBVO bodyVO : currBodyVOs) {
+			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getDef2()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
 			
-			for(CalcUpperTransfeeBVO bodyVO : currBodyVOs) {
-				bodyVO.setSettleflag(new UFBoolean("Y"));
-				bodyVO.setSettledate(_getDate());
-			}
-			
-			HYPubBO_Client.updateAry(currBodyVOs);
-			
-			AggregatedValueObject newAggVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName() , getBufferData().getCurrentVO().getParentVO().getPrimaryKey());
-			
-			getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
-			getBufferData().setCurrentRow(getBufferData().getCurrentRow());
-			
-			for(CalcUpperTransfeeBVO bodyVO : currBodyVOs) {
-				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getDef2()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
-				
-				if(count == 0) {
-					try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getDef2()+"' ", null); } catch(Exception e) { }
-				}	
-			}
+			if(count == 0) {
+				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getDef2()+"' ", null); } catch(Exception e) { }
+			}	
+		}
 			
 		
 	}
