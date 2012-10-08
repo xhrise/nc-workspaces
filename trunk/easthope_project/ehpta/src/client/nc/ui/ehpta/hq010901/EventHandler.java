@@ -22,6 +22,7 @@ import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.beans.UITextField;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.trade.base.IBillOperate;
+import nc.ui.trade.bill.ISingleController;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
@@ -32,6 +33,7 @@ import nc.vo.ehpta.hq010901.CalcInterestVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
+import nc.vo.pub.VOStatus;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
 import nc.vo.trade.pub.HYBillVO;
@@ -116,28 +118,86 @@ public class EventHandler extends ManageEventHandler {
 					throw new Exception("表体统计的数据与表头期间不一致，期间自动修改为正确期间");
 				}
 			}
+			
+			if(billVO.getParentVO().getPrimaryKey() != null) {
+				billVO.getParentVO().setStatus(VOStatus.UPDATED);
+				
+				for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
+					bodyVO.setStatus(VOStatus.UPDATED);
+				}
+			}
 		}
 		
-		if(billVO.getParentVO().getPrimaryKey() == null || "".equals(billVO.getParentVO().getPrimaryKey()))
-			super.onBoSave();
-		else {
-			
-			HYPubBO_Client.deleteByWhereClause(CalcInterestBVO.class, " 1 = 1 and pk_calcinterest = '"+billVO.getParentVO().getPrimaryKey()+"' ");
-			CalcInterestBVO[] bodyVOs = (CalcInterestBVO[]) billVO.getChildrenVO();
-			
-			for(CalcInterestBVO bodyVO : bodyVOs) {
-				bodyVO.setPk_calcinterest(billVO.getParentVO().getPrimaryKey());
+		setTSFormBufferToVO(billVO);
+		AggregatedValueObject checkVO = billVO;
+		setTSFormBufferToVO(checkVO);
+		// 进行数据晴空
+		Object o = null;
+		ISingleController sCtrl = null;
+		if (getUIController() instanceof ISingleController) {
+			sCtrl = (ISingleController) getUIController();
+			if (sCtrl.isSingleDetail()) {
+				o = billVO.getParentVO();
+				billVO.setParentVO(null);
+			} else {
+				o = billVO.getChildrenVO();
+				billVO.setChildrenVO(null);
 			}
-			
-			HYPubBO_Client.insertAry(bodyVOs);
-			AggregatedValueObject newBillVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName(), billVO.getParentVO().getPrimaryKey());
-			
-			setSaveOperateState();
-			
-			int currRow = getBufferData().getCurrentRow();
-			getBufferData().setVOAt(currRow, newBillVO);
-			getBufferData().setCurrentRow(currRow);
-			
+		}
+
+		boolean isSave = true;
+
+		// 判断是否有存盘数据
+		if (billVO.getParentVO() == null
+				&& (billVO.getChildrenVO() == null || billVO.getChildrenVO().length == 0)) {
+			isSave = false;
+		} else {
+			if (getBillUI().isSaveAndCommitTogether())
+				billVO = getBusinessAction().saveAndCommit(billVO,
+						getUIController().getBillType(), _getDate().toString(),
+						getBillUI().getUserObject(), checkVO);
+			else
+
+				// write to database
+				billVO = getBusinessAction().save(billVO,
+						getUIController().getBillType(), _getDate().toString(),
+						getBillUI().getUserObject(), checkVO);
+		}
+
+		// 进行数据恢复处理
+		if (sCtrl != null) {
+			if (sCtrl.isSingleDetail())
+				billVO.setParentVO((CircularlyAccessibleValueObject) o);
+		}
+		int nCurrentRow = -1;
+		if (isSave) {
+			if (isEditing()) {
+				if (getBufferData().isVOBufferEmpty()) {
+					getBufferData().addVOToBuffer(billVO);
+					nCurrentRow = 0;
+
+				} else {
+					getBufferData().setCurrentVO(billVO);
+					nCurrentRow = getBufferData().getCurrentRow();
+				}
+			} else {
+				getBufferData().addVOsToBuffer(
+						new AggregatedValueObject[] { billVO });
+				nCurrentRow = getBufferData().getVOBufferSize() - 1;
+			}
+		}
+
+		if (nCurrentRow >= 0) {
+			getBufferData().setCurrentRowWithOutTriggerEvent(nCurrentRow);
+		}
+		
+		setAddNewOperate(isAdding(), billVO);
+
+		// 设置保存后状态
+		setSaveOperateState();
+		
+		if (nCurrentRow >= 0) {
+			getBufferData().setCurrentRow(nCurrentRow);
 		}
 		
 		afterOnBoSave();
