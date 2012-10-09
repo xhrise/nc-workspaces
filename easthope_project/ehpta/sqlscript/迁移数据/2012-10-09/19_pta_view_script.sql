@@ -56,7 +56,7 @@ select distinct cubas.custname custname,
 
 create or replace force view nccw.vw_pta_rebates as
 select sale.ccustomerid pk_cumandoc ,cubas.custname , salecont.pk_contract , salecont.vbillno concode, orderb.cinventoryid pk_invmandoc ,  invbas.invname  ,  sale.period  ,
-salecontb.num , sum(orderb.nnumber) nnumber , (nvl(sum(orderb.nnumber),0) / nvl(salecontb.num,0) * 100) comprate ,
+salecontb.num , sum(orderb.nnumber) nnumber , decode(nvl(salecontb.num,0),0,0,(nvl(sum(orderb.nnumber),0) / nvl(salecontb.num,0) * 100)) comprate ,
 nvl(salecontb.preprice,0) preprice , (nvl(sum(orderb.nnumber),0) * nvl(salecontb.preprice,0)) premny ,
 0 adjustmny , (nvl(sum(orderb.nnumber),0) * nvl(salecontb.preprice,0)) actmny ,  WMSYS.WM_CONCAT(chr(39) || orderb.corder_bid || chr(39)) orderbids
 , sale.pk_corp
