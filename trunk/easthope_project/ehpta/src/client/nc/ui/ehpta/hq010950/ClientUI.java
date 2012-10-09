@@ -33,7 +33,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		implements ILinkQuery {
 
 	protected final String[] formulas = new String[]{
-		"actmny-> premny - adjustmny" , 
+		"actmny-> premny + adjustmny" , 
 	};
 	
 	protected AbstractManageController createController() {
