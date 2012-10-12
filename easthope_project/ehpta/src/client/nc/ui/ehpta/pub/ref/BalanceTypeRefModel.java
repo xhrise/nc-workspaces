@@ -35,7 +35,7 @@ public class BalanceTypeRefModel extends AbstractRefModel {
 		setHiddenFieldCode(new String[] { "pk_balatype" });
 		setTableName("bd_balatype");
 		setPkFieldCode("pk_balatype");
-		setWherePart(" (pk_corp='" + getPk_corp() + "' or pk_corp= '" + getGroupCode() + "' or pk_corp is null) and pk_balatype in ('0001A810000000000JBQ', '0001A810000000000JBW', '0001A810000000000JBY') ");
+		setWherePart(" (pk_corp='" + getPk_corp() + "' or pk_corp= '" + getGroupCode() + "' or pk_corp is null) and pk_balatype in ('0001A810000000000JBQ', '0001A810000000000JBW', '0001A810000000000JBY' , '0001A810000000000JC0') ");
 		setSealedWherePart("sealflag is null or sealflag <>'Y'");
 		resetFieldName();
 	}

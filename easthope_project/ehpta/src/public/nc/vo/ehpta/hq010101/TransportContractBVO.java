@@ -48,7 +48,7 @@ public class TransportContractBVO extends SuperVO {
 	public UFDouble shipprice;
 	public String def4;
 	public UFDouble storshipfee;
-	public String def3;
+	public UFDouble def3;
 	public String def9;
 	public UFDouble storcarfee;
 	public UFDouble dieselprice;
@@ -715,7 +715,7 @@ public class TransportContractBVO extends SuperVO {
 	 * 
 	 * @return String
 	 */
-	public String getDef3() {
+	public UFDouble getDef3() {
 		return def3;
 	}
 
@@ -727,7 +727,7 @@ public class TransportContractBVO extends SuperVO {
 	 * @param newDef3
 	 *            String
 	 */
-	public void setDef3(String newDef3) {
+	public void setDef3(UFDouble newDef3) {
 
 		def3 = newDef3;
 	}

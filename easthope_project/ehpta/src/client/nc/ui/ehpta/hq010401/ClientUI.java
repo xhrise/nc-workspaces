@@ -22,6 +22,7 @@ import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.bd.invdoc.InvbasdocVO;
 import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.lang.UFDouble;
 import nc.vo.trade.button.ButtonVO;
@@ -122,11 +123,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		
 		addPrivateButton(DefaultBillButton.getDocumentButtonVO());
 		
-		addPrivateButton(DefaultBillButton.getLinkButtonVO());
-		addPrivateButton(DefaultBillButton.getReceivableButtonVO());
-		addPrivateButton(DefaultBillButton.getDeliveryButtonVO());
-		addPrivateButton(DefaultBillButton.getInvoiceButtonVO());
+//		addPrivateButton(DefaultBillButton.getLinkButtonVO());
+//		addPrivateButton(DefaultBillButton.getReceivableButtonVO());
+//		addPrivateButton(DefaultBillButton.getDeliveryButtonVO());
+//		addPrivateButton(DefaultBillButton.getInvoiceButtonVO());
 		
+		addPrivateButton(DefaultBillButton.getOpenOrCloseButtonVO());
 	}
 
 	/**
@@ -179,6 +181,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 
 	protected void initSelfData() {
+		getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(false);
+		updateButtons();
 	}
 
 	public void setDefaultData() throws Exception {
@@ -431,6 +435,27 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 		num = null;
 		taxprice = null;
 		
+	}
+	
+	@Override
+	protected int getExtendStatus(AggregatedValueObject vo) {
+		
+		try {
+			if(vo != null && vo.getParentVO() != null && vo.getParentVO().getPrimaryKey() != null) {
+				if((Integer)vo.getParentVO().getAttributeValue("vbillstatus") == IBillStatus.CHECKPASS)
+					getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(true);
+				else 
+					getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(false);
+			} else 
+				getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(false);
+			
+			
+			updateButtons();
+		} catch(BusinessException e) {
+			Logger.error(e.getMessage(), e, this.getClass(), "getExtendStatus");
+		}
+		
+		return super.getExtendStatus(vo);
 	}
 	
 }

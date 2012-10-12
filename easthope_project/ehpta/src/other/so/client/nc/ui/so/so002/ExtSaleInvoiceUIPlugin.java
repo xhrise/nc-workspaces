@@ -71,8 +71,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		obj[3] = (String) billVO.getParentVO().getAttributeValue("concode");
 		obj[3] = obj[3] == null ? "" : obj[3];
 			
-		
-		SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj);
+		SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , "select typename , mny from vw_pta_salecont_invbalance where pk_contract = '"+obj[0]+"'");
 		balanceDlg.showModal();
 	}
 	

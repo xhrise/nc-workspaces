@@ -39,7 +39,7 @@
              public String def18;
              public String vbatchcode;
              public String contracttype;
-             public String def1;
+             public UFDouble def1;
              public UFDouble freedays;
              public String pk_invmandoc;
              public String def19;
@@ -510,7 +510,7 @@
 	   * 创建日期:2012-9-17
 	   * @return String
 	   */
-	 public String getDef1() {
+	 public UFDouble getDef1() {
 		 return def1;
 	  }   
 	  
@@ -520,7 +520,7 @@
 	   * 创建日期:2012-9-17
 	   * @param newDef1 String
 	   */
-	public void setDef1(String newDef1) {
+	public void setDef1(UFDouble newDef1) {
 		
 		def1 = newDef1;
 	 } 	  

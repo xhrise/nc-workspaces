@@ -32,6 +32,26 @@
 					</showprop>
 				</field>
 				<field>
+					<!--是否自提-->
+					<dbfieldname>issince</dbfieldname>
+					<vofieldname>issince</vofieldname>
+					<dbfieldtype>1</dbfieldtype>
+					<vofieldtype>0</vofieldtype>
+					<persistence>Y</persistence>
+					<length>1</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>是否自提</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
 					<!--运输合同-->
 					<dbfieldname>pk_transport</dbfieldname>
 					<vofieldname>pk_transport</vofieldname>
