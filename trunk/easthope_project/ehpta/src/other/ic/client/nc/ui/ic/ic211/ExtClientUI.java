@@ -3046,19 +3046,21 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		/* 在此添加验证 ： 如果运输方式为自提时运输单价及装卸费不需要填写 ， 否则这2个字段为必填  by river */
 		if(voInputBill != null && voInputBill.getParentVO() != null) {
 			
-			Object cdilivertypeid = getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject();
-			if(cdilivertypeid != null && !"0001A810000000000JB9".equals(cdilivertypeid)) {
-				if(getBillCardPanel().getHeadItem("storprice").getValueObject() == null || "".equals(getBillCardPanel().getHeadItem("storprice").getValueObject())) {
-					showErrorMessage("表头[ 装卸费 ] 不能为空！");
-					return false;
+			// 读取销售订单中的 [ 是否自提 ] ，以判断运输单价是否必填。
+			CircularlyAccessibleValueObject[] bodyVOs = voInputBill.getChildrenVO();
+			if(bodyVOs != null && bodyVOs.length > 0) {
+				Object csourcebillhid = bodyVOs[0].getAttributeValue("csourcebillhid");
+				Object issince = null;
+				try { issince = UAPQueryBS.iUAPQueryBS.executeQuery("select issince from so_sale where csaleid = '"+csourcebillhid+"' ", new ColumnProcessor()); } catch(Exception e) { Logger.error(e.getMessage(), e, this.getClass(), "onSave"); }
+				if(!(issince != null && "Y".equals(issince))) {
+					if(((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName() == null) {
+						showErrorMessage("表头 [ 运输单价 ] 不能为空。");
+						return false;
+					}
 				}
-				
-				if(getBillCardPanel().getHeadItem("transprice").getValueObject() == null || "".equals(getBillCardPanel().getHeadItem("transprice").getValueObject())) {
-					showErrorMessage("表头[ 运输单价 ] 不能为空！");
-					return false;
-				}
+			
 			}
-				
+			
 		}
 		
 		retType = super.onSave();

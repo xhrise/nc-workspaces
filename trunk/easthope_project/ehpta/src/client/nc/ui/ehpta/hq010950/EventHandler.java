@@ -254,7 +254,8 @@ public class EventHandler extends ManageEventHandler {
 //		and nvl(invbas.dr,0)=0
 //		and nvl(cuman.dr,0)=0
 //		and nvl(cubas.dr,0)=0
-//		
+//		and nvl(orderb.rebateflag,'N') = 'N'
+		
 //		group by sale.ccustomerid , salecont.vbillno, invbas.invname  , sale.period ,
 //		salecontb.num,salecontb.preprice,cubas.custname,salecont.pk_contract,orderb.cinventoryid ,
 //		sale.pk_corp

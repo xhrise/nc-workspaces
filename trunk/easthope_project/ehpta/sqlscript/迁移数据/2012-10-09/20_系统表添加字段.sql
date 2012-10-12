@@ -49,3 +49,8 @@ alter table ic_general_h add pk_transport_b char(20);
 alter table ic_general_h add transprice number(32,8);
 
 alter table so_saleorder_b add rebateflag char(1);
+
+
+-- 2012-10-12Ìí¼Ó
+
+alter table so_sale add issince char(1);

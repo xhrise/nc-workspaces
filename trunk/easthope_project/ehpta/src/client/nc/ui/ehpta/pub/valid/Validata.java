@@ -93,7 +93,7 @@ public class Validata {
 			count += (Integer) UAPQueryBS.iUAPQueryBS.executeQuery(" select count(1) from arap_djzb where zyx6 = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
 			
 			if(count > 0)
-				throw new Exception("当前合同已被引用，不能进行弃审操作！");
+				throw new Exception("当前合同已被引用，当前操作将终止！");
 			
 			
 		}

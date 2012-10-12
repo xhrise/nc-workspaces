@@ -7,6 +7,7 @@ import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.valid.Validata;
+import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.bill.BillCardPanel;
 import nc.ui.pub.bill.BillItem;
@@ -78,18 +79,58 @@ public class EventHandler extends ManageEventHandler {
 			case DefaultBillButton.DOCUMENT :
 	
 				documentManage();
-				
 				break;
 	
 			case DefaultBillButton.MAKENEWCONTRACT : 
 				
 				makeNewContract(); // 生成新合同
+				break;
 				
+			case DefaultBillButton.OpenOrClose :
+				
+				onOpenOrClose();
 				break;
 				
 			default:
 	
 				break;
+		}
+	}
+	
+	/**
+	 * 合同打开/关闭操作
+	 * 
+	 * @throws Exception
+	 */
+	private final void onOpenOrClose() throws Exception {
+		
+		int currRow = getBufferData().getCurrentRow();
+		
+		AggregatedValueObject  billVO = getBufferData().getCurrentVO();
+		if(billVO != null ) {
+			
+			if(billVO.getParentVO().getPrimaryKey() != null && !"".equals(billVO.getParentVO().getPrimaryKey())) {
+				
+				UFBoolean openOrCloseFlag = (UFBoolean) billVO.getParentVO().getAttributeValue("close_flag");
+				if(openOrCloseFlag == null || "N".equals(openOrCloseFlag.toString()) || !openOrCloseFlag.booleanValue()) {
+					
+					billVO.getParentVO().setAttributeValue("close_flag", new UFBoolean(true));
+					HYPubBO_Client.update((SuperVO) billVO.getParentVO());
+					
+				} else {
+					
+					billVO.getParentVO().setAttributeValue("close_flag", new UFBoolean(false));
+					HYPubBO_Client.update((SuperVO) billVO.getParentVO());
+					
+				}
+					
+				billVO = HYPubBO_Client.queryBillVOByPrimaryKey(getUIController().getBillVoName(), billVO.getParentVO().getPrimaryKey());
+				getBufferData().setCurrentVO(billVO);
+				updateBuffer();
+				getBufferData().setCurrentRow(currRow);
+				
+			}
+			
 		}
 	}
 	
@@ -134,6 +175,9 @@ public class EventHandler extends ManageEventHandler {
 					getBillUI().showErrorMessage("此单据没有审批通过或已经关闭,不允许版本变更!");
 					return false;
 				} else {
+					
+					getBillCardPanelWrapper().getBillCardPanel().getBodyTabbedPane().setSelectedIndex(0);
+					
 					onBoCopy();
 					
 					String billno = headvo.getVbillno();
@@ -646,6 +690,55 @@ public class EventHandler extends ManageEventHandler {
 			}
 		
 		}
+		
+	}
+	
+	@Override
+	protected void onBoCard() throws Exception {
+		super.onBoCard();
+		
+		afterOnButton();
+	}
+	
+	@Override
+	public void onButton(ButtonObject bo) {
+
+		super.onButton(bo);
+		
+		afterOnButton();
+		
+	}
+	
+	/**
+	 * 点击按钮后的处理
+	 */
+	private final void afterOnButton() {
+		
+		if(getBillUI().getBillOperate() == IBillOperate.OP_ADD || getBillUI().getBillOperate() == IBillOperate.OP_EDIT || getBillUI().getBillOperate() == IBillOperate.OP_REFADD) {
+			getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(false);
+			getButtonManager().getButton(DefaultBillButton.DOCUMENT).setEnabled(false);
+			
+		} else {
+			
+			AggregatedValueObject  vo = getBufferData().getCurrentVO();
+			
+			try {
+				if(vo != null && vo.getParentVO() != null && vo.getParentVO().getPrimaryKey() != null) {
+					if((Integer)vo.getParentVO().getAttributeValue("vbillstatus") == IBillStatus.CHECKPASS)
+						getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(true);
+					else 
+						getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(false);
+				} else 
+					getButtonManager().getButton(DefaultBillButton.OpenOrClose).setEnabled(false);
+			} catch (BusinessException e) {
+				Logger.error(e.getMessage(), e, this.getClass(), "afterOnButton");
+			}
+			
+			getButtonManager().getButton(DefaultBillButton.DOCUMENT).setEnabled(true);
+			
+		}
+		
+		getBillUI().updateButtons();
 		
 	}
 

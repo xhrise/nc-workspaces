@@ -38,7 +38,8 @@ public class ClientUICtrl extends AbstractManageController {
 				IBillButton.Save, IBillButton.Cancel, IBillButton.Delete,
 				IBillButton.Commit, IBillButton.Audit, IBillButton.CancelAudit,
 				IBillButton.ApproveInfo, DefaultBillButton.MAKENEWCONTRACT , IBillButton.Brow,
-				DefaultBillButton.LINKQUERY , DefaultBillButton.DOCUMENT, IBillButton.Return };
+				DefaultBillButton.OpenOrClose, //DefaultBillButton.LINKQUERY , 
+				DefaultBillButton.DOCUMENT, IBillButton.Return };
 
 	}
 

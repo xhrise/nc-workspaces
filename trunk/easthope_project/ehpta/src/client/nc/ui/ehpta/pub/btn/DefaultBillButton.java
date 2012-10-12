@@ -46,6 +46,11 @@ public final class DefaultBillButton {
 	public static final int Cancelconfirm = 108;
 	
 	/**
+	 *  打开 / 关闭
+	 */
+	public static final int OpenOrClose = 109;
+	
+	/**
 	 * 到款记录
 	 */
 	public static final int RECEIVABLE = 110; 
@@ -95,10 +100,22 @@ public final class DefaultBillButton {
 	 */
 	public static final int CancleDataIn = 133;
 	
+	public static final ButtonVO getOpenOrCloseButtonVO() {
+		ButtonVO btnVo = new ButtonVO();
+		btnVo.setBtnNo(OpenOrClose);
+		btnVo.setBtnCode("打开 / 关闭");
+		btnVo.setBtnName("打开 / 关闭");
+		btnVo.setBtnChinaName("打开 / 关闭");
+
+		btnVo.setChildAry(new int[] {  });
+
+		return btnVo;
+	}
+	
 	public static final ButtonVO getSupportButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(Support);
-		btnVo.setBtnCode("Support");
+		btnVo.setBtnCode("辅助功能");
 		btnVo.setBtnName("辅助功能");
 		btnVo.setBtnChinaName("辅助功能");
 
@@ -110,7 +127,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getDataInButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(DataIn);
-		btnVo.setBtnCode("DataIn");
+		btnVo.setBtnCode("推入余额调整单");
 		btnVo.setBtnName("推入余额调整单");
 		btnVo.setBtnChinaName("推入余额调整单");
 
@@ -122,7 +139,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getCancleDataInButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(CancleDataIn);
-		btnVo.setBtnCode("CancleDataIn");
+		btnVo.setBtnCode("取消推入");
 		btnVo.setBtnName("取消推入");
 		btnVo.setBtnChinaName("取消推入");
 
@@ -134,7 +151,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getDocumentButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(DOCUMENT);
-		btnVo.setBtnCode("document");
+		btnVo.setBtnCode("文件管理");
 		btnVo.setBtnName("文件管理");
 		btnVo.setBtnChinaName("文件管理");
 
@@ -146,7 +163,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getDisabledButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(DISABLED);
-		btnVo.setBtnCode("disabled");
+		btnVo.setBtnCode("停用");
 		btnVo.setBtnName("停用");
 		btnVo.setBtnChinaName("停用");
 
@@ -158,7 +175,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getEnabledButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(ENABLED);
-		btnVo.setBtnCode("enabled");
+		btnVo.setBtnCode("启用");
 		btnVo.setBtnName("启用");
 		btnVo.setBtnChinaName("启用");
 
@@ -170,7 +187,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getMakeNewContractButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(MAKENEWCONTRACT);
-		btnVo.setBtnCode("makenewcontract");
+		btnVo.setBtnCode("合同变更");
 		btnVo.setBtnName("合同变更");
 		btnVo.setBtnChinaName("合同变更");
 
@@ -182,7 +199,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getLinkButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(LINKQUERY);
-		btnVO.setBtnCode("linkquery");
+		btnVO.setBtnCode("联查");
 		btnVO.setBtnName("联查");
 		btnVO.setBtnChinaName("联查");
 		
@@ -194,7 +211,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getReceivableButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(RECEIVABLE);
-		btnVO.setBtnCode("receivable");
+		btnVO.setBtnCode("到款记录");
 		btnVO.setBtnName("到款记录");
 		btnVO.setBtnChinaName("到款记录");
 		
@@ -206,7 +223,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getDeliveryButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(DELIVERY);
-		btnVO.setBtnCode("delivery");
+		btnVO.setBtnCode("发货记录");
 		btnVO.setBtnName("发货记录");
 		btnVO.setBtnChinaName("发货记录");
 		
@@ -218,7 +235,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getInvoiceButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(INVOICE);
-		btnVO.setBtnCode("invoice");
+		btnVO.setBtnCode("开票记录");
 		btnVO.setBtnName("开票记录");
 		btnVO.setBtnChinaName("开票记录");
 		
@@ -231,7 +248,7 @@ public final class DefaultBillButton {
 		
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(Maintain);
-		btnVO.setBtnCode("maintain");
+		btnVO.setBtnCode("结算维护");
 		btnVO.setBtnName("结算维护");
 		btnVO.setBtnChinaName("结算维护");
 		
@@ -249,7 +266,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getStatisticsButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(Statistics);
-		btnVO.setBtnCode("statistics");
+		btnVO.setBtnCode("统计");
 		btnVO.setBtnName("统计");
 		btnVO.setBtnChinaName("统计");
 		
@@ -261,7 +278,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getMarkButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(Mark);
-		btnVO.setBtnCode("mark");
+		btnVO.setBtnCode("批改");
 		btnVO.setBtnName("批改");
 		btnVO.setBtnChinaName("批改");
 		
@@ -273,7 +290,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getSelAllButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(SelAll);
-		btnVO.setBtnCode("SelAll");
+		btnVO.setBtnCode("全选");
 		btnVO.setBtnName("全选");
 		btnVO.setBtnChinaName("全选");
 		
@@ -285,7 +302,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getSelNoneButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(SelNone);
-		btnVO.setBtnCode("SelNone");
+		btnVO.setBtnCode("全消");
 		btnVO.setBtnName("全消");
 		btnVO.setBtnChinaName("全消");
 		
@@ -297,7 +314,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getConfirmButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(Confirm);
-		btnVO.setBtnCode("Confirm");
+		btnVO.setBtnCode("确认");
 		btnVO.setBtnName("确认");
 		btnVO.setBtnChinaName("确认");
 		
@@ -309,7 +326,7 @@ public final class DefaultBillButton {
 	public static final ButtonVO getCancelconfirmButtonVO() {
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(Cancelconfirm);
-		btnVO.setBtnCode("Cancelconfirm");
+		btnVO.setBtnCode("取消确认");
 		btnVO.setBtnName("取消确认");
 		btnVO.setBtnChinaName("取消确认");
 		

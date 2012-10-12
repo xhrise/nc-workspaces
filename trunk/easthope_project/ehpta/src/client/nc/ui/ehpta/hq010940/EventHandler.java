@@ -90,17 +90,18 @@ public class EventHandler extends ManageEventHandler {
 //		create or replace view vw_pta_storfee as
 //		select genb.vbatchcode , genh.cwarehouseid pk_stordoc , genh.pk_contract , genh.concode , decode(genh.contracttype , 10 , '现货合同' , 20 , '长单合同' , genh.contracttype) contracttype ,
 //		genb.cinventoryid pk_invmandoc , invbas.invname ,
-//		to_char(to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8)) , 'yyyy-MM-dd'),'yyyy-MM-dd') indate ,
+//		(select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) indate , 
+//		-- to_char(to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8)) , 'yyyy-MM-dd'),'yyyy-MM-dd') indate ,
 //		genh.dbilldate outdate , genh.ccustomerid pk_cumandoc , sale.vreceiptcode ,
 //		genb.cgeneralbid , genb.cgeneralhid , genh.vbillcode outcode , saleb.deliverydate overdate , genb.noutnum ,
 //		decode(storcontb.feetype , 1 , '仓库费' , 2 , '直驳费' , 3 , '船-库-船' , 4 , '船-库-车' , 5 , '直驳费（船-船）' , 6 , '直驳费（船-车）' , null) feetype ,
-//		storcontb.signprice , nvl(genb.noutnum,0) * nvl(storcontb.signprice,0) hmny ,
+//		-- storcontb.signprice , nvl(genb.noutnum,0) * nvl(storcontb.signprice,0) hmny ,
 //
-//		(case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1 stordays ,
+//		(case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') end ) + 1 stordays ,
 //		nvl(storcontb1.concesessionsday,0) freedays ,
-//		case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end days ,
+//		case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end days ,
 //		storcontb1.signprice storprice ,
-//		(case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8) + 1) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end) * storcontb1.signprice * genb.noutnum stormny
+//		(case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genh.dbilldate , 'yyyy-MM-dd') > 0 then to_date(genh.dbilldate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0) , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end) * storcontb1.signprice * genb.noutnum stormny
 //
 //		from ic_general_h genh
 //		left join ic_general_b genb on genb.cgeneralhid = genh.cgeneralhid
@@ -122,7 +123,7 @@ public class EventHandler extends ManageEventHandler {
 //		and nvl(sale.dr,0) = 0 and nvl(saleb.dr,0) = 0
 //		and nvl(storcontb.dr,0) = 0 and nvl(storcont.dr,0) = 0 and nvl(storcontb1.dr,0) = 0
 //		and nvl(invbas.dr , 0 ) = 0;
-		
+
 		String sql = "select * from vw_pta_storfee where outdate >= '"+period.toString()+"' and outdate <= '"+endPeriod.toString()+"'";
 		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
@@ -321,64 +322,64 @@ public class EventHandler extends ManageEventHandler {
 		getBufferData().setVOAt(getBufferData().getCurrentRow(), newAggVO);
 		getBufferData().setCurrentRow(getBufferData().getCurrentRow());
 		
-		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
-		List<String> flagPks = new ArrayList<String>();
+//		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
+//		List<String> flagPks = new ArrayList<String>();
 		
 		for(CalcStorfeeBVO bodyVO : currBodyVOs) {
 			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
 				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
-				adjustList.add(createAdjust(bodyVO , IAdjustType.Storfee , bodyVO.getStormny())); // 仓储费
-				adjustList.add(createAdjust(bodyVO , IAdjustType.Handlingfee , bodyVO.getHmny())); // 装卸费
-			}	else {
-				flagPks.add("'" + bodyVO.getCgeneralbid() + "'");
-			}
+//				adjustList.add(createAdjust(bodyVO , IAdjustType.Storfee , bodyVO.getStormny())); // 仓储费
+//				adjustList.add(createAdjust(bodyVO , IAdjustType.Handlingfee , bodyVO.getHmny())); // 装卸费
+			}	//else {
+//				flagPks.add("'" + bodyVO.getCgeneralbid() + "'");
+//			}
 		}
 		
-		if (adjustList != null && adjustList.size() > 0) {
-			Object userObj = new ClientUICheckRuleGetter();
-			AggregatedValueObject[] adjustAggVOs = HYPubBO_Client.saveBDs(adjustList.toArray(new HYBillVO[0]), userObj);
-
-			for (AggregatedValueObject billVO : adjustAggVOs) {
-
-				try {
-					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey(AdjustVO.class, billVO.getParentVO().getPrimaryKey());
-					HYBillVO newBillVO = new HYBillVO();
-					newBillVO.setParentVO(adjust);
-
-					getBusinessAction().approve(newBillVO,"HQ07", billVO.getParentVO().getAttributeValue("dmakedate").toString(), userObj);
-
-				} catch (Exception e) {
-					Logger.error(e);
-				}
-
-			}
-		}
-		
-		if(flagPks.size() > 0) {
-			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
-			try { 
-				for(AdjustVO adjust : adjustArr) {
-					for(CalcStorfeeBVO bodyVO : currBodyVOs) {
-						if(adjust.getDef1().equals(bodyVO.getDef5())) {
-							
-							if(IAdjustType.Storfee.equals(adjust.getType()))
-								adjust.setMny(bodyVO.getStormny());
-							else if(IAdjustType.Handlingfee.equals(adjust.getType()))
-								adjust.setMny(bodyVO.getHmny());
-							
-						}
-							
-					}
-				}
-				
-				HYPubBO_Client.updateAry(adjustArr); 
-				
-			} catch(Exception e) { 
-				Logger.error(e.getMessage()); 
-			}
-		}
+//		if (adjustList != null && adjustList.size() > 0) {
+//			Object userObj = new ClientUICheckRuleGetter();
+//			AggregatedValueObject[] adjustAggVOs = HYPubBO_Client.saveBDs(adjustList.toArray(new HYBillVO[0]), userObj);
+//
+//			for (AggregatedValueObject billVO : adjustAggVOs) {
+//
+//				try {
+//					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey(AdjustVO.class, billVO.getParentVO().getPrimaryKey());
+//					HYBillVO newBillVO = new HYBillVO();
+//					newBillVO.setParentVO(adjust);
+//
+//					getBusinessAction().approve(newBillVO,"HQ07", billVO.getParentVO().getAttributeValue("dmakedate").toString(), userObj);
+//
+//				} catch (Exception e) {
+//					Logger.error(e);
+//				}
+//
+//			}
+//		}
+//		
+//		if(flagPks.size() > 0) {
+//			AdjustVO[] adjustArr = (AdjustVO[]) HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in ("+ConvertFunc.change(flagPks.toArray(new String[0]))+") and nvl(dr,0)=0 ");
+//			try { 
+//				for(AdjustVO adjust : adjustArr) {
+//					for(CalcStorfeeBVO bodyVO : currBodyVOs) {
+//						if(adjust.getDef1().equals(bodyVO.getDef5())) {
+//							
+//							if(IAdjustType.Storfee.equals(adjust.getType()))
+//								adjust.setMny(bodyVO.getStormny());
+//							else if(IAdjustType.Handlingfee.equals(adjust.getType()))
+//								adjust.setMny(bodyVO.getHmny());
+//							
+//						}
+//							
+//					}
+//				}
+//				
+//				HYPubBO_Client.updateAry(adjustArr); 
+//				
+//			} catch(Exception e) { 
+//				Logger.error(e.getMessage()); 
+//			}
+//		}
 	}
 	
 	@Override
@@ -399,9 +400,9 @@ public class EventHandler extends ManageEventHandler {
 	
 	protected final void afterOnBoDelete(AggregatedValueObject currAggVO) throws Exception {
 		
-		Object userObj = new ClientUICheckRuleGetter();
+//		Object userObj = new ClientUICheckRuleGetter();
 		
-		List<String> adjustList = new ArrayList<String>();
+//		List<String> adjustList = new ArrayList<String>();
 		
 		if(currAggVO == null || currAggVO.getChildrenVO() == null || currAggVO.getChildrenVO().length == 0)
 			return ;
@@ -411,47 +412,47 @@ public class EventHandler extends ManageEventHandler {
 			
 			if(count > 0) {
 				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
-				adjustList.add("'" + bodyVO.getCgeneralbid() + "'");
+//				adjustList.add("'" + bodyVO.getCgeneralbid() + "'");
 			}	
 		}
 		
-		SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and ( type = "+IAdjustType.Storfee+" or type = "+IAdjustType.Handlingfee+" ) and nvl(dr,0) = 0 ");
+//		SuperVO[] superVos = HYPubBO_Client.queryByCondition(AdjustVO.class, " def1 in (" + ConvertFunc.change(adjustList.toArray(new String[0])) + ") and ( type = "+IAdjustType.Storfee+" or type = "+IAdjustType.Handlingfee+" ) and nvl(dr,0) = 0 ");
+//		
+//		List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
+//		for (SuperVO superVO : superVos) {
+//			HYBillVO billVO = new HYBillVO();
+//			billVO.setParentVO(superVO);
+//			billVOs.add(billVO);
+//		}
 		
-		List<HYBillVO> billVOs = new ArrayList<HYBillVO>();
-		for (SuperVO superVO : superVos) {
-			HYBillVO billVO = new HYBillVO();
-			billVO.setParentVO(superVO);
-			billVOs.add(billVO);
-		}
-		
-		if (billVOs != null && billVOs.size() > 0) {
-			for (AggregatedValueObject billVO : billVOs) {
-
-				try {
-					getBusinessAction().unapprove(billVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
-				
-				} catch (Exception e) {
-					Logger.error(e);
-					throw new Exception(e);
-				}
-				
-				try {
-					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey( AdjustVO.class, billVO.getParentVO().getPrimaryKey());
-					HYBillVO newBillVO = new HYBillVO();
-					newBillVO.setParentVO(adjust);
-
-					getBusinessAction().delete(newBillVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
-				
-				} catch (Exception e) {
-
-					Logger.error(e);
-					throw new Exception(e);
-					
-				}
-
-			}
-
-		}
+//		if (billVOs != null && billVOs.size() > 0) {
+//			for (AggregatedValueObject billVO : billVOs) {
+//
+//				try {
+//					getBusinessAction().unapprove(billVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
+//				
+//				} catch (Exception e) {
+//					Logger.error(e);
+//					throw new Exception(e);
+//				}
+//				
+//				try {
+//					SuperVO adjust = HYPubBO_Client.queryByPrimaryKey( AdjustVO.class, billVO.getParentVO().getPrimaryKey());
+//					HYBillVO newBillVO = new HYBillVO();
+//					newBillVO.setParentVO(adjust);
+//
+//					getBusinessAction().delete(newBillVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
+//				
+//				} catch (Exception e) {
+//
+//					Logger.error(e);
+//					throw new Exception(e);
+//					
+//				}
+//
+//			}
+//
+//		}
 		
 		for(CalcStorfeeBVO bodyVO : (CalcStorfeeBVO[])currAggVO.getChildrenVO()) {
 			bodyVO.setSettleflag(new UFBoolean("N"));

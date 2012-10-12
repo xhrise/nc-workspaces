@@ -231,7 +231,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				
 			}
 			
-			SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj);
+			SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , "select typename , mny from vw_pta_sale_contract_balance where pk_contract = '"+obj[0]+"'");
 			balanceDlg.showModal();
 		}
 		
