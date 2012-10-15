@@ -216,7 +216,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 //				if("shipprice".equals(e.getKey()) || "shipregulation".equals(e.getKey()))
 //					afterSetAshipprice(e);
 				
-				if("piersfee".equals(e.getKey()) || "storcarfee".equals(e.getKey()) || "storshipfee".equals(e.getKey()) || "inlandshipfee".equals(e.getKey()) || "carfee".equals(e.getKey()))
+				if("piersfee".equals(e.getKey()) || "storcarfee".equals(e.getKey()) || "storshipfee".equals(e.getKey()) || "inlandshipfee".equals(e.getKey()) || "carfee".equals(e.getKey()) || "def1".equals(e.getKey()))
 					afterSetTransprice(e);
 				
 				if("defestoraddr".equals(e.getKey()))
@@ -353,8 +353,9 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		UFDouble storshipfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "storshipfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "storshipfee"));
 		UFDouble inlandshipfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "inlandshipfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "inlandshipfee"));
 		UFDouble carfee = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "carfee") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "carfee"));
-	
-		getBillCardPanel().setBodyValueAt(piersfee.add(storcarfee).add(storshipfee).add(inlandshipfee).add(carfee), e.getRow(), "transprice");
+		UFDouble def1 = (UFDouble) (getBillCardPanel().getBodyValueAt(e.getRow(), "def1") == null ? new UFDouble("0") : getBillCardPanel().getBodyValueAt(e.getRow(), "def1"));
+		
+		getBillCardPanel().setBodyValueAt(piersfee.add(storcarfee).add(storshipfee).add(inlandshipfee).add(carfee).add(def1), e.getRow(), "transprice");
 		
 	}
 	

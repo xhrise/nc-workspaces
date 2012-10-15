@@ -33,7 +33,7 @@
              public String def11;
              public String transtype;
              public String def14;
-             public String def7;
+             public UFDouble def7;
              public String def16;
              public String def6;
              public String ts;
@@ -366,7 +366,7 @@
 	   * 创建日期:2012-9-13
 	   * @return String
 	   */
-	 public String getDef7() {
+	 public UFDouble getDef7() {
 		 return def7;
 	  }   
 	  
@@ -376,7 +376,7 @@
 	   * 创建日期:2012-9-13
 	   * @param newDef7 String
 	   */
-	public void setDef7(String newDef7) {
+	public void setDef7(UFDouble newDef7) {
 		
 		def7 = newDef7;
 	 } 	  
