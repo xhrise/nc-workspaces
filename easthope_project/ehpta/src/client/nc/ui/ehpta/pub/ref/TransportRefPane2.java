@@ -18,6 +18,7 @@ public class TransportRefPane2 extends AbstractRefModel {
 			"vbillno",
 			"transtype",
 			"carrier",
+			"estoraddr",
 			"sendname",
 			"price"
 			
@@ -28,6 +29,7 @@ public class TransportRefPane2 extends AbstractRefModel {
 			"合同编码",
 			"合同类型",
 			"承运商",
+			"到站地",
 			"运输方式",
 			"运输价格"
 		});
@@ -50,7 +52,7 @@ public class TransportRefPane2 extends AbstractRefModel {
 		builder.append(" transcont.pk_corp, ");
 		builder.append(" transcont.dr, "); 
 		builder.append(" transcont.vbillstatus, ");
-		builder.append(" send.sendname, ");
+		builder.append(" send.sendname, (select max(addrname) from bd_address where pk_address = transcontb.estoraddr) estoraddr , ");
 		builder.append(" case when transcont.transtype = 'upper' then transcontb.shipprice when transcont.transtype = 'under' then transcontb.transprice else 0 end price , ");
 		builder.append(" transcont.pk_transport ");
 		builder.append(" from ehpta_transport_contract transcont ");

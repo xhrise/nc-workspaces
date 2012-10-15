@@ -7,7 +7,6 @@ import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
-import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ehpta.pub.ref.LPriceRefPane;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIRefPane;
@@ -22,6 +21,7 @@ import nc.ui.scm.plugin.SCMUIContext;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDouble;
 import nc.vo.scm.plugin.Action;
 import nc.vo.so.so001.SaleOrderVO;
@@ -257,6 +257,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				if("period".equals(e.getKey()) || "iscredit".equals(e.getKey()))
 					afterSetPeriod(e , ctx);
 				
+				if("issince".equals(e.getKey()))
+					afterSetIsSince(e , ctx);
+				
 			} else {
 				
 				if("nnumber".equals(e.getKey()))
@@ -273,6 +276,21 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			Logger.error(e);
 		}
 
+	}
+	
+	private final void afterSetIsSince(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		Object issince = ctx.getBillCardPanel().getHeadItem(e.getKey()).getValueObject();
+		if("true".equals(issince)) {
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEnabled(false);
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEditable(false);
+			ctx.getBillCardPanel().getHeadItem("pk_transport").setNull(false);
+		} else {
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEnabled(true);
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEditable(true);
+			ctx.getBillCardPanel().getHeadItem("pk_transport").setNull(true);
+		}
+		
 	}
 	
 	/**

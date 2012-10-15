@@ -37,7 +37,7 @@ public class TransportContractBVO extends SuperVO {
 	public String pk_transport_b;
 	public String def8;
 	public String pk_sendtype;
-	public String def1;
+	public UFDouble def1;
 	public String sstoraddr;
 	public UFDouble shipregulation;
 	public String estoraddr;
@@ -451,7 +451,7 @@ public class TransportContractBVO extends SuperVO {
 	 * 
 	 * @return String
 	 */
-	public String getDef1() {
+	public UFDouble getDef1() {
 		return def1;
 	}
 
@@ -463,7 +463,7 @@ public class TransportContractBVO extends SuperVO {
 	 * @param newDef1
 	 *            String
 	 */
-	public void setDef1(String newDef1) {
+	public void setDef1(UFDouble newDef1) {
 
 		def1 = newDef1;
 	}
