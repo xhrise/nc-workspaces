@@ -108,7 +108,7 @@ public class EventHandler extends ManageEventHandler {
 //		and genh.daccountdate is not null;
 		
 		String sql = "select * from vw_pta_under_transfee where sdate >= '"+period.toString()+"' and sdate <= '"+endPeriod.toString()+"'";
-		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
+		List<HashMap> retList = (ArrayList) UAPQueryBS.getInstance().executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
 			CalcUnderTransfeeBVO[] undertransBVOs = new CalcUnderTransfeeBVO[retList.size()];
@@ -160,6 +160,9 @@ public class EventHandler extends ManageEventHandler {
 			CalcUnderTransfeeBVO[] selBodyVOs = (CalcUnderTransfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcUnderTransfeeBVO.class.getName());
 			if(selBodyVOs == null || selBodyVOs.length == 0)
 				selBodyVOs = (CalcUnderTransfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+			
+			if(selBodyVOs == null || selBodyVOs.length == 0)
+				throw new Exception ("请至少选择一条记录进行批改操作。");
 			
 			for(CalcUnderTransfeeBVO selbodyVO : selBodyVOs) {
 				for(CalcUnderTransfeeBVO bodyVO : bodyVOs) {
@@ -341,7 +344,7 @@ public class EventHandler extends ManageEventHandler {
 			prePeriod = periodDate.getYear() + "-" + (periodDate.getMonth() - 1 < 10 ? "0" + (periodDate.getMonth() - 1) : "" + (periodDate.getMonth() - 1));
 		}
 		
-		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_under_transfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
+		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_under_transfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
 		if(count == 0) 
 			getBillUI().showWarningMessage("前一期间的下游运费未统计...");
 	}
@@ -366,10 +369,10 @@ public class EventHandler extends ManageEventHandler {
 		List<String> flagPks = new ArrayList<String>();
 		
 		for(CalcUnderTransfeeBVO bodyVO : currBodyVOs) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
 //				remove by river for 2012-09-24
 //				adjustList.add(createAdjust(bodyVO));
 			}	// else {
@@ -426,7 +429,7 @@ public class EventHandler extends ManageEventHandler {
 		super.onBoDelete();
 		
 		if(currAggVO != null) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_under_transfee_h where pk_transfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_under_transfee_h where pk_transfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
 			if(count > 0) {
 				if(currAggVO.getChildrenVO() != null && currAggVO.getChildrenVO().length > 0) {
 					SuperVO[] vos = (SuperVO[]) currAggVO.getChildrenVO().clone();
@@ -463,10 +466,10 @@ public class EventHandler extends ManageEventHandler {
 			return ;
 		
 		for(CalcUnderTransfeeBVO bodyVO : (CalcUnderTransfeeBVO[])currAggVO.getChildrenVO()) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count > 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update ic_general_h set vuserdef3 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
 				adjustList.add("'" + bodyVO.getDef5() + "'");
 			}	
 		}

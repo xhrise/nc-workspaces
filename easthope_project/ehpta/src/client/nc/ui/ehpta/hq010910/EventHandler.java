@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nc.bs.logging.Logger;
+import nc.itf.ia.bill.IBill;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.hq010901.ClientUICheckRuleGetter;
 import nc.ui.ehpta.pub.IAdjustType;
@@ -205,10 +206,10 @@ public class EventHandler extends ManageEventHandler {
 		List<HYBillVO> adjustList = new ArrayList<HYBillVO>();
 		
 		for(CalcSettlementVO headVO : nowSettleVOs) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where csaleid = '"+headVO.getCsaleid()+"' and nvl(settleflag,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from so_sale where csaleid = '"+headVO.getCsaleid()+"' and nvl(settleflag,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update so_sale set settleflag = 'Y' , settledate = '"+_getDate().toString()+"' where csaleid = '"+headVO.getCsaleid()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update so_sale set settleflag = 'Y' , settledate = '"+_getDate().toString()+"' where csaleid = '"+headVO.getCsaleid()+"' ", null); } catch(Exception e) { }
 				adjustList.add(createAdjust(headVO));
 			}	
 		}
@@ -249,10 +250,10 @@ public class EventHandler extends ManageEventHandler {
 			
 			HYPubBO_Client.delete((SuperVO) billVO.getParentVO());
 			
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from so_sale where csaleid = '"+billVO.getParentVO().getAttributeValue("csaleid")+"' and nvl(settleflag,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from so_sale where csaleid = '"+billVO.getParentVO().getAttributeValue("csaleid")+"' and nvl(settleflag,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count > 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update so_sale set settleflag = 'N' , settledate = null where csaleid = '"+billVO.getParentVO().getAttributeValue("csaleid")+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update so_sale set settleflag = 'N' , settledate = null where csaleid = '"+billVO.getParentVO().getAttributeValue("csaleid")+"' ", null); } catch(Exception e) { }
 				adjustList.add("'" + billVO.getParentVO().getAttributeValue("csaleid") + "'");
 			}	
 		}
@@ -328,6 +329,11 @@ public class EventHandler extends ManageEventHandler {
 		if(selAggVOs != null && selAggVOs.length > 0) {
 			
 			for(HYBillVO modelVo : selAggVOs) {
+				
+				// 非自由态的单据跳过提交动作。
+				if(!((Integer) modelVo.getParentVO().getAttributeValue("vbillstatus") == IBillStatus.FREE))
+					continue;
+				
 				// 临时性设置制单人为当前操作人，
 				modelVo.getParentVO().setAttributeValue(
 						getBillField().getField_Operator(), getBillUI()._getOperator());
@@ -376,7 +382,14 @@ public class EventHandler extends ManageEventHandler {
 		HYBillVO[] selAggVOs = (HYBillVO[]) ((BillManageUI) getBillUI()).getBillListPanel().getBillListData().getBillSelectValueVOs(HYBillVO.class.getName(), CalcSettlementVO.class.getName(), CalcSettlementVO.class.getName());
 		
 		if(selAggVOs != null && selAggVOs.length > 0) {
+			Integer vbillstatus = -1;
 			for(HYBillVO modelVo : selAggVOs) {
+				
+				vbillstatus = (Integer) modelVo.getParentVO().getAttributeValue("vbillstatus");
+				
+				if(!(vbillstatus == IBillStatus.COMMIT || vbillstatus == IBillStatus.CHECKGOING))
+					continue;
+				
 				setCheckManAndDate(modelVo);
 				// 如果状态一致则退出
 				if (checkVOStatus(modelVo, new int[] { IBillStatus.CHECKPASS })) {
@@ -420,9 +433,90 @@ public class EventHandler extends ManageEventHandler {
 	@Override
 	protected void onBoCancelAudit() throws Exception {
 		
-		throw new Exception("审核后的数据不能进行弃审操作");
+//		throw new Exception("审核后的数据不能进行弃审操作");
 		
-//		super.onBoCancelAudit();
+		beforeOnBoCancelAudit();
+		
+		AggregatedValueObject[] selectBillVO = ((ClientUI)getBillUI()).getBillListPanel().getMultiSelectedVOs(getUIController().getBillVoName()[0], getUIController().getBillVoName()[1], getUIController().getBillVoName()[2]);
+		
+		Integer vbillstatus = -1;
+		
+		if(selectBillVO != null && selectBillVO.length > 0) {
+			for(AggregatedValueObject modelVo : selectBillVO) {
+				
+				vbillstatus = (Integer) modelVo.getParentVO().getAttributeValue("vbillstatus");
+				
+				if(!(vbillstatus == IBillStatus.CHECKPASS))
+					continue;
+				
+				// 放入反审批日期、审批人
+				setCheckManAndDate(modelVo);
+				// 如果状态一致则退出
+				if (checkVOStatus(modelVo, new int[] { IBillStatus.FREE })) {
+					System.out.println("无效的鼠标处理机制");
+					return;
+				}
+				beforeOnBoAction(IBillButton.CancelAudit, modelVo);
+				// *******************
+				AggregatedValueObject retVo = (AggregatedValueObject) getBusinessAction()
+						.unapprove(modelVo, getUIController().getBillType(),
+								getBillUI()._getDate().toString(),
+								getBillUI().getUserObject());
+		
+				if (PfUtilClient.isSuccess()) {
+					afterOnBoAction(IBillButton.CancelAudit, retVo);
+					CircularlyAccessibleValueObject[] childVos = getChildVO(retVo);
+					if (childVos == null)
+						modelVo.setParentVO(retVo.getParentVO());
+					else
+						modelVo = retVo;
+		
+					Integer intState = (Integer) modelVo.getParentVO()
+							.getAttributeValue(getBillField().getField_BillStatus());
+					if (intState.intValue() == IBillStatus.FREE) {
+						modelVo.getParentVO().setAttributeValue(
+								getBillField().getField_CheckMan(), null);
+						modelVo.getParentVO().setAttributeValue(
+								getBillField().getField_CheckDate(), null);
+					}
+					
+				}
+			
+				afterUpdateBuffer();
+				
+				CircularlyAccessibleValueObject vo = null;
+				if (getBufferData().getCurrentVO() != null) {
+					vo = getBufferData().getCurrentVO().getParentVO();
+					((BillManageUI)getBillUI()).getBillListWrapper().updateListVo(vo,
+							getBufferData().getCurrentRow());
+		
+					//执行公式
+				}
+				
+			}
+		} else 
+			super.onBoCancelAudit();
+	}
+	
+	protected final void beforeOnBoCancelAudit() throws Exception {
+		
+		AggregatedValueObject[] selectBillVO = ((ClientUI)getBillUI()).getBillListPanel().getMultiSelectedVOs(getUIController().getBillVoName()[0], getUIController().getBillVoName()[1], getUIController().getBillVoName()[2]);
+		List<String> pks = new ArrayList<String>();
+		Integer vbillstatus = -1;
+		for(AggregatedValueObject billVO : selectBillVO) {
+			vbillstatus = (Integer) billVO.getParentVO().getAttributeValue("vbillstatus");
+			if(vbillstatus == IBillStatus.CHECKPASS)
+				pks.add("'" + billVO.getParentVO().getPrimaryKey() + "'");
+		}
+		
+		String pkStr = ConvertFunc.change(pks.toArray(new String[0]));
+		
+		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_adjust where def1 in ("+pkStr+") and def5 is not null ", new ColumnProcessor());
+		
+		if(count > 0) 
+			throw new Exception("弃审失败\n当前列表中选中的记录中存在已经被使用的挂结价差额。");
+		
+		
 	}
 	
 	/**
@@ -477,8 +571,54 @@ public class EventHandler extends ManageEventHandler {
 
 		billUI.getBillListPanel().updateUI();
 		
-		getButtonManager().getButton(DefaultBillButton.Confirm).setEnabled(true);
+		try {
+			if(getBufferData().getCurrentVO().getParentVO().getPrimaryKey() == null)
+				getButtonManager().getButton(DefaultBillButton.Confirm).setEnabled(true);
+			else 
+				getButtonManager().getButton(DefaultBillButton.Confirm).setEnabled(false);
+			
+		} catch(Exception e) {
+			Logger.error(e.getMessage() , e);
+		}
+			
+		
 		getButtonManager().getButton(DefaultBillButton.Cancelconfirm).setEnabled(true);
+		
+		AggregatedValueObject[] billVOs = ((ClientUI)getBillUI()).getBillListPanel().getMultiSelectedVOs(getUIController().getBillVoName()[0], getUIController().getBillVoName()[1], getUIController().getBillVoName()[2]);
+		
+		if(billVOs != null && billVOs.length > 0) {
+			getButtonManager().getButton(IBillButton.Audit).setEnabled(true);
+			getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
+			getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
+		} else {
+			Integer vbillstatus = (Integer) getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus");
+			
+			switch (vbillstatus) {
+			
+				case IBillStatus.CHECKPASS:
+					getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
+					getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
+					break;
+					
+				case IBillStatus.FREE :
+					getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
+					break;
+					
+				case IBillStatus.COMMIT :
+					getButtonManager().getButton(IBillButton.Audit).setEnabled(true);
+					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
+					break;
+					
+				default:
+					break;
+			}
+		}
+		
+		getBillUI().updateButtons();
 		
 	}
 	
@@ -562,7 +702,7 @@ public class EventHandler extends ManageEventHandler {
 		adjust.setAttributeValue("pk_billtype", "HQ07");
 		adjust.setAttributeValue("voperatorid", _getOperator());
 		adjust.setAttributeValue("dmakedate", _getDate());
-		adjust.setAttributeValue("def1", headVO.getCsaleid());
+		adjust.setAttributeValue("def1", headVO.getPk_settlement());
 		adjust.setAttributeValue("def2", "Y");
 		adjust.setAttributeValue("def3", "N");
 		

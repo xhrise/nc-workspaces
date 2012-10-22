@@ -173,7 +173,7 @@ public class EventHandler extends ManageEventHandler {
 //		   and nvl(outgenh.fbillflag , 0) = 3;
 		
 		String sql = "select * from vw_pta_upper_transfee where edate >= '"+period.toString()+"' and edate <= '"+endPeriod.toString()+"'";
-		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
+		List<HashMap> retList = (ArrayList) UAPQueryBS.getInstance().executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
 			CalcUpperTransfeeBVO[] uppertransBVOs = new CalcUpperTransfeeBVO[retList.size()];
@@ -433,7 +433,7 @@ public class EventHandler extends ManageEventHandler {
 			prePeriod = periodDate.getYear() + "-" + (periodDate.getMonth() - 1 < 10 ? "0" + (periodDate.getMonth() - 1) : "" + (periodDate.getMonth() - 1));
 		}
 		
-		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_upper_transfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
+		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_upper_transfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
 		if(count == 0) 
 			getBillUI().showWarningMessage("前一期间的上游运费未统计...");
 	}
@@ -456,10 +456,10 @@ public class EventHandler extends ManageEventHandler {
 		getBufferData().setCurrentRow(getBufferData().getCurrentRow());
 		
 		for(CalcUpperTransfeeBVO bodyVO : currBodyVOs) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getDef2()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getDef2()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getDef2()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update ic_general_h set vuserdef3 = 'Y' where cgeneralhid = '"+bodyVO.getDef2()+"' ", null); } catch(Exception e) { }
 			}	
 		}
 			
@@ -474,7 +474,7 @@ public class EventHandler extends ManageEventHandler {
 		super.onBoDelete();
 		
 		if(currAggVO != null) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_upper_transfee_h where pk_transfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_upper_transfee_h where pk_transfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
 			if(count > 0) {
 				
 				afterOnBoDelete(currAggVO);
@@ -489,10 +489,10 @@ public class EventHandler extends ManageEventHandler {
 			return ;
 		
 		for(CalcUpperTransfeeBVO bodyVO : (CalcUpperTransfeeBVO[])currAggVO.getChildrenVO()) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getDef2()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getDef2()+"' and nvl(vuserdef3,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count > 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef3 = 'N' where cgeneralhid = '"+bodyVO.getDef2()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update ic_general_h set vuserdef3 = 'N' where cgeneralhid = '"+bodyVO.getDef2()+"' ", null); } catch(Exception e) { }
 			}	
 		}
 			

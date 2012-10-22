@@ -53,7 +53,7 @@ public class SaleContractAfterCHG implements IchangeVO {
 					CircularlyAccessibleValueObject[] cavos = ((MultiBillVO)aggVO).getTableVO(((MultiBillVO)aggVO).getDefaultTableCode());
 					
 					if(cavos != null && cavos.length > 0) {
-						SaleorderBVO[] bvos = new SaleorderBVO[cavos.length];
+						SaleorderBVO[] bvos = new SaleorderBVO[1];
 						int i = 0;
 						for(CircularlyAccessibleValueObject cavo : cavos) {
 							SaleorderBVO bvo = new SaleorderBVO();
@@ -66,8 +66,8 @@ public class SaleContractAfterCHG implements IchangeVO {
 							bvo.setAttributeValue("nexchangeotobrate", 1);
 							bvo.setAttributeValue("cadvisecalbodyid", "1120A8100000000YSLF2");
 							
-							bvo.setAttributeValue("cinvbasdocid", cavo.getAttributeValue("pk_invbasdoc"));
-							bvo.setAttributeValue("cinventoryid", cavo.getAttributeValue("pk_invbasdoc"));
+//							bvo.setAttributeValue("cinvbasdocid", cavo.getAttributeValue("pk_invbasdoc"));
+//							bvo.setAttributeValue("cinventoryid", cavo.getAttributeValue("pk_invbasdoc"));
 							bvo.setAttributeValue("crowno", cavo.getAttributeValue("def1"));
 							
 							// 长单合同不到数量
@@ -79,13 +79,16 @@ public class SaleContractAfterCHG implements IchangeVO {
 //							bvo.setAttributeValue("numof", numof);
 //							bvo.setAttributeValue("nquoteunitnum", cavo.getAttributeValue("num"));
 							
-							bvo.setAttributeValue("ntaxrate", cavo.getAttributeValue("taxrate"));
+//							bvo.setAttributeValue("ntaxrate", cavo.getAttributeValue("taxrate"));
 							bvo.setAttributeValue("pk_corp", cavo.getAttributeValue("pk_corp"));
 							bvo.setAttributeValue("csourcebillbodyid", cavo.getAttributeValue("pk_contract_b"));
 							bvo.setAttributeValue("csourcebillid", cavo.getAttributeValue("pk_contract"));
 							
 							bvos[i] = bvo;
-							i ++ ;
+//							i ++ ;
+							
+							// 无论如何选择，只拉一条表体。
+							break;
 						}
 						
 						nowVO.setChildrenVO(bvos);

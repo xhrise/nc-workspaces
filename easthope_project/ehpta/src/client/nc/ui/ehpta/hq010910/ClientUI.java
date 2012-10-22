@@ -17,6 +17,7 @@ import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.buffer.BillUIBuffer;
+import nc.ui.trade.button.IBillButton;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
@@ -184,6 +185,42 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			}
 			
 		}
+		
+		AggregatedValueObject[] billVOs = getBillListPanel().getMultiSelectedVOs(getUIControl().getBillVoName()[0], getUIControl().getBillVoName()[1], getUIControl().getBillVoName()[2]);
+		
+		if(billVOs != null && billVOs.length > 0) {
+			getButtonManager().getButton(IBillButton.Audit).setEnabled(true);
+			getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
+			getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
+		} else {
+			Integer vbillstatus = (Integer) getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus");
+			
+			switch (vbillstatus) {
+			
+				case IBillStatus.CHECKPASS:
+					getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
+					getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
+					break;
+					
+				case IBillStatus.FREE :
+					getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
+					break;
+					
+				case IBillStatus.COMMIT :
+					getButtonManager().getButton(IBillButton.Audit).setEnabled(true);
+					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+					getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
+					break;
+					
+				default:
+					break;
+			}
+		}
+		
+		updateButtons();
 		
 		return super.getExtendStatus(vo);
 	}

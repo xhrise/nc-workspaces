@@ -893,7 +893,7 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			
 			GeneralBillVO billVO = getCurVO();
 			Boolean check = true;
-			Map retMap = (Map) UAPQueryBS.iUAPQueryBS.executeQuery("select vuserdef3 , vuserdef4 from ic_general_h where cgeneralhid = '"+billVO.getPrimaryKey()+"'", new MapProcessor());
+			Map retMap = (Map) UAPQueryBS.getInstance().executeQuery("select vuserdef3 , vuserdef4 from ic_general_h where cgeneralhid = '"+billVO.getPrimaryKey()+"'", new MapProcessor());
 			
 			if(retMap != null) {
 				if("Y".equals(retMap.get("vuserdef3"))) {
@@ -1142,7 +1142,7 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			
 			String sqlField = ConvertFunc.change(fieldArr);
 			
-			List<Map> retList = (List<Map>) UAPQueryBS.iUAPQueryBS.executeQuery("select "+sqlField+" from ic_general_h where cgeneralhid in ("+ConvertFunc.change(pkList.toArray(new String[0]))+")", new MapListProcessor());
+			List<Map> retList = (List<Map>) UAPQueryBS.getInstance().executeQuery("select "+sqlField+" from ic_general_h where cgeneralhid in ("+ConvertFunc.change(pkList.toArray(new String[0]))+")", new MapListProcessor());
 			
 			if(retList != null && retList.size() > 0) {
 				for(GeneralBillVO alData : alListData) 
@@ -3051,7 +3051,7 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			if(bodyVOs != null && bodyVOs.length > 0) {
 				Object csourcebillhid = bodyVOs[0].getAttributeValue("csourcebillhid");
 				Object issince = null;
-				try { issince = UAPQueryBS.iUAPQueryBS.executeQuery("select issince from so_sale where csaleid = '"+csourcebillhid+"' ", new ColumnProcessor()); } catch(Exception e) { Logger.error(e.getMessage(), e, this.getClass(), "onSave"); }
+				try { issince = UAPQueryBS.getInstance().executeQuery("select issince from so_sale where csaleid = '"+csourcebillhid+"' ", new ColumnProcessor()); } catch(Exception e) { Logger.error(e.getMessage(), e, this.getClass(), "onSave"); }
 				if(!(issince != null && "Y".equals(issince))) {
 					if(((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName() == null) {
 						showErrorMessage("表头 [ 运输单价 ] 不能为空。");
@@ -3115,13 +3115,13 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 						" pk_contract = '"+(pk_contract == null ? "" : pk_contract)+"' " ,
 				});
 				
-				UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set "+sqlField+" where cgeneralhid = '"+newBill.getPrimaryKey()+"'", null); 
+				UAPQueryBS.getInstance().executeQuery("update ic_general_h set "+sqlField+" where cgeneralhid = '"+newBill.getPrimaryKey()+"'", null); 
 				
 			} catch(Exception ex) { }
 			
 			// 更新数据后对TS字段重新取值，解决后续签字提示被修改、删除
 			try {
-				Object ts = UAPQueryBS.iUAPQueryBS.executeQuery("select ts from ic_general_h where cgeneralhid = '"+newBill.getPrimaryKey()+"'", new ColumnProcessor());
+				Object ts = UAPQueryBS.getInstance().executeQuery("select ts from ic_general_h where cgeneralhid = '"+newBill.getPrimaryKey()+"'", new ColumnProcessor());
 				newBill.getParentVO().setAttributeValue("ts", ts);
 				
 				updateBillToList(newBill);

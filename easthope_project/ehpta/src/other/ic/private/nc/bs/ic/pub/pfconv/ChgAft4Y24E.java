@@ -37,6 +37,8 @@ public class ChgAft4Y24E implements nc.vo.pf.change.IchangeVO {
 				new nc.vo.ic.pub.bill.GeneralBillVO[] {
 					(nc.vo.ic.pub.bill.GeneralBillVO) nowVo });
 	
+		// 组合调拨入库单中的批次号
+		// add by river for < 2012-10-01 ?
 		if (voRet != null && voRet.length > 0) {
 			
 			CircularlyAccessibleValueObject[]  retBodyVOs = voRet[0].getChildrenVO();

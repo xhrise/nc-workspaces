@@ -203,7 +203,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			builder.append(" maindate = '"+getBillCardPanel().getHeadItem("maindate").getValueObject()+"'");
 			builder.append(" and type='2' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0) = 0");
 			
-			int i = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new ColumnProcessor());
+			int i = (Integer) UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());
 			System.out.println("数据库里共有"+i+"条数据");
 			if(i>0){
 				showErrorMessage("当前期间："+((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName()+",已存在结算价记录!");
@@ -243,7 +243,7 @@ private final void afterEdit_maind(BillEditEvent e) throws BusinessException{
 		builder.append(" and type='2' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0)=0");
 		
 		int i;
-			i = (Integer)UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new ColumnProcessor());
+			i = (Integer)UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());
 			if(i>0){
 				showErrorMessage("当前期间："+((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName()+",已存在结算价记录!");
 				getBillCardPanel().getHeadItem("maindate").setValue(null);

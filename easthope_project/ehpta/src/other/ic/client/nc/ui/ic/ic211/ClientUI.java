@@ -2617,7 +2617,7 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 				  builder.append(" where genh.vbillcode = '"+billcode+"' and nvl(genh.dr,0)=0 and nvl(sgenb.dr,0)=0  ");
 				  builder.append(" and nvl(genb.dr,0)=0 and nvl(mngfil.dr,0)=0 and nvl(basfil.dr,0)=0 ");
 				  
-				  Vector retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), new VectorProcessor());
+				  Vector retVector = (Vector) UAPQueryBS.getInstance().executeQuery(builder.toString(), new VectorProcessor());
 				  
 				  if(retVector != null && retVector.size() > 0) {
 					  
@@ -2634,7 +2634,7 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 
 							  jobname = jobname.toString() + " - " + billdate.getYear() + (billdate.getMonth() < 10 ? "0" + billdate.getMonth() : billdate.getMonth()) + (billdate.getDay() < 10 ? "0" + billdate.getDay() : billdate.getDay());
 							  
-							  Integer nowBatchCode = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(to_number(max(substr(vbatchcode , length(vbatchcode) - 1 , length(vbatchcode)))),'0') from scm_batchcode where vbatchcode like '"+jobname+"%' and nvl(dr,0)=0 ", new ColumnProcessor());
+							  Integer nowBatchCode = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(to_number(max(substr(vbatchcode , length(vbatchcode) - 1 , length(vbatchcode)))),'0') from scm_batchcode where vbatchcode like '"+jobname+"%' and nvl(dr,0)=0 ", new ColumnProcessor());
 							  ++ nowBatchCode;
 							  
 							  jobname = jobname + " - " + (nowBatchCode < 10 ? "0" + nowBatchCode : nowBatchCode ).toString();
@@ -2642,18 +2642,18 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 							  builder = new StringBuilder();
 							  builder.append(" update ic_general_b set vbatchcode = '"+jobname+"' where cgeneralbid = '"+cgeneralbid+"' ");
 							  
-							  try { UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), null); } catch(Exception e) { }
+							  try { UAPQueryBS.getInstance().executeQuery(builder.toString(), null); } catch(Exception e) { }
 							 
-							  Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from scm_batchcode where vbatchcode = '"+jobname+"' and nvl(dr,0)=0", new ColumnProcessor());
+							  Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from scm_batchcode where vbatchcode = '"+jobname+"' and nvl(dr,0)=0", new ColumnProcessor());
 							  
 							  if(count == 0) {
 								  
-								  cinventoryid = UAPQueryBS.iUAPQueryBS.executeQuery("select pk_invbasdoc from bd_invmandoc where pk_invmandoc = '"+cinventoryid+"'", new ColumnProcessor());
+								  cinventoryid = UAPQueryBS.getInstance().executeQuery("select pk_invbasdoc from bd_invmandoc where pk_invmandoc = '"+cinventoryid+"'", new ColumnProcessor());
 								  
 								  builder = new StringBuilder();
 								  builder.append(" insert into scm_batchcode (bseal , dr , pk_batchcode , pk_invbasdoc , tbatchtime , ts , vbatchcode ) ");
 								  builder.append(" values ('N' , 0 , generatepk('1120') , '"+cinventoryid+"' , to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss') , to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss') , '"+jobname+"' ) "); 
-								  try { UAPQueryBS.iUAPQueryBS.executeQuery(builder.toString(), null); } catch(Exception e) { }
+								  try { UAPQueryBS.getInstance().executeQuery(builder.toString(), null); } catch(Exception e) { }
 							  }
 						  }
 					  }
