@@ -90,7 +90,7 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 			if("zyx6".equals(e.getKey()))  
 				afterSetPk_contract(e);
 			
-			if("zyx7".equals(e.getKey()))
+			if("zyx8".equals(e.getKey()))
 				afterSetIsCredit(e);
 			
 			if("notetype".equals(e.getKey()))
@@ -115,7 +115,7 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 	private final void afterSetPk_contract(BillEditEvent e) throws Exception {
 		if(getArapDjPanel1().getBillCardPanelDj().getHeadItem(e.getKey()).getValueObject() != null) {
 			
-			Object purchcode = UAPQueryBS.iUAPQueryBS.executeQuery("select pk_cubasdoc from bd_cumandoc where pk_cumandoc = (select purchcode from ehpta_sale_contract where pk_contract = '"+getArapDjPanel1().getBillCardPanelDj().getHeadItem(e.getKey()).getValueObject()+"' and nvl(dr,0)=0 )", new ColumnProcessor());
+			Object purchcode = UAPQueryBS.getInstance().executeQuery("select pk_cubasdoc from bd_cumandoc where pk_cumandoc = (select purchcode from ehpta_sale_contract where pk_contract = '"+getArapDjPanel1().getBillCardPanelDj().getHeadItem(e.getKey()).getValueObject()+"' and nvl(dr,0)=0 )", new ColumnProcessor());
 			((UIRefPane)getArapDjPanel1().getBillCardPanelDj().getHeadItem("hbbm").getComponent()).setPK(purchcode);
 			
 			((UIRefPane)getArapDjPanel1().getBillCardPanelDj().getHeadItem("deptid").getComponent()).setPK("1120A7100000000XNDFR");
@@ -123,7 +123,7 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 	}
 	
 	/**
-	 *  功能 ： 点击是否信用证（zyx7）时的afterEdit事件
+	 *  功能 ： 点击是否信用证（zyx8）时的afterEdit事件
 	 *  
 	 *  author ： river
 	 *  
@@ -167,9 +167,9 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 			
 			if(code != null && !"".equals(code)) {
 				if("lc".equals(code))
-					((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem("zyx7").getComponent()).setSelected(true);
+					((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem("zyx8").getComponent()).setSelected(true);
 				else 
-					((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem("zyx7").getComponent()).setSelected(false);
+					((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem("zyx8").getComponent()).setSelected(false);
 			}
 			
 		}

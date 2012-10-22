@@ -69,7 +69,7 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 				} else {
 					
 					try {
-						Object mny = UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(noriginalcurdiscountmny,0) from so_saleinvoice_b where cinvoice_bid = '"+voFromPanel.getChildrenVO()[0].getCsale_bid()+"'", new ColumnProcessor());
+						Object mny = UAPQueryBS.getInstance().executeQuery("select nvl(noriginalcurdiscountmny,0) from so_saleinvoice_b where cinvoice_bid = '"+voFromPanel.getChildrenVO()[0].getCsale_bid()+"'", new ColumnProcessor());
 					
 						if(mny == null || Double.valueOf(mny.toString()) == 0) {
 							getBtns().m_boUnite.setEnabled(true);

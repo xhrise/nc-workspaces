@@ -136,9 +136,9 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 		Vector retVector = null;
 		if (!"".equals(whereSql)) {
 			try {
-				retVector = (Vector) UAPQueryBS.iUAPQueryBS
+				retVector = (Vector) UAPQueryBS.getInstance()
 						.executeQuery(
-								"select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("
+								"select djzt , spzt , zyx6 , zyx8 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("
 										+ whereSql
 										+ ") and dwbm = '"
 										+ getCorpPrimaryKey()
@@ -169,7 +169,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 						case 1:
 							// ÉóºËÍ¨¹ý
 							if (Integer.valueOf(djzt.toString()) == 3) {
-								Integer count = (Integer) UAPQueryBS.iUAPQueryBS
+								Integer count = (Integer) UAPQueryBS.getInstance()
 										.executeQuery(
 												"select count(1) from ehpta_adjust where def1 = '"
 														+ vouchid
@@ -186,7 +186,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 											pk_contract);
 									adjust.setAttributeValue(
 											"pk_cubasdoc",
-											UAPQueryBS.iUAPQueryBS
+											UAPQueryBS.getInstance()
 													.executeQuery(
 															"select pk_cumandoc from bd_cumandoc where pk_cubasdoc in (select distinct hbbm from arap_djfb where vouchid = '"
 																	+ vouchid
@@ -309,9 +309,9 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 				Vector retVector = null;
 				if (!"".equals(whereSql)) {
 					try {
-						retVector = (Vector) UAPQueryBS.iUAPQueryBS
+						retVector = (Vector) UAPQueryBS.getInstance()
 								.executeQuery(
-										"select djzt , spzt , zyx6 , zyx7 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("
+										"select djzt , spzt , zyx6 , zyx8 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("
 												+ whereSql
 												+ ") and dwbm = '"
 												+ getCorpPrimaryKey()

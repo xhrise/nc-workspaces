@@ -9,6 +9,7 @@ import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIComboBox;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillCardBeforeEditListener;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.pf.PfUtilClient;
 import nc.ui.scm.extend.IFuncExtend;
@@ -323,6 +324,13 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 	// add by river for 2012-07-23
 	public boolean beforeEdit(BillItemEvent e) {
 		
+		if("vouchid".equals(e.getItem().getKey())) {
+			Object pk_contract = getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+			Object ccustomerid = getBillCardPanel().getHeadItem("ccustomerid").getValueObject();
+			((UIRefPane)getBillCardPanel().getHeadItem(e.getItem().getKey()).getComponent()).setWhereString(" 1 = 1 and zyx6 = '"+pk_contract+"' and hbbm = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+ccustomerid+"') ");
+			
+		}
+		
 		try {
 			if(getBillCardPanel().getHeadItem("contracttype") != null) {
 				
@@ -375,7 +383,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 							
 							// 选择期间时自动按照表体行中的存货编码带出挂牌价、结算价、含税单价，计算出挂结价差
 							Object pk_contract = getBillCardPanel().getHeadItem("pk_contract").getValueObject();
-							Vector retVector = (Vector)UAPQueryBS.iUAPQueryBS.executeQuery("select sdate , edate from ehpta_sale_contract where pk_contract = '"+pk_contract+"'", new VectorProcessor());
+							Vector retVector = (Vector)UAPQueryBS.getInstance().executeQuery("select sdate , edate from ehpta_sale_contract where pk_contract = '"+pk_contract+"'", new VectorProcessor());
 							
 							if(retVector != null && retVector.size() > 0) {
 								UFDate sdate = new UFDate(((Vector)retVector.get(0)).get(0).toString());
@@ -401,7 +409,6 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		} catch(Exception ex) {
 			Logger.info(ex);
 			showErrorMessage(this.getName() + " - 389 - " + ex.getMessage());
-			return false;
 		}
 		
 		return true;

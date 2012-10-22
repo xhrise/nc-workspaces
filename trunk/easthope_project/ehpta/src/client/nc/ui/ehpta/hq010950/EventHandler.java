@@ -263,7 +263,7 @@ public class EventHandler extends ManageEventHandler {
 		
 		String sql = "select * from vw_pta_rebates where period = '"+period+"' and pk_corp = '"+_getCorp().getPk_corp()+"'";
 		
-		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
+		List<HashMap> retList = (ArrayList) UAPQueryBS.getInstance().executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
 			CalcRebatesBVO[] rebateBVOs = new CalcRebatesBVO[retList.size()];
@@ -305,6 +305,9 @@ public class EventHandler extends ManageEventHandler {
 			CalcRebatesBVO[] selBodyVOs = (CalcRebatesBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcRebatesBVO.class.getName());
 			if(selBodyVOs == null || selBodyVOs.length == 0)
 				selBodyVOs = (CalcRebatesBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+			
+			if(selBodyVOs == null || selBodyVOs.length == 0)
+				throw new Exception ("请至少选择一条记录进行批改操作。");
 			
 			for(CalcRebatesBVO selbodyVO : selBodyVOs) {
 				for(CalcRebatesBVO bodyVO : bodyVOs) {
@@ -528,7 +531,7 @@ public class EventHandler extends ManageEventHandler {
 		
 		String bidStr = ConvertFunc.change(orderbids.toArray(new String[0]));
 		
-		try { UAPQueryBS.iUAPQueryBS.executeQuery("update so_saleorder_b set rebateflag = 'Y' where corder_bid in ("+bidStr+")", null); } catch(Exception e) { Logger.info("返利统计保存后续操作，反写销售订单表体统计标志", this.getClass() , "afterOnBoSave"); }
+		try { UAPQueryBS.getInstance().executeQuery("update so_saleorder_b set rebateflag = 'Y' where corder_bid in ("+bidStr+")", null); } catch(Exception e) { Logger.info("返利统计保存后续操作，反写销售订单表体统计标志", this.getClass() , "afterOnBoSave"); }
 		
 	}
 	
@@ -539,7 +542,7 @@ public class EventHandler extends ManageEventHandler {
 		super.onBoDelete();
 		
 		if(currAggVO != null) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_rebates_h where pk_rebates = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_rebates_h where pk_rebates = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
 			if(count > 0) {
 				afterOnBoDelete(currAggVO);
 			}
@@ -557,7 +560,7 @@ public class EventHandler extends ManageEventHandler {
 		
 		String bidStr = ConvertFunc.change(orderbids.toArray(new String[0]));
 		
-		try { UAPQueryBS.iUAPQueryBS.executeQuery("update so_saleorder_b set rebateflag = 'N' where corder_bid in ("+bidStr+")", null); } catch(Exception e) { Logger.info("返利统计删除后续操作，反写销售订单表体统计标志", this.getClass() , "afterOnBoSave"); }
+		try { UAPQueryBS.getInstance().executeQuery("update so_saleorder_b set rebateflag = 'N' where corder_bid in ("+bidStr+")", null); } catch(Exception e) { Logger.info("返利统计删除后续操作，反写销售订单表体统计标志", this.getClass() , "afterOnBoSave"); }
 		
 		
 	}

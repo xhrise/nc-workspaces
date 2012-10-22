@@ -247,7 +247,7 @@ public class MarkDlg extends UIDialog implements ActionListener {
 				public void valueChanged(ValueChangedEvent e) {
 					try {
 						UIRefPane source = (UIRefPane) e.getSource();
-						Map retMap = (HashMap) UAPQueryBS.iUAPQueryBS.executeQuery("select datatype , reftype from pub_billtemplet_b where pk_billtemplet_b = '"+source.getRefPK()+"'", new MapProcessor());
+						Map retMap = (HashMap) UAPQueryBS.getInstance().executeQuery("select datatype , reftype from pub_billtemplet_b where pk_billtemplet_b = '"+source.getRefPK()+"'", new MapProcessor());
 						
 						// datatype数据类型引用自 IRefPane 接口
 						switch(Integer.valueOf(retMap.get("datatype").toString())) {

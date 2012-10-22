@@ -12,6 +12,46 @@
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
 				<field>
+					<!--收款单金额-->
+					<dbfieldname>vouchmny</dbfieldname>
+					<vofieldname>vouchmny</vofieldname>
+					<dbfieldtype>3</dbfieldtype>
+					<vofieldtype>1</vofieldtype>
+					<persistence>Y</persistence>
+					<length>28</length>
+					<allownull>Y</allownull>
+					<precision>8</precision>
+					<showprop>
+						<showname>收款单金额</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--收款单ID-->
+					<dbfieldname>vouchid</dbfieldname>
+					<vofieldname>vouchid</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>收款单ID</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
 					<!--是否信用证方-->
 					<dbfieldname>iscredit</dbfieldname>
 					<vofieldname>iscredit</vofieldname>

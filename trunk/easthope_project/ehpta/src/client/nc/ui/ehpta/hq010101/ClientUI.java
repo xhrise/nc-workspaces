@@ -245,7 +245,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			
 			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getName(), e.getRow(), "defsstorname");
 			
-			Object storaddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+((DefaultConstEnum)e.getValue()).getValue()+"'", new ColumnProcessor());
+			Object storaddr = UAPQueryBS.getInstance().executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+((DefaultConstEnum)e.getValue()).getValue()+"'", new ColumnProcessor());
 		
 			getBillCardPanel().setBodyValueAt(storaddr, e.getRow(), "sstoraddr");
 		
@@ -260,7 +260,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			
 			getBillCardPanel().setBodyValueAt(((DefaultConstEnum)e.getValue()).getName(), e.getRow(), "defestorname");
 			
-			Object etoraddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+((DefaultConstEnum)e.getValue()).getValue()+"'", new ColumnProcessor());
+			Object etoraddr = UAPQueryBS.getInstance().executeQuery("select storaddr from bd_stordoc where pk_stordoc = '"+((DefaultConstEnum)e.getValue()).getValue()+"'", new ColumnProcessor());
 		
 			getBillCardPanel().setBodyValueAt(etoraddr, e.getRow(), "estoraddr");
 		

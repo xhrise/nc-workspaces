@@ -24,7 +24,7 @@ public class AFTD2TOHQ09 implements IchangeVO {
 		
 		Object pk_contract = preVo.getParentVO().getAttributeValue("zyx6");
 		
-		Vector retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery("select vbillno , version , case when contype = '长单合同' then '20' when contype = '现货合同' then '10' else '' end contype from ehpta_sale_contract where pk_contract = '"+pk_contract+"'", new VectorProcessor());
+		Vector retVector = (Vector) UAPQueryBS.getInstance().executeQuery("select vbillno , version , case when contype = '长单合同' then '20' when contype = '现货合同' then '10' else '' end contype from ehpta_sale_contract where pk_contract = '"+pk_contract+"'", new VectorProcessor());
 		
 		if(retVector != null && retVector.size() > 0) {
 			nowVo.getParentVO().setAttributeValue("contno", ((Vector)retVector.get(0)).get(0));

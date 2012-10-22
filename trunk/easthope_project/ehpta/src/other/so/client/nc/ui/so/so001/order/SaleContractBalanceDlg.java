@@ -2,6 +2,8 @@ package nc.ui.so.so001.order;
 
 import java.awt.Container;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -34,7 +36,7 @@ public class SaleContractBalanceDlg extends UIDialog{
 	
 	private String concode = null;
 	
-	private String sqlString = null;
+	private String[] sqlString = null;
 	
 	private Container parent = null;
 
@@ -46,7 +48,7 @@ public class SaleContractBalanceDlg extends UIDialog{
 		}
 	}
 
-	public SaleContractBalanceDlg(Container parent , Object[] objs , String sqlString){
+	public SaleContractBalanceDlg(Container parent , Object[] objs , String[] sqlString){
 		super(parent);
 		this.parent = parent;
 		if(objs.length==4){
@@ -89,7 +91,11 @@ public class SaleContractBalanceDlg extends UIDialog{
 			if(jTable==null){
 				String[] titles=new String[]{"类型","金额"};
 				
-				Vector retVector = (Vector) UAPQueryBS.iUAPQueryBS.executeQuery(sqlString, new VectorProcessor());
+				Vector retVector = (Vector) UAPQueryBS.getInstance().executeQuery(sqlString[0], new VectorProcessor());
+				
+				Vector addVector = new Vector();
+				if(sqlString.length > 1)
+					addVector = (Vector) UAPQueryBS.getInstance().executeQuery(sqlString[1], new VectorProcessor());
 				
 				if(retVector == null || retVector.size() == 0) {
 					this.close();
@@ -100,14 +106,21 @@ public class SaleContractBalanceDlg extends UIDialog{
 					
 				}
 				
-				Object[][] retObject = new Object[retVector.size() + 1][];
+				List<Object[]> retObject = new ArrayList<Object[]>();
 				UFDouble mny = new UFDouble("0" , 2);
 				for(int i = 0 , j = retVector.size() ; i < j ; i ++) {
-					retObject[i] = new Object[]{ ((Vector)retVector.get(i)).get(0) , new UFDouble(((Vector)retVector.get(i)).get(1).toString() , 2) } ;
-					mny = mny.add(new UFDouble(retObject[i][1].toString()));
+					Object[] arrObj = new Object[]{ ((Vector)retVector.get(i)).get(0) , new UFDouble(((Vector)retVector.get(i)).get(1).toString() , 2) } ;
+					retObject.add(arrObj);
+					mny = mny.add(new UFDouble(arrObj[1].toString()));
 				}
 				
-				retObject[retVector.size()] = new Object[]{"合同余额" , new UFDouble(mny.toString() , 2)};
+				for(int i = 0 , j = addVector.size() ; i < j ; i ++) {
+					Object[] arrObj = new Object[]{ ((Vector)addVector.get(i)).get(0) , new UFDouble(((Vector)addVector.get(i)).get(1).toString() , 2) } ;
+					retObject.add(arrObj);
+					mny = mny.add(new UFDouble(arrObj[1].toString()));
+				}
+				
+				retObject.add(new Object[]{"合同余额" , new UFDouble(mny.toString() , 2)});
 					
 				for(Object[] objs : retObject) {
 					
@@ -115,7 +128,7 @@ public class SaleContractBalanceDlg extends UIDialog{
 						
 						objs[1] = new UFDouble(new UFDouble(objs[1].toString()).multiply(-1).doubleValue() , 2);
 					
-					} else if("累计开票额".equals(objs[0]) || "已提货金额".equals(objs[0])) {
+					} else if("累计开票额".equals(objs[0]) || "已提货金额".equals(objs[0]) || "当前提货金额".equals(objs[0])) {
 						objs[1] = new UFDouble(new UFDouble(objs[1].toString()).multiply(-1).doubleValue() , 2);
 					}
 					
@@ -123,7 +136,7 @@ public class SaleContractBalanceDlg extends UIDialog{
 					
 				}
 				
-				DefaultTableModel model=new DefaultTableModel(retObject,titles);
+				DefaultTableModel model=new DefaultTableModel(retObject.toArray(new Object[0][]) ,titles);
 				jTable=new JTable(model) {
 					@Override
 					public boolean editCellAt(int i, int j) {

@@ -13,6 +13,7 @@ import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.filesystem.FileManageUI;
 import nc.ui.trade.base.IBillOperate;
+import nc.ui.trade.bill.ISingleController;
 import nc.ui.trade.businessaction.IBusinessController;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
@@ -20,6 +21,7 @@ import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 
 /**
  * 

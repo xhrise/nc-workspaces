@@ -35,7 +35,7 @@ public class CHG30TO32 extends VOConversionUI {
             "H_ndiscountrate->H_ndiscountrate", 
             "H_bfreecustflag->H_bfreecustflag", 
             "H_binitflag->H_binitflag",
-            "H_vnote->H_vnote", 
+            "H_vnote->H_vnote",
             "H_ts->H_ts", 
             "H_cfreecustid->H_cfreecustid",
             
@@ -203,6 +203,7 @@ public class CHG30TO32 extends VOConversionUI {
             
             // 合同类型
             "H_saletype->iff(H_contracttype == 10 , \"现货合同\" , iff(H_contracttype == 20 , \"长单合同\" , \"\" ) )",
+            "H_vnote->getColValue(arap_djzb , scomment , vouchid , getColValue(so_sale , vouchid , csaleid , H_csaleid))", 
     });
   }
 

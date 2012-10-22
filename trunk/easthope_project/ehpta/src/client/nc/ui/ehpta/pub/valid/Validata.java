@@ -89,8 +89,8 @@ public class Validata {
 	public static final void cancleAuditValid(AggregatedValueObject currVO) throws Exception {
 		if(currVO != null && currVO.getParentVO() != null) {
 			Object pk_contract = currVO.getParentVO().getAttributeValue("pk_contract");
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
-			count += (Integer) UAPQueryBS.iUAPQueryBS.executeQuery(" select count(1) from arap_djzb where zyx6 = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+			count += (Integer) UAPQueryBS.getInstance().executeQuery(" select count(1) from arap_djzb where zyx6 = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
 			
 			if(count > 0)
 				throw new Exception("当前合同已被引用，当前操作将终止！");

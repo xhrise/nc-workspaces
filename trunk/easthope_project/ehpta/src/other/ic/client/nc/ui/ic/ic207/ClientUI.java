@@ -971,7 +971,7 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			Object vuserdef3 = ((GeneralBillVO )list.get(0)).getParentVO().getAttributeValue("vuserdef3");
 			
 			if(vuserdef3 == null || "".equals(vuserdef3)) {
-				vuserdef3 = UAPQueryBS.iUAPQueryBS.executeQuery("select decode(vuserdef3 , 'Y' , 'Y' , 'N' , 'N' , 'N') from ic_general_h where cgeneralhid = '"+((GeneralBillVO )list.get(0)).getPrimaryKey()+"'", new ColumnProcessor());
+				vuserdef3 = UAPQueryBS.getInstance().executeQuery("select decode(vuserdef3 , 'Y' , 'Y' , 'N' , 'N' , 'N') from ic_general_h where cgeneralhid = '"+((GeneralBillVO )list.get(0)).getPrimaryKey()+"'", new ColumnProcessor());
 			}
 			
 			if("Y".equals(vuserdef3)) {

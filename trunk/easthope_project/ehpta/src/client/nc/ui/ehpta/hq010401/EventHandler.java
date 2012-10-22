@@ -159,7 +159,7 @@ public class EventHandler extends ManageEventHandler {
 	public final void cancleAuditValid(AggregatedValueObject currVO) throws Exception {
 		if(currVO != null && currVO.getParentVO() != null) {
 			Object pk_contract = currVO.getParentVO().getAttributeValue("pk_contract");
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select count(1) from so_sale where pk_contract = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());
 			
 			// 合同收款后可以进行弃审操作。
 //			count += (Integer) UAPQueryBS.iUAPQueryBS.executeQuery(" select count(1) from arap_djzb where zyx6 = '"+pk_contract+"' and nvl(dr,0)=0 ", new ColumnProcessor());

@@ -699,6 +699,12 @@ public class AdjustVO extends SuperVO {
 
 		def2 = newDef2;
 	}
+	
+	public void setDef2(UFBoolean newDef2) {
+		
+		setDef2(newDef2.toString());
+		
+	}
 
 	/**
 	 * 属性def4的Getter方法.
@@ -722,6 +728,10 @@ public class AdjustVO extends SuperVO {
 	public void setDef4(String newDef4) {
 
 		def4 = newDef4;
+	}
+	
+	public void setDef4(UFBoolean newDef4) {
+		setDef4(newDef4.toString());
 	}
 
 	/**
@@ -770,6 +780,10 @@ public class AdjustVO extends SuperVO {
 	public void setDef3(String newDef3) {
 
 		def3 = newDef3;
+	}
+	
+	public void setDef3(UFBoolean newDef3) {
+		setDef3(newDef3.toString());
 	}
 
 	/**

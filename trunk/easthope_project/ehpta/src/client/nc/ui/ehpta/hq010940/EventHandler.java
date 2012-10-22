@@ -125,7 +125,7 @@ public class EventHandler extends ManageEventHandler {
 //		and nvl(invbas.dr , 0 ) = 0;
 
 		String sql = "select * from vw_pta_storfee where outdate >= '"+period.toString()+"' and outdate <= '"+endPeriod.toString()+"'";
-		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sql, new MapListProcessor());
+		List<HashMap> retList = (ArrayList) UAPQueryBS.getInstance().executeQuery(sql, new MapListProcessor());
 		if(retList != null && retList.size() > 0) {
 			
 			CalcStorfeeBVO[] storfeeBVOs = new CalcStorfeeBVO[retList.size()];
@@ -168,6 +168,9 @@ public class EventHandler extends ManageEventHandler {
 			CalcStorfeeBVO[] selBodyVOs = (CalcStorfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcStorfeeBVO.class.getName());
 			if(selBodyVOs == null || selBodyVOs.length == 0)
 				selBodyVOs = (CalcStorfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+			
+			if(selBodyVOs == null || selBodyVOs.length == 0)
+				throw new Exception ("请至少选择一条记录进行批改操作。");
 			
 			for(CalcStorfeeBVO selbodyVO : selBodyVOs) {
 				for(CalcStorfeeBVO bodyVO : bodyVOs) {
@@ -301,7 +304,7 @@ public class EventHandler extends ManageEventHandler {
 			prePeriod = periodDate.getYear() + "-" + (periodDate.getMonth() - 1 < 10 ? "0" + (periodDate.getMonth() - 1) : "" + (periodDate.getMonth() - 1));
 		}
 		
-		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_storfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
+		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_storfee_h where period = '"+prePeriod+"'", new ColumnProcessor());
 		if(count == 0) 
 			getBillUI().showWarningMessage("前一期间的仓储及装卸费未统计...");
 	}
@@ -326,10 +329,10 @@ public class EventHandler extends ManageEventHandler {
 //		List<String> flagPks = new ArrayList<String>();
 		
 		for(CalcStorfeeBVO bodyVO : currBodyVOs) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update ic_general_h set vuserdef4 = 'Y' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
 //				adjustList.add(createAdjust(bodyVO , IAdjustType.Storfee , bodyVO.getStormny())); // 仓储费
 //				adjustList.add(createAdjust(bodyVO , IAdjustType.Handlingfee , bodyVO.getHmny())); // 装卸费
 			}	//else {
@@ -389,7 +392,7 @@ public class EventHandler extends ManageEventHandler {
 		super.onBoDelete();
 		
 		if(currAggVO != null) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_storfee_h where pk_storfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_storfee_h where pk_storfee = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
 			if(count > 0) {
 				afterOnBoDelete(currAggVO);
 			}
@@ -408,10 +411,10 @@ public class EventHandler extends ManageEventHandler {
 			return ;
 		
 		for(CalcStorfeeBVO bodyVO : (CalcStorfeeBVO[])currAggVO.getChildrenVO()) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ic_general_h where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' and nvl(vuserdef4,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count > 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update ic_general_h set vuserdef4 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update ic_general_h set vuserdef4 = 'N' where cgeneralhid = '"+bodyVO.getCgeneralhid()+"' ", null); } catch(Exception e) { }
 //				adjustList.add("'" + bodyVO.getCgeneralbid() + "'");
 			}	
 		}

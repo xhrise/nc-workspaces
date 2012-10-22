@@ -204,7 +204,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			if("pk_stordoc".equals(e.getKey())) {
 				
 				UIRefPane storRef = (UIRefPane) getBillCardPanel().getHeadItem(e.getKey()).getComponent();
-				Object storaddr = UAPQueryBS.iUAPQueryBS.executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK()
+				Object storaddr = UAPQueryBS.getInstance().executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK()
 						+ "'" , new ColumnProcessor());
 				getBillCardPanel().getHeadItem("storaddr").setValue(storaddr);
 			}

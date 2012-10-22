@@ -214,7 +214,7 @@ public class EventHandler extends ManageEventHandler {
 		super.onBoDelete();
 		
 		if(currAggVO != null) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_interest where pk_calcinterest = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_interest where pk_calcinterest = '"+currAggVO.getParentVO().getPrimaryKey()+"' and nvl(dr,0)=1", new ColumnProcessor());
 			if(count > 0) {
 				if(currAggVO.getChildrenVO() != null && currAggVO.getChildrenVO().length > 0) {
 					SuperVO[] vos = (SuperVO[]) currAggVO.getChildrenVO().clone();
@@ -250,7 +250,7 @@ public class EventHandler extends ManageEventHandler {
 			prePeriod = periodDate.getYear() + "-" + (periodDate.getMonth() - 1 < 10 ? "0" + (periodDate.getMonth() - 1) : "" + (periodDate.getMonth() - 1));
 		}
 		
-		Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from ehpta_calc_interest where period = '"+prePeriod+"'", new ColumnProcessor());
+		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_interest where period = '"+prePeriod+"'", new ColumnProcessor());
 		if(count == 0) 
 			getBillUI().showWarningMessage("前一期间的贴息单未统计...");
 	}
@@ -314,7 +314,7 @@ public class EventHandler extends ManageEventHandler {
 		UFDate endPeriod = new UFDate(interest.getPeriod() + "-" + lastDay);
 		
 		String sqlString = "select * from vw_pta_interest where redate >= '"+period.toString()+"' and redate <= '"+endPeriod.toString()+"' and pk_corp = '"+_getCorp().getPk_corp()+"'";
-		List<HashMap> retList = (ArrayList) UAPQueryBS.iUAPQueryBS.executeQuery(sqlString, new MapListProcessor());
+		List<HashMap> retList = (ArrayList) UAPQueryBS.getInstance().executeQuery(sqlString, new MapListProcessor());
 		
 		if(retList != null && retList.size() > 0) {
 			CalcInterestBVO[] interestBs = new CalcInterestBVO[retList.size()];
@@ -406,6 +406,9 @@ public class EventHandler extends ManageEventHandler {
 			CalcInterestBVO[] selBodyVOs = (CalcInterestBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcInterestBVO.class.getName());
 			if(selBodyVOs == null || selBodyVOs.length == 0)
 				selBodyVOs = (CalcInterestBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+			
+			if(selBodyVOs == null || selBodyVOs.length == 0) 
+				throw new Exception ("请至少选择一条记录进行批改操作。");
 			
 			for(CalcInterestBVO selbodyVO : selBodyVOs) {
 				for(CalcInterestBVO bodyVO : bodyVOs) {
@@ -502,10 +505,10 @@ public class EventHandler extends ManageEventHandler {
 		List<String> flagPks = new ArrayList<String>();
 		
 		for(CalcInterestBVO bodyVO : currBodyVOs) {
-			Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
+			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
 			
 			if(count == 0) {
-				try { UAPQueryBS.iUAPQueryBS.executeQuery("update arap_djzb set zyx8 = 'Y' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("update arap_djzb set zyx8 = 'Y' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
 				adjustList.add(createAdjust(bodyVO));
 			} else {
 				flagPks.add("'" + bodyVO.getPk_receivable() + "'");
@@ -572,10 +575,10 @@ public class EventHandler extends ManageEventHandler {
 				return ;
 			
 			for(CalcInterestBVO bodyVO : (CalcInterestBVO[])currAggVO.getChildrenVO()) {
-				Integer count = (Integer) UAPQueryBS.iUAPQueryBS.executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
+				Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from arap_djzb where vouchid = '"+bodyVO.getPk_receivable()+"' and nvl(zyx8,'N') = 'Y'", new ColumnProcessor());
 				
 				if(count > 0) {
-					try { UAPQueryBS.iUAPQueryBS.executeQuery("update arap_djzb set zyx8 = 'N' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
+					try { UAPQueryBS.getInstance().executeQuery("update arap_djzb set zyx8 = 'N' where vouchid = '"+bodyVO.getPk_receivable()+"' ", null); } catch(Exception e) { }
 					adjustList.add("'" + bodyVO.getPk_receivable() + "'");
 				}	
 			}
