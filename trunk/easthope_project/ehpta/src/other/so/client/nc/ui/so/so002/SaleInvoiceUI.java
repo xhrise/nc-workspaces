@@ -123,9 +123,9 @@ public class SaleInvoiceUI extends nc.ui.pub.ToftPanel implements
 	private boolean iAddButn = false; 
 
   // 当前的显示界面是LIST还是CARD
-  private static final int ListShow = 0;
+  public static final int ListShow = 0;
 
-  private static final int CardShow = 1;
+  public static final int CardShow = 1;
 
   // 线程对话框
   private ProccDlg m_proccdlg = null;
@@ -5157,7 +5157,7 @@ private boolean checkHeadItem(String curstr,String addstr){
   /**
    * @return m_iShowState
    */
-  private int getShowState() {
+  public int getShowState() {
     return m_iShowState;
   }
 

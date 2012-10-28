@@ -23,13 +23,13 @@ alter table so_saleinvoice add pk_contract char(20);
 alter table so_saleinvoice add purchcode char(20);
 alter table so_saleinvoice add iscredit char(1);
 
-
-alter table so_saleinvoice_b add  lastingprice  DECIMAL(32,8)	;
-alter table so_saleinvoice_b add  settlementprice	DECIMAL(32,8) ;
-alter table so_saleinvoice_b add  submny	DECIMAL(32,8)	;
-alter table so_saleinvoice_b add  retmny	DECIMAL(32,8)	;
-alter table so_saleinvoice_b add  transmny	DECIMAL(32,8)	;
-alter table so_saleinvoice_b add  evalmny	DECIMAL(32,8)	;
+-- 取消以下字段
+-- alter table so_saleinvoice_b add  lastingprice  DECIMAL(32,8)	;
+-- alter table so_saleinvoice_b add  settlementprice	DECIMAL(32,8) ;
+-- alter table so_saleinvoice_b add  submny	DECIMAL(32,8)	;
+-- alter table so_saleinvoice_b add  retmny	DECIMAL(32,8)	;
+-- alter table so_saleinvoice_b add  transmny	DECIMAL(32,8)	;
+-- alter table so_saleinvoice_b add  evalmny	DECIMAL(32,8)	;
 
 -- 销售发票 END
 
@@ -43,10 +43,12 @@ alter table so_sale add settleflag char(1) ;
 alter table so_sale add settledate char(10);
 
 alter table ic_general_h add pk_contract char(20);
-alter table ic_general_h add pk_storcontract_b char(20);
-alter table ic_general_h add storprice number(32,8);
-alter table ic_general_h add pk_transport_b char(20);
-alter table ic_general_h add transprice number(32,8);
+
+-- 取消以下字段
+-- alter table ic_general_h add pk_storcontract_b char(20);
+-- alter table ic_general_h add storprice number(32,8);
+-- alter table ic_general_h add pk_transport_b char(20);
+-- alter table ic_general_h add transprice number(32,8);
 
 alter table so_saleorder_b add rebateflag char(1);
 
@@ -58,3 +60,29 @@ alter table so_sale add issince char(1);
 -- 2012-10-19添加
 alter table so_sale add vouchid varchar2(20);
 alter table so_sale add vouchmny number(32,8);
+
+-- 2012-10-24添加
+alter table so_saleorder_b add ctransmodeid varchar2(20);
+
+alter table so_saleorder_b add pk_transport_b varchar2(20);
+alter table so_saleorder_b add transprice number(32,8);
+
+alter table so_saleorder_b add copermodeid varchar2(20);
+
+
+alter table so_sale add estoraddrid varchar2(20);
+
+alter table so_saleorder_b add pk_storcont_b varchar2(20);
+alter table so_saleorder_b add storprice number(32,8);
+
+
+-- 2012-10-27 添加
+alter table ic_general_h add estoraddrid varchar2(20);
+
+alter table ic_general_b add transprice number(32,8);
+alter table ic_general_b add storprice number(32,8);
+alter table ic_general_b add ctransmodeid varchar2(20);
+alter table ic_general_b add copermodeid varchar2(20);
+
+
+

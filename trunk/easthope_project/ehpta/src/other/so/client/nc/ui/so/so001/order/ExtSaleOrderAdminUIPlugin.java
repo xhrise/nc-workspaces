@@ -1,15 +1,17 @@
 package nc.ui.so.so001.order;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.jdbc.framework.processor.MapProcessor;
 import nc.jdbc.framework.processor.VectorProcessor;
+import nc.ui.ehpta.pub.IAdjustType;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.calc.CalcFunc;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ehpta.pub.ref.LPriceRefPane;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIDialog;
@@ -79,6 +81,23 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				throw new BusinessException("列表状态不能进行弃审操作，请转至卡片界面操作。");
 			
 			beforeOnBoCancleAudit(ctx);
+		} else if(bo.getParent() != null && "打印管理".equals(bo.getParent().getName())) {
+			AggregatedValueObject billVO = null;
+			
+			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))  {
+				int row = ctx.getBillListPanel().getHeadTable().getSelectedRow();
+				billVO = ctx.getBillListPanel().getBillValueVO(row, SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
+				
+			} else if("卡片".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))
+				billVO = ctx.getBillCardPanel().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
+			
+			if(billVO != null && billVO.getParentVO() != null) {
+				Object fstatus = billVO.getParentVO().getAttributeValue("fstatus");
+				if(!"2".equals(String.valueOf(fstatus)))
+					throw new BusinessException("提单未审核，不能进行打印及相关操作！");
+			} else 
+				throw new BusinessException("请选择一条提单信息！");
+			
 		}
 		
 	}
@@ -189,7 +208,39 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			if(billVO == null) 
 				throw new BusinessException("billVO is null");
 			
-			Object mny = UAPQueryBS.getInstance().executeQuery(" select sum(mny) from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and iscredit = '"+billVO.getParentVO().getAttributeValue("iscredit")+"' ", new ColumnProcessor());
+			Object iscredit = billVO.getParentVO().getAttributeValue("iscredit");
+			String sqlPart = " ";
+			Object Rebates = null;
+			try {
+				if("Y".equals(iscredit)) {
+					
+					String[] adjustType = new String[]{
+						"'" + IAdjustType.Receivables + "'" , 
+						"'" + IAdjustType.Otherfee + "'" , 
+					};
+					
+					sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+billVO.getParentVO().getAttributeValue("ccustomerid")+"' or pk_cumandoc is null ) ";
+					
+				} else  {
+					
+					String[] adjustType = new String[]{
+						"'" + IAdjustType.Receivables + "'" , 
+						"'" + IAdjustType.Otherfee + "'" , 
+						"'" + IAdjustType.Discount + "'" , 
+						"'" + IAdjustType.LSSubPrice + "'" , 
+					};
+					
+					sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+billVO.getParentVO().getAttributeValue("ccustomerid")+"' or pk_cumandoc is null ) ";
+				
+					Rebates = UAPQueryBS.getInstance().executeQuery(" select nvl(sum(mny),0) mny from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and type = '"+IAdjustType.Rebates+"'", new ColumnProcessor());
+				}
+				
+			
+			} catch(Exception e) {
+				throw new BusinessException(e.getMessage());
+			}
+			
+			Object mny = UAPQueryBS.getInstance().executeQuery(" select sum(mny) from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and iscredit = '"+iscredit+"' " + sqlPart, new ColumnProcessor());
 			UFDouble nowMny = new UFDouble("0",2);
 			if(billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
 				for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
@@ -198,14 +249,31 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				}
 			}
 			
-			if(new UFDouble(mny.toString()).sub(nowMny).doubleValue() < 0) {
-				if("审核".equals(bo.getName())) {
-					throw new BusinessException("合同余额小于本次提货金额。\n合同余额:[ "+new UFDouble(mny.toString()).sub(nowMny).toString()+" ]。\n审核失败！");
-				} else if("送审".equals(bo.getName())) {
-					int type = ctx.getToftPanel().showYesNoMessage("合同余额小于本次提货金额。\n合同余额:[ "+new UFDouble(mny.toString()).sub(nowMny).toString()+" ]。\n是否继续执行此操作！");
-					if(type == UIDialog.ID_NO || type == UIDialog.ID_CANCEL)
-						throw new BusinessException("本次操作已被取消！");
+			if(new UFDouble(mny == null ? "0" : mny.toString()).sub(nowMny).doubleValue() < 0) {
+				if(!"Y".equals(iscredit.toString())) {
+					if("审核".equals(bo.getName()) || "送审".equals(bo.getName())) {
+						UFDouble contBalance = new UFDouble(mny == null ? "0" : mny.toString()).sub(nowMny);
+						UFDouble rabates = new UFDouble((Rebates == null ? "0.00" : Rebates.toString()));
+						
+//						if(contBalance.doubleValue() <= 0 && rabates.doubleValue() >= contBalance.abs().doubleValue()) {
+							int type = ctx.getToftPanel().showYesNoMessage("合同余额小于本次提货金额。\n合同余额:[ " + contBalance + " ]。\n可用返利额：[ " + rabates + " ]。\n是否继续执行此操作！");
+							if(!(type == UIDialog.ID_YES))
+								throw new BusinessException("本次操作已被取消！");
+//						} else {
+//							throw new BusinessException("合同余额小于本次提货金额。\n合同余额:[ " + contBalance + " ]。\n可用返利额：[ " + rabates + " ]。\n审核失败！");
+//						}
+					} 
+				} else {
+//					if("审核".equals(bo.getName())) {
+//						throw new BusinessException("合同余额小于本次提货金额。\n合同余额:[ "+new UFDouble(mny == null ? "0" : mny.toString()).sub(nowMny).toString()+" ]。\n审核失败！");
+//					} else 
+					if("审核".equals(bo.getName()) || "送审".equals(bo.getName())) {
+						int type = ctx.getToftPanel().showYesNoMessage("合同余额小于本次提货金额。\n合同余额:[ "+new UFDouble(mny == null ? "0" : mny.toString()).sub(nowMny).toString()+" ]。\n是否继续执行此操作！");
+						if(!(type == UIDialog.ID_YES))
+							throw new BusinessException("本次操作已被取消！");
+					}
 				}
+				
 			}
 		}
 	}
@@ -221,116 +289,179 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	public void afterButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 		
-		if("合同余额".equals(bo.getName())) {
-			
-			int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
-			Object[] obj = new Object[4];
-			Object iscredit = false;
-			if(num == -1) {
-				iscredit = ctx.getBillCardPanel().getHeadItem("iscredit").getValueObject();
-				
-				obj[0] =  ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
-				obj[0] = obj[0] == null ? "" : obj[0];
-				
-				obj[1] = "";
-				
-				obj[2] = (String) ctx.getBillCardPanel().getHeadItem("csaleid").getValueObject();
-				obj[2] = obj[2] == null ? "" : obj[2];
-				
-				obj[3] = (String) ctx.getBillCardPanel().getHeadItem("concode").getValueObject();
-				obj[3] = obj[3] == null ? "" : obj[3];
-				
-			} else { 
-				
-				iscredit = ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "iscredit");
-				
-				obj[0] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "pk_contract");
-				obj[0] = obj[0] == null ? "" : obj[0];
-				
-				obj[1] = "";
-				
-				obj[2] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "csaleid");
-				obj[2] = obj[2] == null ? "" : obj[2];
-				
-				obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
-				obj[3] = obj[3] == null ? "" : obj[3];
-				
-			}
-			
-			String[] sqlString = new String[]{
-					" select typename , mny from vw_pta_sale_contract_balance where pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"' " , 
-					" select '当前提货金额' , nvl(sum(nheadsummny) * -1 , 0) from so_sale where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS = 1 and (contracttype = 10 or contracttype = 20) and pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"' group by pk_contract,iscredit "
-			};
-			
-			SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , sqlString);
-			balanceDlg.showModal();
-		} 
+		if("合同余额".equals(bo.getName())) 
+			afterOnBoContBalance(bo, ctx);
 
 		try { 
-			if("修改".equals(bo.getName()) || "增行".equals(bo.getName())) {
+			if("修改".equals(bo.getName()) || "增行".equals(bo.getName())) 
+				afterOnBoEditOrAddLine(bo, ctx);
 				
-				Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
-				String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
-				
-				Object settlemny = UAPQueryBS.getInstance().executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 2", new ColumnProcessor());
-				Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1", new ColumnProcessor());
-				
-				
-				if ("修改".equals(bo.getName())) {
-						
-					if(settlemny == null && count > 0) {
-						ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(true);
-						ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(true);
-						
-						if(lpRef == null)
-							lpRef = new UIRefPane();
-
-						lpRef.setRefModel(new LPriceRefPane());
-						lpRef.setWhereString("nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1");
-						
-						ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(lpRef);
-					}
-					
-				} else if("增行".equals(bo.getName())) {
-					
-					if(settlemny != null) {
-						
-						AggregatedValueObject  billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
-						if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
-							
-							ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "lastingprice", "table");
-							ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "settlementprice" , "table");
-							ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "noriginalcurtaxprice" , "table");
-							
-							ctx.getBillCardPanel().execBodyFormulas(billVO.getChildrenVO().length - 1, formulas);
-							
-							ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(false);
-							ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
-							
-						}
-					}
-					
-				}
-			}
 		} catch (Exception e) { 
 			Logger.error(e.getMessage(), e, this.getClass(), "afterButtonClicked"); 
 		}
 		
 	}
+	
+	protected final void afterOnBoContBalance(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
+		
+		int num = ctx.getBillListPanel().getHeadTable().getSelectedRow();
+		Object[] obj = new Object[4];
+		Object iscredit = false;
+		
+		if("卡片".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState)) {
+			iscredit = ctx.getBillCardPanel().getHeadItem("iscredit").getValueObject();
+			
+			obj[0] =  ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+			obj[0] = obj[0] == null ? "" : obj[0];
+			
+			obj[1] = "";
+			
+			obj[2] = (String) ctx.getBillCardPanel().getHeadItem("csaleid").getValueObject();
+			obj[2] = obj[2] == null ? "" : obj[2];
+			
+			obj[3] = (String) ctx.getBillCardPanel().getHeadItem("concode").getValueObject();
+			obj[3] = obj[3] == null ? "" : obj[3];
+			
+		} else { 
+			
+			iscredit = ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "iscredit");
+			
+			obj[0] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "pk_contract");
+			obj[0] = obj[0] == null ? "" : obj[0];
+			
+			obj[1] = "";
+			
+			obj[2] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "csaleid");
+			obj[2] = obj[2] == null ? "" : obj[2];
+			
+			obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
+			obj[3] = obj[3] == null ? "" : obj[3];
+			
+		}
+		
+		Object ccustomerid = ctx.getBillCardPanel().getHeadItem("ccustomerid").getValueObject();
+		ccustomerid = ccustomerid == null ? ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "ccustomerid") : ccustomerid;
+		
+		String sqlPart = " ";
+		try {
+			if(new UFBoolean(iscredit.toString()).booleanValue()) {
+				
+				String[] adjustType = new String[]{
+					"'" + IAdjustType.Receivables + "'" , 
+					"'" + IAdjustType.Otherfee + "'" , 
+				};
+				
+				
+				sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+ccustomerid+"' or pk_cumandoc is null ) ";
+				
+			} else  {
+				
+				String[] adjustType = new String[]{
+					"'" + IAdjustType.Receivables + "'" , 
+					"'" + IAdjustType.Otherfee + "'" , 
+					"'" + IAdjustType.Discount + "'" , 
+					"'" + IAdjustType.LSSubPrice + "'" , 
+				};
+				
+				sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+ccustomerid+"' or pk_cumandoc is null ) ";
+			}
+			
+		
+		} catch(Exception e) {
+			throw new BusinessException(e.getMessage());
+		}
+		
+		String[] sqlString = new String[]{
+				" select typename , mny from vw_pta_sale_contract_balance where pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"' " + sqlPart , 
+				" select '当前提货金额' , nvl(sum(nheadsummny) * -1 , 0) from so_sale where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS = 1 and (contracttype = 10 or contracttype = 20) and pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"'  and ccustomerid = '"+ccustomerid+"'  group by pk_contract,iscredit "
+		};
+		
+		SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , sqlString);
+		balanceDlg.showModal();
+		
+	}
 
+	protected final void afterOnBoEditOrAddLine(ButtonObject bo, SCMUIContext ctx) throws Exception {
+		
+		Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
+		String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
+		
+		Object settlemny = UAPQueryBS.getInstance().executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 2", new ColumnProcessor());
+		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1", new ColumnProcessor());
+		
+		
+		if ("修改".equals(bo.getName())) {
+				
+			if(settlemny == null && count > 0) {
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(true);
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(true);
+				
+				if(lpRef == null)
+					lpRef = new UIRefPane();
+
+				lpRef.setRefModel(new LPriceRefPane());
+				lpRef.setWhereString("nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1");
+				
+				ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(lpRef);
+			}
+			
+		} else if("增行".equals(bo.getName())) {
+			
+			if(settlemny != null) {
+				
+				AggregatedValueObject  billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+				if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+					
+					ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "lastingprice", "table");
+					ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "settlementprice" , "table");
+					ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "noriginalcurtaxprice" , "table");
+					
+					ctx.getBillCardPanel().execBodyFormulas(billVO.getChildrenVO().length - 1, formulas);
+					
+					ctx.getBillCardPanel().getBodyItem("lastingprice").setEdit(false);
+					ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
+					
+				}
+			}
+			
+		}
+		
+	}
+	
 	public boolean beforeEdit(BillEditEvent e, SCMUIContext ctx) {
+		
+		try {
+			
+			if("copermodecode".equals(e.getKey())) 
+				beforeOperModeEdit(e , ctx);
+			
+			if("pk_transport_bid".equals(e.getKey()))
+				beforeSetBodyTransprice(e, ctx);
+			
+		} catch(Exception ex) {
+			Logger.error(ex.getMessage(), ex, this.getClass(), "beforeEdit");
+		}
 		
 		return true;
 	}
-	
-	
+
+	protected final void beforeOperModeEdit(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		if("卡片".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState)) {
+			((UIRefPane)ctx.getBillCardPanel().getBodyItem("copermodecode").getComponent()).setWhereString(" bd_jobmngfil.pk_corp='" + ctx.getLoginCorpID() + "' and bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename = '作业方式' and nvl(dr,0)=0) ");
+		}
+		
+	}
 
 	public void afterEdit(BillEditEvent e, SCMUIContext ctx) {
 		
 		try {
 			if(!(e.getSource() instanceof BillCellEditor)) {
-				if("pk_transport".equals(e.getKey())) 
-					afterSetPk_transport(e , ctx);
+//				if("pk_transport".equals(e.getKey())) 
+//					afterSetPk_transport(e , ctx);
+				
+//				if("carriersname".equals(e.getKey()))
+//					afterSetCarriers(e , ctx);
 					
 				if("storage".equals(e.getKey()))
 					afterSetStorage(e , ctx);
@@ -348,6 +479,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				
 				if("vouchid".equals(e.getKey())) 
 					ctx.getBillCardPanel().getHeadItem("vouchmny").setValue(((UIRefPane)ctx.getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefCode());
+				
+				if("carriersname".equals(e.getKey()) || "storage".equals(e.getKey()) || "estoraddrid".equals(e.getKey()))
+					afterSetBodyTransprice(e , ctx);
 					
 			} else {
 				
@@ -360,11 +494,135 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				if("noriginalcurtaxprice".equals(e.getKey()))
 					afterSetNoriginalcurtaxprice(e , ctx);
 				
+				if("ctransmodecode".equals(e.getKey()) || "copermodecode".equals(e.getKey())) 
+					afterSetBodyTransprice(e , ctx);
+				
+				if("pk_transport_bid".equals(e.getKey()))
+					afterSetHeadPk_transport(e , ctx);
+					
 			}
 		} catch(Exception ex) {
-			Logger.error(e);
+			Logger.error(ex.getMessage());
 		}
 
+	}
+	
+	protected final void afterSetHeadPk_transport(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		Object pk_transport_b = e.getValue();
+		Object pk_transport = UAPQueryBS.getInstance().executeQuery("select pk_transport from ehpta_transport_contract_b where pk_transport_b = '"+pk_transport_b+"'", new ColumnProcessor());
+		ctx.getBillCardPanel().setHeadItem("pk_transport", pk_transport);
+		
+		Logger.info("set head item [ pk_transport ] value is " + pk_transport, this.getClass(), "afterSetHeadPk_transport");
+	}
+	
+	protected final void afterSetBodyTransprice(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		String carriersname = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).getRefPK();
+		String storage = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("storage").getComponent()).getRefPK();
+		String estoraddrid = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("estoraddrid").getComponent()).getRefPK();
+		
+		AggregatedValueObject billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+			for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row ++) {
+				
+				Object ctransmodeid = ctx.getBillCardPanel().getBodyValueAt(row, "ctransmodeid"); //　运输方式
+				Object copermodeid = ctx.getBillCardPanel().getBodyValueAt(row, "copermodeid"); // 作业方式
+				
+				StringBuilder builder = new StringBuilder();
+				builder.append(" select transcontb.pk_transport pk_transport , transcontb.pk_transport_b pk_transport_b , transcontb.transprice transprice ");
+				builder.append(" from ehpta_transport_contract transcont ");
+				builder.append(" left join ehpta_transport_contract_b transcontb on transcontb.pk_transport = transcont.pk_transport ");
+				builder.append(" where transcont.pk_carrier = '"+carriersname+"' ");
+				builder.append(" and transcontb.pk_sstordoc = '"+storage+"' ");
+				builder.append(" and transcontb.estoraddr = '"+estoraddrid+"' ");
+				builder.append(" and transcontb.pk_sendtype = '"+ctransmodeid+"' ");
+				builder.append(" and transcont.vbillstatus = 1 and transcont.pk_corp = '"+ctx.getLoginCorpID()+"' and nvl(transcont.dr,0) = 0 and nvl(transcontb.dr,0) = 0 ");
+				
+				
+				Map retMap = (Map) UAPQueryBS.getInstance().executeQuery(builder.toString(), new MapProcessor());
+				
+				if(retMap != null && retMap.size() > 0) {
+					Object pk_transport_b = retMap.get("pk_transport_b");
+					Object transprice = retMap.get("transprice");
+					
+					ctx.getBillCardPanel().setBodyValueAt(pk_transport_b, row, "pk_transport_b");
+					ctx.getBillCardPanel().setBodyValueAt(transprice, row, "transprice");
+					
+					ctx.getBillCardPanel().setHeadItem("pk_transport", retMap.get("pk_transport"));
+					
+				} else {
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "pk_transport_b");
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "pk_transport_bid");
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "transprice");
+					
+					ctx.getBillCardPanel().setHeadItem("pk_transport", null);
+				}
+				
+				builder = new StringBuilder();
+				builder.append(" select storcontb.pk_storcontract_b pk_storcont_b , storcontb.signprice storprice from ehpta_storcontract_b storcontb ");
+				builder.append(" left join ehpta_storcontract storcont on storcont.pk_storagedoc = storcontb.pk_storagedoc ");
+				builder.append(" where storcont.pk_stordoc = '"+storage+"' and storcontb.feetype = (select  to_char(to_number(jobcode)) from bd_jobbasfil where pk_jobbasfil = '"+copermodeid+"') ");
+				builder.append(" and storcont.vbillstatus = 1 and storcont.pk_corp = '"+ctx.getLoginCorpID()+"' and nvl(storcont.dr,0) = 0 and nvl(storcontb.dr,0) = 0 ");
+				
+				retMap = (Map) UAPQueryBS.getInstance().executeQuery(builder.toString(), new MapProcessor());
+				
+				if(retMap != null && retMap.size() > 0) {
+					Object pk_storcont_b = retMap.get("pk_storcont_b");
+					Object storprice = retMap.get("storprice");
+					
+					ctx.getBillCardPanel().setBodyValueAt(pk_storcont_b, row, "pk_storcont_b");
+					ctx.getBillCardPanel().setBodyValueAt(storprice, row, "storprice");
+				} else {
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "pk_storcont_b");
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "pk_storcont_bid");
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "storprice");
+				}
+			}
+		}
+	}
+	
+	protected final void beforeSetBodyTransprice(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		String carriersname = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).getRefPK();
+		String storage = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("storage").getComponent()).getRefPK();
+		String estoraddrid = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("estoraddrid").getComponent()).getRefPK();
+		Object ctransmodeid = ctx.getBillCardPanel().getBodyValueAt(e.getRow(), "ctransmodeid"); //　运输方式
+		Object copermodeid = ctx.getBillCardPanel().getBodyValueAt(e.getRow(), "copermodeid"); // 操作方式
+		
+		if("pk_transport_bid".equals(e.getKey())) {
+			
+			StringBuilder builder = new StringBuilder();
+			builder.append(" 1 = 1 and nvl(dr,0)=0 and pk_corp = '"+ctx.getLoginCorpID()+"' and vbillstatus = 1 and transtype = '下游运输合同' ");
+			
+			if(carriersname != null && !"".equals(carriersname))
+				builder.append(" and pk_cumandoc = '"+carriersname+"' ");
+			
+			if(storage != null && !"".equals(storage))
+				builder.append(" and pk_stordoc = '"+storage+"' ");
+			
+			if(estoraddrid != null && !"".equals(estoraddrid))
+				builder.append(" and pk_address = '"+estoraddrid+"' ");
+			
+			if(ctransmodeid != null && !"".equals(ctransmodeid))
+				builder.append(" and pk_sendtype = '"+ctransmodeid+"' ");
+		
+			((UIRefPane)ctx.getBillCardPanel().getBodyItem(e.getKey()).getComponent()).setWhereString(builder.toString());
+		
+		}
+	}
+	
+	@Deprecated
+	private final void afterSetCarriers(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+//		if(e.getSource() instanceof UIRefPane) {
+//			String carriersname = ((UIRefPane)e.getSource()).getRefPK();
+//			Object addrname = UAPQueryBS.getInstance().executeQuery("select addrname from bd_custaddr where pk_cubasdoc = (select pk_cubasdoc from bd_cumandoc where pk_cumandoc = '"+carriersname+"')", new ColumnProcessor());
+//			ctx.getBillCardPanel().setHeadItem("carriersaddr", addrname);
+//			
+//		}
+		
+		
 	}
 	
 	private final void afterSetInvdoc(BillEditEvent e, SCMUIContext ctx) throws Exception {
@@ -376,7 +634,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		
 		Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
 		Object pk_contract = ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
-		SaleContractBVO[] contbVOs = (SaleContractBVO[]) HYPubBO_Client.queryByCondition(SaleContractBVO.class, " pk_contract = '"+pk_contract+"' and ((edate >= '"+period+"' and sdate <= '"+period+"') or sdate = '"+period+"') nvl(dr,0) = 0 ");
+		SaleContractBVO[] contbVOs = (SaleContractBVO[]) HYPubBO_Client.queryByCondition(SaleContractBVO.class, " pk_contract = '"+pk_contract+"' and ((edate >= '"+period+"' and sdate <= '"+period+"') or sdate = '"+period+"') and nvl(dr,0) = 0 ");
 		if(contbVOs != null && contbVOs.length > 0) {
 			
 			AggregatedValueObject billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
@@ -422,17 +680,47 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	private final void afterSetIsSince(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
 		Object issince = ctx.getBillCardPanel().getHeadItem(e.getKey()).getValueObject();
-		if("true".equals(issince)) {
-			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEnabled(false);
-			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEditable(false);
-			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setPK(null);
-			ctx.getBillCardPanel().getHeadItem("pk_transport").setValue(null);
-			ctx.getBillCardPanel().getHeadItem("pk_transport").setNull(false);
+//		if("Y".equals(new UFBoolean(issince.toString()))) {
+//			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEnabled(false);
+//			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEditable(false);
+//			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setPK(null);
+//			ctx.getBillCardPanel().getHeadItem("pk_transport").setValue(null);
+//			ctx.getBillCardPanel().getHeadItem("pk_transport").setNull(false);
+//		} else {
+//			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEnabled(true);
+//			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEditable(true);
+//			ctx.getBillCardPanel().getHeadItem("pk_transport").setNull(true);
+//		}
+		
+		if("Y".equals(new UFBoolean(issince.toString()).toString())) {
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).setEnabled(false);
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).setEditable(false);
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).setPK(null);
+			ctx.getBillCardPanel().getHeadItem("carriersname").setValue(null);
+			ctx.getBillCardPanel().getHeadItem("carriersaddr").setValue(null);
+			ctx.getBillCardPanel().getHeadItem("carriersname").setNull(false);
+			
+			AggregatedValueObject billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+			if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+				for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row++) {
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "ctransmodecode");
+					ctx.getBillCardPanel().execBodyFormula(row, "ctransmodecode");
+				}
+				
+				ctx.getBillCardPanel().getBodyItem("ctransmodecode").setNull(false);
+				ctx.getBillCardPanel().getBodyItem("ctransmodecode").setEnabled(false);
+			}
+			
 		} else {
-			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEnabled(true);
-			((UIRefPane)ctx.getBillCardPanel().getHeadItem("pk_transport").getComponent()).setEditable(true);
-			ctx.getBillCardPanel().getHeadItem("pk_transport").setNull(true);
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).setEnabled(true);
+			((UIRefPane)ctx.getBillCardPanel().getHeadItem("carriersname").getComponent()).setEditable(true);
+			ctx.getBillCardPanel().getHeadItem("carriersname").setNull(true);
+			
+			ctx.getBillCardPanel().getBodyItem("ctransmodecode").setNull(true);
+			ctx.getBillCardPanel().getBodyItem("ctransmodecode").setEnabled(true);
 		}
+		
+		afterSetBodyTransprice(e, ctx);
 		
 	}
 	
@@ -447,6 +735,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	 * @param ctx
 	 * @throws Exception
 	 */
+	@Deprecated
 	private final void afterSetPk_transport(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
 		Object pk_transport = ctx.getBillCardPanel().getHeadItem(e.getKey()).getValueObject();
@@ -744,7 +1033,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		}
 		
 	}
-
+	
 	public void bodyRowChange(BillEditEvent e, SCMUIContext ctx) {
 		
 	}
@@ -779,7 +1068,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	public void afterSetBillVOToCard(AggregatedValueObject billvo,
 			SCMUIContext conx) {
-
+		
 	}
 
 	public void beforeSetBillVOsToListHead(
@@ -789,7 +1078,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	public void afterSetBillVOsToListHead(
 			CircularlyAccessibleValueObject[] headvos, SCMUIContext conx) {
-
+		
 	}
 
 	public void beforeSetBillVOsToListBody(

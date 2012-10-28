@@ -114,10 +114,8 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 		Object userObj = new nc.ui.ehpta.hq010403.ClientUICheckRuleGetter();
 		Vector<String> djpks = getAllSelectedDJPK();
 		if (djpks != null && djpks.size() == 0)
-			if (getArapDjPanel1().getBillCardPanelDj().getBillData()
-					.getHeadItem("vouchid") != null)
-				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData()
-						.getHeadItem("vouchid").getValueObject().toString());
+			if (getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid") != null)
+				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
 
 		String whereSql = "";
 		if (djpks != null && djpks.size() > 0) {
@@ -136,14 +134,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 		Vector retVector = null;
 		if (!"".equals(whereSql)) {
 			try {
-				retVector = (Vector) UAPQueryBS.getInstance()
-						.executeQuery(
-								"select djzt , spzt , zyx6 , zyx8 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in ("
-										+ whereSql
-										+ ") and dwbm = '"
-										+ getCorpPrimaryKey()
-										+ "' and zyx6 is not null and nvl(dr,0) = 0 ",
-								new VectorProcessor());
+				retVector = (Vector) UAPQueryBS.getInstance().executeQuery( "select djzt , spzt , zyx6 , zyx8 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in (" + whereSql + ") and dwbm = '" + getCorpPrimaryKey() + "' and zyx6 is not null and nvl(dr,0) = 0 ", new VectorProcessor());
 			} catch (BusinessException e) {
 				e.printStackTrace();
 			}
@@ -169,47 +160,25 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 						case 1:
 							// 审核通过
 							if (Integer.valueOf(djzt.toString()) == 3) {
-								Integer count = (Integer) UAPQueryBS.getInstance()
-										.executeQuery(
-												"select count(1) from ehpta_adjust where def1 = '"
-														+ vouchid
-														+ "' and nvl(dr,0)=0 ",
-												new ColumnProcessor());
+								
+								Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select count(1) from ehpta_adjust where def1 = '" + vouchid + "' and nvl(dr,0)=0 ", new ColumnProcessor());
 								if (count == 0) {
 
 									AdjustVO adjust = new AdjustVO();
 									adjust.setAttributeValue("type", IAdjustType.Receivables);
 									adjust.setAttributeValue("reason", "收款录入");
-									adjust.setAttributeValue("mny",
-											new UFDouble(ybje.toString()));
-									adjust.setAttributeValue("pk_contract",
-											pk_contract);
-									adjust.setAttributeValue(
-											"pk_cubasdoc",
-											UAPQueryBS.getInstance()
-													.executeQuery(
-															"select pk_cumandoc from bd_cumandoc where pk_cubasdoc in (select distinct hbbm from arap_djfb where vouchid = '"
-																	+ vouchid
-																	+ "')",
-															new ColumnProcessor()));
+									adjust.setAttributeValue("mny", new UFDouble(ybje.toString()));
+									adjust.setAttributeValue("pk_contract", pk_contract);
+									adjust.setAttributeValue( "pk_cubasdoc", UAPQueryBS.getInstance().executeQuery("select pk_cumandoc from bd_cumandoc where pk_cubasdoc in (select distinct hbbm from arap_djfb where vouchid = '" + vouchid + "') and pk_corp = '"+getCorpPrimaryKey()+"'", new ColumnProcessor()));
 									adjust.setAttributeValue("memo", "收款录入推式生成");
-									adjust.setAttributeValue(
-											"vbillno",
-											GeneraterBillNO
-													.getInstanse()
-													.build("HQ07",
-															getCorpPrimaryKey()));
-									adjust.setAttributeValue("adjustdate",
-											new UFDate(shrq.toString()));
+									adjust.setAttributeValue( "vbillno", GeneraterBillNO.getInstanse().build("HQ07", getCorpPrimaryKey()));
+									adjust.setAttributeValue("adjustdate", new UFDate(shrq.toString()));
 									adjust.setAttributeValue("managerid", shr);
 									adjust.setAttributeValue("vbillstatus", 8);
-									adjust.setAttributeValue("pk_corp",
-											getCorpPrimaryKey());
-									adjust.setAttributeValue("pk_billtype",
-											"HQ07");
+									adjust.setAttributeValue("pk_corp", getCorpPrimaryKey());
+									adjust.setAttributeValue("pk_billtype", "HQ07");
 									adjust.setAttributeValue("voperatorid", shr);
-									adjust.setAttributeValue("dmakedate",
-											new UFDate(shrq.toString()));
+									adjust.setAttributeValue("dmakedate", new UFDate(shrq.toString()));
 									adjust.setAttributeValue("def1", vouchid);
 									adjust.setAttributeValue("def2", "Y");
 									adjust.setAttributeValue("def3", iscredit);
