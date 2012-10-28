@@ -108,16 +108,26 @@ public class SaleContractBalanceDlg extends UIDialog{
 				
 				List<Object[]> retObject = new ArrayList<Object[]>();
 				UFDouble mny = new UFDouble("0" , 2);
-				for(int i = 0 , j = retVector.size() ; i < j ; i ++) {
-					Object[] arrObj = new Object[]{ ((Vector)retVector.get(i)).get(0) , new UFDouble(((Vector)retVector.get(i)).get(1).toString() , 2) } ;
-					retObject.add(arrObj);
-					mny = mny.add(new UFDouble(arrObj[1].toString()));
+				if(retVector != null && retVector.size() > 0) {
+					for(int i = 0 , j = retVector.size() ; i < j ; i ++) {
+						Object[] arrObj = new Object[]{ ((Vector)retVector.get(i)).get(0) , new UFDouble(((Vector)retVector.get(i)).get(1).toString() , 2) } ;
+						UFDouble nowMny = new UFDouble(arrObj[1].toString());
+						if(nowMny.doubleValue() == 0 )
+							continue;
+						retObject.add(arrObj);
+						mny = mny.add(nowMny);
+					}
 				}
 				
-				for(int i = 0 , j = addVector.size() ; i < j ; i ++) {
-					Object[] arrObj = new Object[]{ ((Vector)addVector.get(i)).get(0) , new UFDouble(((Vector)addVector.get(i)).get(1).toString() , 2) } ;
-					retObject.add(arrObj);
-					mny = mny.add(new UFDouble(arrObj[1].toString()));
+				if(addVector != null && addVector.size() > 0) {
+					for(int i = 0 , j = addVector.size() ; i < j ; i ++) {
+						Object[] arrObj = new Object[]{ ((Vector)addVector.get(i)).get(0) , new UFDouble(((Vector)addVector.get(i)).get(1).toString() , 2) } ;
+						UFDouble addMny = new UFDouble(arrObj[1].toString());
+						if(addMny.doubleValue() == 0 )
+							continue;
+						retObject.add(arrObj);
+						mny = mny.add(addMny);
+					}
 				}
 				
 				retObject.add(new Object[]{"合同余额" , new UFDouble(mny.toString() , 2)});
@@ -128,7 +138,7 @@ public class SaleContractBalanceDlg extends UIDialog{
 						
 						objs[1] = new UFDouble(new UFDouble(objs[1].toString()).multiply(-1).doubleValue() , 2);
 					
-					} else if("累计开票额".equals(objs[0]) || "已提货金额".equals(objs[0]) || "当前提货金额".equals(objs[0])) {
+					} else if("累计开票额".equals(objs[0]) || "已提货金额".equals(objs[0]) || "当前提货金额".equals(objs[0]) || "当前开票金额".equals(objs[0])) {
 						objs[1] = new UFDouble(new UFDouble(objs[1].toString()).multiply(-1).doubleValue() , 2);
 					}
 					

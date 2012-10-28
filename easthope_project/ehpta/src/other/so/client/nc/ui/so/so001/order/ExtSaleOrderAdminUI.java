@@ -413,5 +413,5 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		
 		return true;
 	}
-
+	
 }

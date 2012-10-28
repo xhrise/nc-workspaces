@@ -2,15 +2,21 @@ package nc.ui.so.so002;
 
 import java.awt.event.ActionEvent;
 
+import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.ui.ehpta.pub.IAdjustType;
+import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.bill.BillEditEvent;
+import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.bill.BillMouseEnent;
 import nc.ui.pub.query.QueryConditionClient;
 import nc.ui.scm.plugin.IScmUIPlugin;
 import nc.ui.scm.plugin.SCMUIContext;
+import nc.ui.so.so001.order.ExtSaleOrderAdminUI;
 import nc.ui.so.so001.order.SaleContractBalanceDlg;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.uap.sf.SFClientUtil;
@@ -18,7 +24,12 @@ import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFBoolean;
+import nc.vo.pub.lang.UFDouble;
 import nc.vo.scm.plugin.Action;
+import nc.vo.so.so001.SaleOrderVO;
+import nc.vo.so.so001.SaleorderBVO;
+import nc.vo.so.so001.SaleorderHVO;
 import nc.vo.so.so002.SaleinvoiceVO;
 
 @SuppressWarnings("restriction")
@@ -30,6 +41,92 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 
 	public void beforeButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
+		
+		if("审核".equals(bo.getName()) || "送审".equals(bo.getName())) {
+			beforeOnBoAudit(ctx , bo);
+		}
+		
+		
+	}
+	
+	@SuppressWarnings({ "unused", "static-access" })
+	protected final void beforeOnBoAudit(SCMUIContext ctx , ButtonObject bo) throws BusinessException {
+		
+		SaleinvoiceVO billVO = null;
+		if(((ExtSaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((ExtSaleInvoiceUI)ctx.getToftPanel()).CardShow) 
+			billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
+		else 
+			 billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
+		
+		Object saletype = billVO.getParentVO().getAttributeValue("saletype");
+		if(saletype != null) {
+			Object pk_contract = billVO.getParentVO().getAttributeValue("pk_contract");
+			
+			if(pk_contract == null || "".equals(pk_contract))
+				throw new BusinessException ("销售合同不能为空！");
+			
+			if(billVO == null) 
+				throw new BusinessException("billVO is null");
+			
+			Object iscredit = ((UFBoolean)billVO.getParentVO().getAttributeValue("iscredit")).toString();
+			Object ccustomerid = billVO.getParentVO().getAttributeValue("creceiptcorpid");
+			
+			String sqlPart = " ";
+			try {
+				if(new UFBoolean(iscredit.toString()).booleanValue()) {
+					
+					String[] adjustType = new String[]{
+						"'" + IAdjustType.Receivables + "'" , 
+						"'" + IAdjustType.Otherfee + "'" , 
+					};
+					
+					
+					sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+ccustomerid+"' or pk_cumandoc is null ) ";
+					
+				} else  {
+					
+					String[] adjustType = new String[]{
+						"'" + IAdjustType.Receivables + "'" , 
+						"'" + IAdjustType.Otherfee + "'" , 
+						"'" + IAdjustType.Discount + "'" , 
+						"'" + IAdjustType.LSSubPrice + "'" , 
+						"'" + IAdjustType.Rebates + "'" , 
+					};
+					
+					sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+ccustomerid+"' or pk_cumandoc is null ) ";
+				}
+				
+			
+			} catch(Exception e) {
+				throw new BusinessException(e.getMessage());
+			}
+			
+			Object mny = UAPQueryBS.getInstance().executeQuery(" select sum(mny) from vw_pta_salecont_invbalance where pk_contract = '"+pk_contract+"' and iscredit = '"+iscredit+"' " + sqlPart, new ColumnProcessor());
+			UFDouble nowMny = new UFDouble("0",2);
+			if(billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+				for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
+					UFDouble noriginalcursummny = (UFDouble) bodyVO.getAttributeValue("noriginalcursummny");
+					nowMny = nowMny.add(noriginalcursummny);
+				}
+			}
+			
+			if(new UFDouble(mny == null ? "0" : mny.toString()).sub(nowMny).doubleValue() < 0) {
+				if(!"Y".equals(iscredit.toString())) {
+					if("审核".equals(bo.getName()) || "送审".equals(bo.getName())) {
+						UFDouble contBalance = new UFDouble(mny == null ? "0" : mny.toString() , 2).sub(nowMny , 2);
+						
+//						if(contBalance.doubleValue() <= 0 && rabates.doubleValue() >= contBalance.abs().doubleValue()) {
+							int type = ctx.getToftPanel().showYesNoMessage("合同余额小于本次提货金额。\n合同余额:[ " + contBalance + " ]。\n是否继续执行此操作！");
+							if(!(type == UIDialog.ID_YES))
+								throw new BusinessException("本次操作已被取消！");
+//						} else {
+//							throw new BusinessException("合同余额小于本次提货金额。\n合同余额:[ " + contBalance + " ]。\n可用返利额：[ " + rabates + " ]。\n审核失败！");
+//						}
+					} 
+				} 
+				
+			}
+		}
 	}
 
 	public void afterButtonClicked(ButtonObject bo, SCMUIContext ctx)
@@ -56,9 +153,11 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 	public final void afterOnBoContBalance(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
 		
 		Object[] obj = new Object[4];
-		SaleinvoiceVO billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
-		if(billVO == null)
+		SaleinvoiceVO billVO = null;
+		if(((ExtSaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((ExtSaleInvoiceUI)ctx.getToftPanel()).CardShow) 
 			billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
+		else 
+			 billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
 		
 		obj[0] = (String) billVO.getParentVO().getAttributeValue("pk_contract");
 		obj[0] = obj[0] == null ? "" : obj[0];
@@ -71,8 +170,43 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		obj[3] = (String) billVO.getParentVO().getAttributeValue("concode");
 		obj[3] = obj[3] == null ? "" : obj[3];
 			
+		Object iscredit = ((UFBoolean)billVO.getParentVO().getAttributeValue("iscredit")).toString();
+		Object ccustomerid = billVO.getParentVO().getAttributeValue("creceiptcorpid");
+		
+		String sqlPart = " ";
+		try {
+			if(new UFBoolean(iscredit.toString()).booleanValue()) {
+				
+				String[] adjustType = new String[]{
+					"'" + IAdjustType.Receivables + "'" , 
+					"'" + IAdjustType.Otherfee + "'" , 
+				};
+				
+				
+				sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+ccustomerid+"' or pk_cumandoc is null ) ";
+				
+			} else  {
+				
+				String[] adjustType = new String[]{
+					"'" + IAdjustType.Receivables + "'" , 
+					"'" + IAdjustType.Otherfee + "'" , 
+					"'" + IAdjustType.Discount + "'" , 
+					"'" + IAdjustType.LSSubPrice + "'" , 
+					"'" + IAdjustType.Rebates + "'" , 
+				};
+				
+				sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+ccustomerid+"' or pk_cumandoc is null ) ";
+			}
+			
+		
+		} catch(Exception e) {
+			throw new BusinessException(e.getMessage());
+		}
+		
+		
 		String[] sqlString = new String[]{
-				"select typename , mny from vw_pta_salecont_invbalance where pk_contract = '"+obj[0]+"'" ,
+				"select typename , mny from vw_pta_salecont_invbalance where pk_contract = '"+obj[0]+"' and iscredit = '"+iscredit+"' " + sqlPart ,
+				"select '当前开票金额' , nvl(sum(ntotalsummny) * -1 , 0) from so_saleinvoice where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS = 1 and (saletype = '现货合同' or saletype = '长单合同') and pk_contract = '"+obj[0]+"' and iscredit = '"+iscredit+"'  and creceiptcorpid = '"+ccustomerid+"'" , 
 		};
 		
 		SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , sqlString);

@@ -490,7 +490,6 @@ public class EventHandler extends ManageEventHandler {
 					((BillManageUI)getBillUI()).getBillListWrapper().updateListVo(vo,
 							getBufferData().getCurrentRow());
 		
-					//Ö´ÐÐ¹«Ê½
 				}
 				
 			}
