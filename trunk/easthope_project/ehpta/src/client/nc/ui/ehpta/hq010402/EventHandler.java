@@ -337,33 +337,25 @@ public class EventHandler extends ManageEventHandler {
 		if(((MultiBillVO)getBufferData().getCurrentVO()).getTableVO(getTableCodes()[1]) != null && ((MultiBillVO)getBufferData().getCurrentVO()).getTableVO(getTableCodes()[1]).length > 0)
 			HYPubBO_Client.updateAry((SuperVO[]) ((MultiBillVO)getBufferData().getCurrentVO()).getTableVO(getTableCodes()[1]));
 		
-		if(strWhere == null) {
-			
-			StringBuilder builder = new StringBuilder();
-			if(getBufferData().getAllHeadVOsFromBuffer() != null && getBufferData().getAllHeadVOsFromBuffer().length > 0) {
-				int i = 0;
-				for(CircularlyAccessibleValueObject cavo : getBufferData().getAllHeadVOsFromBuffer()) {
-					if(i == getBufferData().getAllHeadVOsFromBuffer().length - 1)
-						builder.append("'" + cavo.getAttributeValue("pk_contract") + "'");
-					else
-						builder.append("'" + cavo.getAttributeValue("pk_contract") + "',");
-					
-					i ++;
-				}
-			}
-			
-			if(builder.length() > 0) {
-				strWhere = new StringBuffer();
-				strWhere.append(" pk_contract in ("+builder.toString()+") and nvl(dr , 0) = 0 and pk_corp = '"+_getCorp().getPk_corp()+"' and contype = '长单合同' ");
-			}
 		
+		StringBuilder builder = new StringBuilder();
+		if(getBufferData().getAllHeadVOsFromBuffer() != null && getBufferData().getAllHeadVOsFromBuffer().length > 0) {
+			int i = 0;
+			for(CircularlyAccessibleValueObject cavo : getBufferData().getAllHeadVOsFromBuffer()) {
+				if(i == getBufferData().getAllHeadVOsFromBuffer().length - 1)
+					builder.append("'" + cavo.getAttributeValue("pk_contract") + "'");
+				else
+					builder.append("'" + cavo.getAttributeValue("pk_contract") + "',");
+				
+				i ++;
+			}
 		}
 		
-		if(strWhere != null ) {
+		if(builder.toString() != null && !"".equals(builder.toString())) {
 			
 			AggregatedValueObject currAggVO = getBufferData().getCurrentVO();
 			
-			SuperVO[] queryVos = queryHeadVOs(strWhere.toString());
+			SuperVO[] queryVos = HYPubBO_Client.queryByCondition(SaleContractVO.class, " pk_contract in ("+builder.toString()+") and nvl(dr , 0) = 0 and pk_corp = '"+_getCorp().getPk_corp()+"' and contype = '长单合同' ");
 	
 			getBufferData().clear();
 			// 增加数据到Buffer
@@ -427,7 +419,7 @@ public class EventHandler extends ManageEventHandler {
 		
 		if(getBillUI().showOkCancelMessage("是否确认要删除?") == UIDialog.ID_OK) {
 			MultiBillVO modelVo = (MultiBillVO)getBufferData().getCurrentVO();
-			String pk_contract = modelVo.getParentVO().getAttributeValue(SaleContractVO.PK_CONTRACT).toString();
+			String pk_contract = String.valueOf(modelVo.getParentVO().getAttributeValue(SaleContractVO.DEF2) == null ? modelVo.getParentVO().getAttributeValue(SaleContractVO.PK_CONTRACT) : modelVo.getParentVO().getAttributeValue(SaleContractVO.DEF2));
 			Integer version = (Integer) modelVo.getParentVO().getAttributeValue(SaleContractVO.VERSION);
 		
 			if(version == 1) {
@@ -512,17 +504,58 @@ public class EventHandler extends ManageEventHandler {
 					}
 				}
 				
-				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_aidcust where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_b where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_aidcust where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 			
 				try {HYPubBO_Client.insertAry(contractBVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(aidcustVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(policyVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(contractVO); } catch(Exception e) { AppDebug.debug(e); }
 				
-				super.onBoRefresh();
+				
+				StringBuilder builder = new StringBuilder();
+				if(getBufferData().getAllHeadVOsFromBuffer() != null && getBufferData().getAllHeadVOsFromBuffer().length > 0) {
+					int i = 0;
+					for(CircularlyAccessibleValueObject cavo : getBufferData().getAllHeadVOsFromBuffer()) {
+						if(i == getBufferData().getAllHeadVOsFromBuffer().length - 1)
+							builder.append("'" + cavo.getAttributeValue("pk_contract") + "'");
+						else
+							builder.append("'" + cavo.getAttributeValue("pk_contract") + "',");
+						
+						i ++;
+					}
+				}
+				
+				if(builder.toString() != null && !"".equals(builder.toString())) {
+					
+					builder.append(",'" + pk_contract + "'");
+					
+					AggregatedValueObject currAggVO = getBufferData().getCurrentVO();
+					
+					SuperVO[] queryVos = HYPubBO_Client.queryByCondition(SaleContractVO.class, " pk_contract in ("+builder.toString()+") and nvl(dr , 0) = 0 and pk_corp = '"+_getCorp().getPk_corp()+"' and contype = '长单合同' ");
+			
+					getBufferData().clear();
+					// 增加数据到Buffer
+					addDataToBuffer(queryVos);
+			
+					updateBuffer();
+					
+					int currRow = 0;
+					for(CircularlyAccessibleValueObject cavo : getBufferData().getAllHeadVOsFromBuffer()) {
+						if(cavo.getAttributeValue(SaleContractVO.VBILLNO).equals(currAggVO.getParentVO().getAttributeValue(SaleContractVO.VBILLNO))) {
+							getBufferData().setCurrentRow(currRow);
+							break;
+						}
+						
+						currRow ++;
+							
+					}
+					
+					
+				}
+				
 				
 				getBufferData().updateView();
 			}
@@ -575,7 +608,8 @@ public class EventHandler extends ManageEventHandler {
 		
 		AggregatedValueObject billVO = getBufferData().getCurrentVOClone();
 		Integer vbillstatus = (Integer) billVO.getParentVO().getAttributeValue("vbillstatus");
-		if(vbillstatus == IBillStatus.CHECKPASS) {
+		UFBoolean stopcontract = (UFBoolean)billVO.getParentVO().getAttributeValue("stopcontract");
+		if(vbillstatus == IBillStatus.CHECKPASS && stopcontract.booleanValue()) {
 			
 			MultiBillVO currVO = (MultiBillVO)getBufferData().getCurrentVO();
 			

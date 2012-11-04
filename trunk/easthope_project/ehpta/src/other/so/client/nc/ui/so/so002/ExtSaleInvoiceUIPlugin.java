@@ -53,10 +53,24 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 	protected final void beforeOnBoAudit(SCMUIContext ctx , ButtonObject bo) throws BusinessException {
 		
 		SaleinvoiceVO billVO = null;
-		if(((ExtSaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((ExtSaleInvoiceUI)ctx.getToftPanel()).CardShow) 
-			billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
-		else 
-			 billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
+		
+		try { 
+			if(((SaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((SaleInvoiceUI)ctx.getToftPanel()).CardShow) 
+				billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
+			else 
+				 billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
+		} catch(Exception ex) {
+			try {
+				
+				if(((ExtSaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((ExtSaleInvoiceUI)ctx.getToftPanel()).CardShow) 
+					billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
+				else 
+					 billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
+				
+			} catch(Exception ex2) {
+				billVO = null;
+			}
+		}
 		
 		Object saletype = billVO.getParentVO().getAttributeValue("saletype");
 		if(saletype != null) {

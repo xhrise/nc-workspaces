@@ -50,8 +50,8 @@ public class CHGHQ06TO30 extends VOConversionUI {
 		      "B_pk_corp->H_pk_corp",  // 公司主键
 		      "B_ts->B_ts",  // 时间戳
 		      "B_csourcebillbodyid->B_pk_contract_b", // 来源单据附表ID ， 合同子表主键
-		      "B_csourcebillid->H_pk_contract"  // 来源单据主表ID , 合同主表主键
-	     
+		      "B_csourcebillid->H_pk_contract" ,  // 来源单据主表ID , 合同主表主键
+		      "H_settletype->H_def3" , // 结算类型
 	      };
 	  }
 	  
@@ -74,7 +74,7 @@ public class CHGHQ06TO30 extends VOConversionUI {
 	    		"B_noriginalcurdiscountmny->0",
 	    		"B_ccurrencytypeid->00010000000000000001",   //　原币   币种 （表体 - so_saleorder_b） 默认：人民币
 	    		"B_nexchangeotobrate->1",
-	    		"B_cadvisecalbodyid->1120A8100000000YSLF2" // 库存组织
+	    		"B_cadvisecalbodyid->1120A8100000000YSLF2" , // 库存组织
 	    		
 	    }; 
 	  }

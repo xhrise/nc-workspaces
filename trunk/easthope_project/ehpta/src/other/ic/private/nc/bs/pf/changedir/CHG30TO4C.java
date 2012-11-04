@@ -126,11 +126,20 @@ public class CHG30TO4C extends nc.bs.pf.change.VOConversion {
 
 				// 表头、表体仓库
 				"H_cwarehouseid->H_storage", "B_cwarehouseid->H_storage",
+
+				"H_pk_transport->H_pk_transport", "H_concode->H_concode",
+				"H_salecode->H_vreceiptcode", "H_pk_contract->H_pk_contract",
+				"H_contracttype->H_contracttype" , 
+				"H_version->H_version",
 				
-				"H_pk_transport->H_pk_transport",
-				"H_concode->H_concode",
-				"H_salecode->H_vreceiptcode",
-				"H_pk_contract->H_pk_contract",
+				// 2012-10-27添加
+				"H_estoraddrid->H_estoraddrid",
+				"B_transprice->B_transprice",
+				"B_storprice->B_storprice",
+				"B_ctransmodeid->B_ctransmodeid",
+				"B_copermodeid->B_copermodeid",
+				"B_pk_transport_b->B_pk_transport_b" , 
+				"B_pk_storcont_b->B_pk_storcont_b" , 
 		};
 	}
 

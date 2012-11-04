@@ -193,31 +193,39 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
 			getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
 		} else {
-			Integer vbillstatus = (Integer) getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus");
 			
-			switch (vbillstatus) {
-			
-				case IBillStatus.CHECKPASS:
-					getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
-					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
-					getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
-					break;
-					
-				case IBillStatus.FREE :
-					getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
-					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
-					getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
-					break;
-					
-				case IBillStatus.COMMIT :
-					getButtonManager().getButton(IBillButton.Audit).setEnabled(true);
-					getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
-					getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
-					break;
-					
-				default:
-					break;
+			try {
+				
+				Integer vbillstatus = (Integer) getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus");
+				
+				switch (vbillstatus) {
+				
+					case IBillStatus.CHECKPASS:
+						getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
+						getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(true);
+						getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
+						break;
+						
+					case IBillStatus.FREE :
+						getButtonManager().getButton(IBillButton.Audit).setEnabled(false);
+						getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+						getButtonManager().getButton(IBillButton.Commit).setEnabled(true);
+						break;
+						
+					case IBillStatus.COMMIT :
+						getButtonManager().getButton(IBillButton.Audit).setEnabled(true);
+						getButtonManager().getButton(IBillButton.CancelAudit).setEnabled(false);
+						getButtonManager().getButton(IBillButton.Commit).setEnabled(false);
+						break;
+						
+					default:
+						break;
+				}
+				
+			} catch(Exception e) {
+				Logger.error(e.getMessage(), e, this.getClass(), "getExtendStatus");
 			}
+			
 		}
 		
 		updateButtons();

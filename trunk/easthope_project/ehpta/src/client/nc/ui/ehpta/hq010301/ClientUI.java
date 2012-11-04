@@ -4,6 +4,7 @@ import javax.swing.table.TableColumn;
 
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.calc.CalcFunc;
 import nc.ui.ehpta.pub.renderer.RowRenderer;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIComboBox;
@@ -20,6 +21,7 @@ import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.pub.lang.UFDate;
 import nc.vo.trade.button.ButtonVO;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
@@ -114,6 +116,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 
 	public void doQueryAction(ILinkQueryData querydata) {
+		
 		String billId = querydata.getBillID();
 		if (billId != null) {
 			try {
@@ -147,6 +150,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 
 	protected void initSelfData() {
+		
 	}
 
 	public void setDefaultData() throws Exception {
@@ -180,35 +184,52 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 
 		super.afterEdit(e);
 		
-			try{
-				if("maindate".equals(e.getKey())){
-					afterEdit_maind(e);
-					
-				}else if("type".equals(e.getKey())){
-					afterEdit_type(e);
-				}
+		try{
+			if("maindate".equals(e.getKey())){
+				afterEdit_maind(e);
+				
+			}else if("type".equals(e.getKey())){
+				afterEdit_type(e);
+			}
 		}catch(Exception e2){
 			AppDebug.debug(e2);
 		}
 	}
 	
 
-	private final void afterEdit_type(BillEditEvent e) throws BusinessException{
+	private final void afterEdit_type(BillEditEvent e) throws Exception{
 	
 		String pjfenlei = (String) ((UIComboBox)getBillCardPanel().getHeadItem("type").getComponent()).getSelectedItemName();
 	
-		if(pjfenlei.equals("结算价")){
+		if("结算价".equals(pjfenlei) || "现货均价".equals(pjfenlei)) {
 			StringBuilder builder = new StringBuilder();
-			builder.append("select count(1) from ehpta_maintain where");
-			builder.append(" maindate = '"+getBillCardPanel().getHeadItem("maindate").getValueObject()+"'");
-			builder.append(" and type='2' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0) = 0");
+			
+			String temp = ((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName();
+			UFDate maindate = new UFDate(temp);
+			UFDate firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
+			
+			String lastDay = CalcFunc.builder(maindate);
+			UFDate lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
+			
+			String type = "";
+			if("结算价".equals(pjfenlei))
+				type = "2";
+			
+			else if("现货均价".equals(pjfenlei))
+				type = "3";
+			
+			builder.append("select nvl(count(1),0) from ehpta_maintain where");
+			builder.append(" maindate >= '"+firstDate.toString()+"' and maindate <= '"+lastDate.toString()+"'");
+			builder.append(" and type='"+type+"' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0) = 0");
 			
 			int i = (Integer) UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());
-			System.out.println("数据库里共有"+i+"条数据");
-			if(i>0){
-				showErrorMessage("当前期间："+((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName()+",已存在结算价记录!");
+
+			if( i > 0 ){
+				
+				showErrorMessage("当前期间已存在"+pjfenlei+"记录!");
 				((UIComboBox)getBillCardPanel().getHeadItem(e.getKey()).getComponent()).setSelectedIndex(-1);
 				return;
+				
 			}
 			
 			((UIRefPane)getBillCardPanel().getHeadItem("settlemny").getComponent()).setEnabled(true);
@@ -218,7 +239,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			getBillCardPanel().getHeadItem("listingmny").setNull(false);
 			getBillCardPanel().getHeadItem("listingmny").setValue(null);
 			
-			}else{
+		} else {
+			
 			((UIRefPane)getBillCardPanel().getHeadItem("listingmny").getComponent()).setEnabled(true);
 			((UIRefPane)getBillCardPanel().getHeadItem("listingmny").getComponent()).setEditable(true);
 			getBillCardPanel().getHeadItem("listingmny").setNull(true);
@@ -229,29 +251,44 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	
 	}
 	
-private final void afterEdit_maind(BillEditEvent e) throws BusinessException{ 
-	
-	String weihu = ((UIRefPane)getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefName();
-	getBillCardPanel().getHeadItem("maindate").setValue(weihu);
-	
-	String pjfenlei = (String)((UIComboBox)getBillCardPanel().getHeadItem("type").getComponent()).getSelectedItemName();
-	System.out.println(pjfenlei);
-	if(pjfenlei.equals("结算价")){
-		StringBuilder builder = new StringBuilder();
-		builder.append("select count(1) from ehpta_maintain where");
-		builder.append(" maindate='"+getBillCardPanel().getHeadItem("maindate").getValueObject()+"'");
-		builder.append(" and type='2' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0)=0");
+	private final void afterEdit_maind(BillEditEvent e) throws Exception{ 
 		
-		int i;
-			i = (Integer)UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());
+		String weihu = ((UIRefPane)getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefName();
+		getBillCardPanel().getHeadItem("maindate").setValue(weihu);
+		
+		String pjfenlei = (String)((UIComboBox)getBillCardPanel().getHeadItem("type").getComponent()).getSelectedItemName();
+	
+		if("结算价".equals(pjfenlei) || "现货均价".equals(pjfenlei)){
+			
+			StringBuilder builder = new StringBuilder();
+			
+			String temp = ((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName();
+			UFDate maindate = new UFDate(temp);
+			UFDate firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
+			
+			String lastDay = CalcFunc.builder(maindate);
+			UFDate lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
+			
+			String type = "";
+			if("结算价".equals(pjfenlei))
+				type = "2";
+			
+			else if("现货均价".equals(pjfenlei))
+				type = "3";
+			
+			builder.append("select nvl(count(1),0) from ehpta_maintain where");
+			builder.append(" maindate >= '"+firstDate.toString()+"' and maindate <= '"+lastDate.toString()+"'");
+			builder.append(" and type='"+type+"' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0) = 0");
+			
+			int i = (Integer)UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());
 			if(i>0){
-				showErrorMessage("当前期间："+((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName()+",已存在结算价记录!");
+				showErrorMessage("当前期间已存在"+pjfenlei+"记录!");
 				getBillCardPanel().getHeadItem("maindate").setValue(null);
 				getBillCardPanel().getHeadItem("settlemny").setValue(null);
 				return;
 			}
+		}
 	}
-}
 	
 	
 	@Override
