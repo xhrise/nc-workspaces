@@ -12,6 +12,26 @@
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
 				<field>
+					<!--结算类型-->
+					<dbfieldname>settletype</dbfieldname>
+					<vofieldname>settletype</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>10</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>结算类型</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
 					<!--到站地-->
 					<dbfieldname>estoraddrid</dbfieldname>
 					<vofieldname>estoraddrid</vofieldname>
@@ -191,7 +211,6 @@
 						<pos>0</pos>
 					</showprop>
 				</field>
-				
 				<field>
 					<!--合同主键-->
 					<dbfieldname>pk_contract</dbfieldname>
@@ -876,126 +895,7 @@
 			<voclassname>nc.vo.so.so002.SaleinvoiceBVO</voclassname>
 			<!-- 销售发票子表（主要需要添加的位置） -->
 			<fields>
-				<field>
-					<!--挂牌价-->
-					<dbfieldname>lastingprice</dbfieldname>
-					<vofieldname>lastingprice</vofieldname>
-					<dbfieldtype>3</dbfieldtype>
-					<vofieldtype>1</vofieldtype>
-					<persistence>Y</persistence>
-					<length>28</length>
-					<allownull>Y</allownull>
-					<precision>8</precision>
-					<showprop>
-						<showname>挂牌价</showname>
-						<isshow>Y</isshow>
-						<tabcode>table</tabcode>
-						<showformula/>
-						<loadformula/>
-						<reftype/>
-						<pos>1</pos>
-					</showprop>
-				</field>
-				<field>
-					<!--结算价-->
-					<dbfieldname>settlementprice</dbfieldname>
-					<vofieldname>settlementprice</vofieldname>
-					<dbfieldtype>3</dbfieldtype>
-					<vofieldtype>1</vofieldtype>
-					<persistence>Y</persistence>
-					<length>28</length>
-					<allownull>Y</allownull>
-					<precision>8</precision>
-					<showprop>
-						<showname>结算价</showname>
-						<isshow>Y</isshow>
-						<tabcode>table</tabcode>
-						<showformula/>
-						<loadformula/>
-						<reftype/>
-						<pos>1</pos>
-					</showprop>
-				</field>
-				<field>
-					<!--贴息额-->
-					<dbfieldname>submny</dbfieldname>
-					<vofieldname>submny</vofieldname>
-					<dbfieldtype>3</dbfieldtype>
-					<vofieldtype>1</vofieldtype>
-					<persistence>Y</persistence>
-					<length>28</length>
-					<allownull>Y</allownull>
-					<precision>8</precision>
-					<showprop>
-						<showname>贴息额</showname>
-						<isshow>Y</isshow>
-						<tabcode>table</tabcode>
-						<showformula/>
-						<loadformula/>
-						<reftype/>
-						<pos>1</pos>
-					</showprop>
-				</field>
-				<field>
-					<!--返利额-->
-					<dbfieldname>retmny</dbfieldname>
-					<vofieldname>retmny</vofieldname>
-					<dbfieldtype>3</dbfieldtype>
-					<vofieldtype>1</vofieldtype>
-					<persistence>Y</persistence>
-					<length>28</length>
-					<allownull>Y</allownull>
-					<precision>8</precision>
-					<showprop>
-						<showname>返利额</showname>
-						<isshow>Y</isshow>
-						<tabcode>table</tabcode>
-						<showformula/>
-						<loadformula/>
-						<reftype/>
-						<pos>1</pos>
-					</showprop>
-				</field>
-				<field>
-					<!--运补额-->
-					<dbfieldname>transmny</dbfieldname>
-					<vofieldname>transmny</vofieldname>
-					<dbfieldtype>3</dbfieldtype>
-					<vofieldtype>1</vofieldtype>
-					<persistence>Y</persistence>
-					<length>28</length>
-					<allownull>Y</allownull>
-					<precision>8</precision>
-					<showprop>
-						<showname>运补额</showname>
-						<isshow>Y</isshow>
-						<tabcode>table</tabcode>
-						<showformula/>
-						<loadformula/>
-						<reftype/>
-						<pos>1</pos>
-					</showprop>
-				</field>
-				<field>
-					<!--挂结价差额-->
-					<dbfieldname>evalmny</dbfieldname>
-					<vofieldname>evalmny</vofieldname>
-					<dbfieldtype>3</dbfieldtype>
-					<vofieldtype>1</vofieldtype>
-					<persistence>Y</persistence>
-					<length>28</length>
-					<allownull>Y</allownull>
-					<precision>8</precision>
-					<showprop>
-						<showname>挂结价差额</showname>
-						<isshow>Y</isshow>
-						<tabcode>table</tabcode>
-						<showformula/>
-						<loadformula/>
-						<reftype/>
-						<pos>1</pos>
-					</showprop>
-				</field>
+				
 			</fields>
 		</vo_field_extend>
 		<vo_field_extend name="销售出库单主表">
@@ -1004,6 +904,26 @@
 			<voclassname>nc.vo.ic.pub.bill.GeneralBillHeaderVO</voclassname>
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
+				<field>
+					<!--版本号-->
+					<dbfieldname>version</dbfieldname>
+					<vofieldname>version</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>10</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>版本号</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
 				<field>
 					<!--到站地-->
 					<dbfieldname>estoraddrid</dbfieldname>
@@ -1126,12 +1046,52 @@
 				</field>
 			</fields>
 		</vo_field_extend>
-		<vo_field_extend name="销售出库单主表">
+		<vo_field_extend name="销售出库单子表">
 			<!--VO扩展，用于扩展单据数据项 -->
 			<cbilltypecode>4C</cbilltypecode>
 			<voclassname>nc.vo.ic.pub.bill.GeneralBillItemVO</voclassname>
-			<!--销售单据主表（主要需要添加的位置） -->
+			<!--销售单据子表（主要需要添加的位置） -->
 			<fields>
+				<field>
+					<!--仓储合同子表ID-->
+					<dbfieldname>pk_storcont_b</dbfieldname>
+					<vofieldname>pk_storcont_b</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>仓储合同子表ID</showname>
+						<isshow>Y</isshow>
+						<tabcode>table</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>1</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--运输合同表体ID-->
+					<dbfieldname>pk_transport_b</dbfieldname>
+					<vofieldname>pk_transport_b</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>运输合同表体ID</showname>
+						<isshow>Y</isshow>
+						<tabcode>table</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>1</pos>
+					</showprop>
+				</field>
 				<field>
 					<!--运输单价-->
 					<dbfieldname>transprice</dbfieldname>
@@ -1174,8 +1134,8 @@
 				</field>
 				<field>
 					<!--运输方式ID-->
-					<dbfieldname>pk_contract</dbfieldname>
-					<vofieldname>pk_contract</vofieldname>
+					<dbfieldname>ctransmodeid</dbfieldname>
+					<vofieldname>ctransmodeid</vofieldname>
 					<dbfieldtype>12</dbfieldtype>
 					<vofieldtype>3</vofieldtype>
 					<persistence>Y</persistence>

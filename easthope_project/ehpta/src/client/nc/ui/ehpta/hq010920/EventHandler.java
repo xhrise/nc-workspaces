@@ -264,6 +264,7 @@ public class EventHandler extends ManageEventHandler {
 			billVO.setChildrenVO(bodyVOs);
 			getBillCardPanelWrapper().setCardData(billVO);
 			
+			// 使用execBodyFormulas方法代替公式。
 //			for(int row = 0 , count = bodyVOs.length ; row < count ; row ++) 
 //				getBillCardPanelWrapper().getBillCardPanel().execBodyFormulas(row, ((ClientUI)getBillUI()).bodyFamulas);
 			
@@ -274,9 +275,9 @@ public class EventHandler extends ManageEventHandler {
 			
 	protected final CalcUpperTransfeeBVO[] execBodyFormulas(CalcUpperTransfeeBVO[] bodyVOs , String attr) throws Exception {
 		
-		if("dieselprice".equals(attr) || "rises".equals(attr)) {
+		if("dieselprice".equals(attr) || "rises".equals(attr) || "outmny".equals(attr)) {
 			
-			if("dieselprice".equals(attr)) {
+			if("rises".equals(attr)) {
 				
 				for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
 					
@@ -299,7 +300,7 @@ public class EventHandler extends ManageEventHandler {
 					UFDouble fee = def9.multiply(rises.div(100).add(1));
 					bodyVO.setAttributeValue("fee", fee);
 					
-					dieselprice = dieselprice.multiply(rises.div(100).add(1));
+					dieselprice = def7.multiply(rises.div(100).add(1));
 					bodyVO.setAttributeValue("dieselprice", dieselprice);
 					
 					UFDouble transmny = recnum.multiply(fee);
@@ -309,7 +310,7 @@ public class EventHandler extends ManageEventHandler {
 					
 				}
 				
-			} else if("rises".equals(attr)) {
+			} else if("dieselprice".equals(attr)) {
 				
 				for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
 					
@@ -329,7 +330,7 @@ public class EventHandler extends ManageEventHandler {
 					def7 = def7 == null ? new UFDouble("0") : def7;
 					def8 = def8 == null ? new UFDouble("0") : def8;
 					
-					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).abs().multiply(100).intValue() / def8.doubleValue()).intValue());
+					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).multiply(100).intValue() / def8.doubleValue()).intValue());
 					bodyVO.setAttributeValue("rises", newRises);
 					
 					UFDouble fee = def9.multiply(newRises.div(100).add(1));
@@ -339,6 +340,32 @@ public class EventHandler extends ManageEventHandler {
 					bodyVO.setAttributeValue("transmny", transmny);
 					
 					bodyVO.setAttributeValue("paymny", transmny.sub(outmny));
+					
+				}
+				
+			} else if("outmny".equals(attr)) {
+				
+				for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
+					
+					UFDouble rises = (UFDouble) bodyVO.getAttributeValue("rises");
+					UFDouble dieselprice = (UFDouble) bodyVO.getAttributeValue("dieselprice");
+					UFDouble def9 = (UFDouble) bodyVO.getAttributeValue("def9");
+					UFDouble recnum = (UFDouble) bodyVO.getAttributeValue("recnum");
+					UFDouble outmny = (UFDouble) bodyVO.getAttributeValue("outmny");
+					UFDouble def7 = (UFDouble) bodyVO.getAttributeValue("def7");
+					UFDouble def8 = (UFDouble) bodyVO.getAttributeValue("def8");
+					
+					rises = rises == null ? new UFDouble("0") : rises;
+					dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
+					def9 = def9 == null ? new UFDouble("0") : def9;
+					recnum = recnum == null ? new UFDouble("0") : recnum;
+					outmny = outmny == null ? new UFDouble("0") : outmny;
+					def7 = def7 == null ? new UFDouble("0") : def7;
+					def8 = def8 == null ? new UFDouble("0") : def8;
+					
+					UFDouble fee = def9.multiply(rises.div(100).add(1));
+					UFDouble transmny = recnum.multiply(fee);
+					bodyVO.setAttributeValue("paymny" , transmny.sub(outmny));
 					
 				}
 				

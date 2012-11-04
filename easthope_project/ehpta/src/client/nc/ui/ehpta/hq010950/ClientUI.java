@@ -194,7 +194,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	public void afterEdit(BillEditEvent e) {
 		
 		try {
-		if("adjustmny".equals(e.getKey()) ) 
+		if("def1".equals(e.getKey()) || "def2".equals(e.getKey()) || "def3".equals(e.getKey()) || "def4".equals(e.getKey()) ) 
 			afterSetAdjustmny( e) ;
 		
 		} catch(Exception ex) {
@@ -204,7 +204,6 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 	}
 	
 	protected final void afterSetAdjustmny(BillEditEvent e) throws Exception {
-		
 		getBillCardPanel().execBodyFormulas(e.getRow(), formulas);
 		
 	}

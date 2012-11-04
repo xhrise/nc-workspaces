@@ -78,11 +78,37 @@ and nvl(salecontb.dr,0)=0
 and nvl(invbas.dr,0)=0
 and nvl(cuman.dr,0)=0
 and nvl(cubas.dr,0)=0
+and nvl(orderb.rebateflag,'N') = 'N'
 
 group by sale.ccustomerid , salecont.vbillno, invbas.invname  , sale.period ,
 salecontb.num,salecontb.preprice,cubas.custname,salecont.pk_contract,orderb.cinventoryid ,
 sale.pk_corp
 order by salecont.vbillno asc;
+
+
+create or replace force view nccw.vw_pta_salecont_invbalance as
+select PK_CONTRACT,CSALEID,TYPE,TYPENAME, mny , iscredit , pk_cumandoc from (
+
+select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny , def3 iscredit , pk_cumandoc from (select pk_contract , '' csaleid , type, decode(type , 1 , '货款' , 2 , '贴息额' , 3 , '挂结价差额' , 4 , '返利额' , 5 , '运补额' , 6 , '仓储费' , 7 , '装卸费' , '') typename
+, mny , def3 , decode(type , 1 , pk_cubasdoc , null) pk_cumandoc from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and (nvl(def4 , 'N') = 'N' or type = 1) ) temp
+group by temp.pk_contract , temp.csaleid , temp.type , temp.typename , temp.def3 , temp.pk_cumandoc
+-- 收款及其他金额项
+
+union all
+
+select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny , def3 iscredit , pk_cumandoc from (select pk_contract , '' csaleid , type, decode(type , 1 , '货款' , 2 , '贴息额' , 3 , '挂结价差额' , 4 , '返利额' , 5 , '运补额' , 6 , '仓储费' , 7 , '装卸费' , '') typename
+, (mny * -1) mny , def3 , null pk_cumandoc  from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and nvl(def4 , 'N') = 'Y' and nvl(type,1) <> 1 ) temp
+group by temp.pk_contract , temp.csaleid , temp.type , temp.typename , temp.def3 , temp.pk_cumandoc
+
+union all
+
+select pk_contract, '' , '11' , '累计开票额' , nvl(sum(ntotalsummny) * -1 , 0) , iscredit , creceiptcorpid
+from so_saleinvoice
+where pk_contract is not null and nvl(dr,0)=0  and (saletype = '现货合同' or saletype = '长单合同')
+and fstatus = 2
+group by pk_contract , creceiptcorpid , iscredit
+
+);
 
 
 create or replace force view nccw.vw_pta_sale_contract as
@@ -96,27 +122,27 @@ select contract.*  from ehpta_sale_contract contract
 
 
 create or replace force view nccw.vw_pta_sale_contract_balance as
-select "PK_CONTRACT","CSALEID","TYPE","TYPENAME","MNY" from (
+select PK_CONTRACT,CSALEID,TYPE,TYPENAME,sum(MNY) mny , iscredit , pk_cumandoc from (
 
-select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny from (select pk_contract , '' csaleid , type, decode(type , 1 , '货款' , 2 , '贴息额' , 3 , '挂结价差额' , 4 , '返利额' , 5 , '运补额' , 6 , '仓储费' , 7 , '装卸费' , '') typename
-, mny   from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and (nvl(def4 , 'N') = 'N' or type = 1) ) temp
-group by temp.pk_contract , temp.csaleid , temp.type , temp.typename
+select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny , def3 iscredit , pk_cumandoc from (select pk_contract , '' csaleid , type, decode(type , 1 , '货款' , 2 , '贴息额' , 3 , '挂结价差额' , 4 , '返利额' , 5 , '运补额' , 6 , '仓储费' , 7 , '装卸费' , '') typename
+, mny , def3 , decode(type , 1 , pk_cubasdoc , null) pk_cumandoc from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and (nvl(def4 , 'N') = 'N' or type = 1) ) temp
+group by temp.pk_contract , temp.csaleid , temp.type , temp.typename , temp.def3 , temp.pk_cumandoc
 -- 收款及其他金额项
 
 union all
 
-select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny from (select pk_contract , '' csaleid , type, decode(type , 2 , '已使用贴息额' , 3 , '已使用挂结价差额' , 4 , '已使用返利额' , 5 , '已使用运补额' , 6 , '已使用仓储费' , 7 , '已使用装卸费' , '') typename
-, (mny * -1) mny  from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and nvl(def4 , 'N') = 'Y' and nvl(type,1) <> 1 ) temp
-group by temp.pk_contract , temp.csaleid , temp.type , temp.typename
+select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny , def3 iscredit , pk_cumandoc from (select pk_contract , '' csaleid , type, decode(type , 1 , '货款' , 2 , '贴息额' , 3 , '挂结价差额' , 4 , '返利额' , 5 , '运补额' , 6 , '仓储费' , 7 , '装卸费' , '') typename
+, (mny * -1) mny , def3 , null pk_cumandoc  from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and nvl(def4 , 'N') = 'Y' and nvl(type,1) <> 1 ) temp
+group by temp.pk_contract , temp.csaleid , temp.type , temp.typename , temp.def3 , temp.pk_cumandoc
 
 union all
 
-select pk_contract , csaleid , '11' , '已使用货款' , nvl(sum(nheadsummny) * -1 , 0) from so_sale
+select pk_contract , '' , '11' , '已提货金额' , nvl(sum(nheadsummny) * -1 , 0) , iscredit , ccustomerid pk_cumandoc from so_sale
  where pk_contract is not null and nvl(dr, 0) = 0 and (contracttype = 10 or contracttype = 20)
-   and (FSTATUS = 2 or (FSTATUS = 1 and ISCREDIT = 'Y'))
- group by pk_contract, csaleid
+   and (FSTATUS = 2)
+ group by pk_contract,iscredit , ccustomerid
 
-);
+) group by PK_CONTRACT,CSALEID,TYPE,TYPENAME,iscredit , pk_cumandoc;
 
 
 create or replace force view nccw.vw_pta_sale_contract_bs as
@@ -184,23 +210,62 @@ and nvl(meas.dr ,0) = 0
 and nvl(mt.dr ,0) = 0;
 
 
+create or replace force view nccw.vw_pta_storfee as
+select genb.vbatchcode , genh.cwarehouseid pk_stordoc , genh.pk_contract , genh.concode , decode(genh.contracttype , 10 , '现货合同' , 20 , '长单合同' , genh.contracttype) contracttype ,
+genb.cinventoryid pk_invmandoc , invbas.invname ,
+(select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  indate ,
+-- to_char(to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8)) , 'yyyy-MM-dd'),'yyyy-MM-dd') indate ,
+genb.dbizdate outdate , genh.ccustomerid pk_cumandoc , sale.vreceiptcode ,
+genb.cgeneralbid , genb.cgeneralhid , genh.vbillcode outcode , saleb.deliverydate overdate , genb.noutnum ,
+decode(storcontb.feetype , 1 , '仓库费' , 2 , '直驳费' , 3 , '船-库-船' , 4 , '船-库-车' , 5 , '直驳费（船-船）' , 6 , '直驳费（船-车）' , decode(storcontb1.feetype , 1 , '仓库费' , 2 , '直驳费' , 3 , '船-库-船' , 4 , '船-库-车' , 5 , '直驳费（船-船）' , 6 , '直驳费（船-车）' , null)) feetype ,
+nvl(storcontb.signprice , storcontb1.signprice) signprice , nvl(genb.noutnum,0) * nvl(storcontb.signprice , storcontb1.signprice) hmny ,
+
+
+to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid) , 'yyyy-MM-dd') + 1 def1 ,
+(case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1 stordays ,
+nvl(storcontb1.concesessionsday,0) freedays ,storcontb1.pk_storcontract_b ,
+case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end days ,
+storcontb1.signprice storprice,
+decode(storcontb1.storccontracttype  , '1' , '元/吨' , '2' , '元/吨/天' , null) def2 ,
+decode(storcontb1.storccontracttype , '1' , storcontb1.signprice * genb.noutnum , '2' , (case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end) * storcontb1.signprice * genb.noutnum
+, null) stormny
+
+from ic_general_h genh
+left join ic_general_b genb on genb.cgeneralhid = genh.cgeneralhid
+left join so_sale sale on sale.csaleid = genb.csourcebillhid
+left join so_saleorder_b saleb on saleb.corder_bid = genb.csourcebillbid
+left join ehpta_storcontract_b storcontb on storcontb.pk_storcontract_b = genb.pk_storcont_b
+left join ehpta_storcontract storcont on storcont.pk_stordoc = genh.cwarehouseid
+left join ehpta_storcontract_b storcontb1 on storcontb1.pk_storagedoc = storcont.pk_storagedoc
+left join bd_invbasdoc invbas on invbas.pk_invbasdoc = genb.cinvbasid
+
+where genh.daccountdate is not null
+and decode(genh.vuserdef4 , 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N' and genh.concode is not null
+and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genb.transprice,0) > 0
+and genb.vbatchcode is not null and nvl(storcontb1.feetype , '0') = '1'
+and storcont.vbillstatus = 1 and genh.fbillflag = 3
+
+and nvl(genh.dr,0) = 0 and nvl(genb.dr,0) = 0
+and nvl(sale.dr,0) = 0 and nvl(saleb.dr,0) = 0
+and nvl(storcontb.dr,0) = 0 and nvl(storcont.dr,0) = 0 and nvl(storcontb1.dr,0) = 0
+and nvl(invbas.dr , 0 ) = 0 and nvl(storcontb.feetype , storcontb1.feetype) <> 1;
 
 
 create or replace force view nccw.vw_pta_under_transfee as
 select genh.cgeneralhid , genh.vbillcode cbillno , genb.cinventoryid def1 , invbas.invname def2 , genh.dbilldate sdate ,
 genh.cwarehouseid pk_sstordoc , stordoc.storname def3 , stordoc.storaddr saddress ,
-address.addrname eaddress , transcontb.piersfee , transcontb.inlandshipfee , transcontb.carfee , genh.pk_transport , genh.pk_transport_b ,
-genb.noutnum num , genh.transprice fee , (nvl(genh.transprice,0) * nvl(genb.noutnum,0)) transmny
-,genb.cgeneralbid def5 , genh.ccustomerid def6 , genh.pk_contract def4
+address.addrname eaddress , transcontb.piersfee , transcontb.inlandshipfee , transcontb.carfee , genh.pk_transport , genb.pk_transport_b pk_transport_b ,
+genb.noutnum num , genb.transprice fee , (nvl(genb.transprice,0) * nvl(genb.noutnum,0)) transmny
+,genb.cgeneralbid def5 , genh.ccustomerid def6 , genh.pk_contract def4,transcontb.def1 def7
 from ic_general_h genh
 left join ic_general_b genb on genh.cgeneralhid = genb.cgeneralhid
 left join bd_stordoc stordoc on stordoc.pk_stordoc = genh.cwarehouseid
-left join ehpta_transport_contract_b transcontb on transcontb.pk_transport_b = genh.pk_transport_b
+left join ehpta_transport_contract_b transcontb on transcontb.pk_transport_b = genb.pk_transport_b
 left join bd_address address on address.pk_address = transcontb.estoraddr
 left join bd_invbasdoc invbas on invbas.pk_invbasdoc = genb.cinvbasid
 
 where decode(genh.vuserdef3 , 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N' and genh.concode is not null
-and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genh.transprice,0) > 0
+and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genb.transprice,0) > 0
 and genh.fbillflag = 3
 and genh.daccountdate is not null;
 
@@ -255,73 +320,5 @@ select ingenb.cgeneralhid def2,
 
    and nvl(ingenh.fbillflag , 0) = 3
    and nvl(outgenh.fbillflag , 0) = 3;
-
-
-
-/* 仓储结算视图修改 */
-create or replace view vw_pta_storfee as
-select genb.vbatchcode , genh.cwarehouseid pk_stordoc , genh.pk_contract , genh.concode , decode(genh.contracttype , 10 , '现货合同' , 20 , '长单合同' , genh.contracttype) contracttype ,
-genb.cinventoryid pk_invmandoc , invbas.invname ,
-(select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  indate ,
--- to_char(to_date(trim(substr(genb.vbatchcode, instr(genb.vbatchcode, ' - ') + 3 , 8)) , 'yyyy-MM-dd'),'yyyy-MM-dd') indate ,
-genb.dbizdate outdate , genh.ccustomerid pk_cumandoc , sale.vreceiptcode ,
-genb.cgeneralbid , genb.cgeneralhid , genh.vbillcode outcode , saleb.deliverydate overdate , genb.noutnum ,
-decode(storcontb.feetype , 1 , '仓库费' , 2 , '直驳费' , 3 , '船-库-船' , 4 , '船-库-车' , 5 , '直驳费（船-船）' , 6 , '直驳费（船-车）' , decode(storcontb1.feetype , 1 , '仓库费' , 2 , '直驳费' , 3 , '船-库-船' , 4 , '船-库-车' , 5 , '直驳费（船-船）' , 6 , '直驳费（船-车）' , null)) feetype ,
-nvl(storcontb.signprice , storcontb1.signprice) signprice , nvl(genb.noutnum,0) * nvl(storcontb.signprice , storcontb1.signprice) hmny ,
-
-
-to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid) , 'yyyy-MM-dd') + 1 def1 ,
-(case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1 stordays ,
-nvl(storcontb1.concesessionsday,0) freedays ,
-case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end days ,
-storcontb1.signprice storprice,
-decode(storcontb1.storccontracttype  , '1' , '元/吨' , '2' , '元/吨/天' , null) def2 , 
-decode(storcontb1.storccontracttype , '1' , nvl(storcontb.signprice , storcontb1.signprice) * genb.noutnum , '2' , (case when ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) < 0 then 0 else ((case when to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date(genb.dbizdate , 'yyyy-MM-dd') > 0 then to_date(genb.dbizdate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') else to_date(saleb.deliverydate , 'yyyy-MM-dd') - to_date((select max(dbizdate) from ic_general_b where cbodywarehouseid = genh.cwarehouseid and vbatchcode =  genb.vbatchcode and nvl(dr,0) = 0 and csourcetype = '4K' and cbodybilltypecode = '4A' and cinventoryid = genb.cinventoryid)  , 'yyyy-MM-dd') end ) + 1) - nvl(storcontb1.concesessionsday,0) end) * nvl(storcontb.signprice , storcontb1.signprice) * genb.noutnum
-, null) stormny
-
-from ic_general_h genh
-left join ic_general_b genb on genb.cgeneralhid = genh.cgeneralhid
-left join so_sale sale on sale.csaleid = genb.csourcebillhid
-left join so_saleorder_b saleb on saleb.corder_bid = genb.csourcebillbid
-left join ehpta_storcontract_b storcontb on storcontb.pk_storcontract_b = genh.pk_storcontract_b
-left join ehpta_storcontract storcont on storcont.pk_stordoc = genh.cwarehouseid
-left join ehpta_storcontract_b storcontb1 on storcontb1.pk_storagedoc = storcont.pk_storagedoc
-left join bd_invbasdoc invbas on invbas.pk_invbasdoc = genb.cinvbasid
-
-where genh.daccountdate is not null
-and decode(genh.vuserdef4 , 'Y' , 'Y' , 'N' , 'N' , 'N') = 'N' and genh.concode is not null
-and (nvl(genh.contracttype , 0) = 10 or nvl(genh.contracttype , 0) = 20) and nvl(genh.transprice,0) > 0
-and genb.vbatchcode is not null and nvl(storcontb1.feetype , '0') = '1'
-and storcont.vbillstatus = 1 and genh.fbillflag = 3
-
-and nvl(genh.dr,0) = 0 and nvl(genb.dr,0) = 0
-and nvl(sale.dr,0) = 0 and nvl(saleb.dr,0) = 0
-and nvl(storcontb.dr,0) = 0 and nvl(storcont.dr,0) = 0 and nvl(storcontb1.dr,0) = 0
-and nvl(invbas.dr , 0 ) = 0;
-
-
-
--- 开票界面合同余额按钮视图
-create or replace view vw_pta_salecont_invbalance as
-select PK_CONTRACT,CSALEID,TYPE,TYPENAME,MNY from (
-
-select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny from (select pk_contract , '' csaleid , type, decode(type , 1 , '货款' , 2 , '贴息额' , 3 , '挂结价差额' , 4 , '返利额' , 5 , '运补额' , 6 , '仓储费' , 7 , '装卸费' , '') typename
-, mny   from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and (nvl(def4 , 'N') = 'N' or type = 1) ) temp
-group by temp.pk_contract , temp.csaleid , temp.type , temp.typename
--- 收款及其他金额项
-
-union all
-
-select temp.pk_contract , temp.csaleid , temp.type , temp.typename , sum(temp.mny) mny from (select pk_contract , '' csaleid , type, decode(type , 2 , '已使用贴息额' , 3 , '已使用挂结价差额' , 4 , '已使用返利额' , 5 , '已使用运补额' , 6 , '已使用仓储费' , 7 , '已使用装卸费' , '') typename
-, (mny * -1) mny  from ehpta_adjust where nvl(dr, 0) = 0 and vbillstatus = 1 and nvl(def4 , 'N') = 'Y' and nvl(type,1) <> 1 ) temp
-group by temp.pk_contract , temp.csaleid , temp.type , temp.typename
-
-union all
-
-select pk_contract, '' , '11' , '累计开票额' , nvl(sum(ntotalsummny) * -1 , 0) from so_saleinvoice 
-where pk_contract is not null and nvl(dr,0)=0 and (saletype = '现货合同' or saletype = '长单合同')
-group by pk_contract
-
-);
 
 

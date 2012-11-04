@@ -94,6 +94,21 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 	private ICBcurrArithUI clsCurrArith;
 
 	private IButtonManager m_buttonManager;
+	
+	String[] headFormulas = new String[]{
+			"estoraddrid->getColValue(ic_general_h , estoraddrid , cgeneralhid , cgeneralhid)",	
+			"defestoraddrid->getColValue(bd_address , addrname , pk_address , estoraddrid)" , 
+			"version->getColValue(ic_general_h , version , cgeneralhid , cgeneralhid)" ,
+	};
+	
+	String[] bodyFormulas = new String[]{
+			"transprice->getColValue(ic_general_b , transprice , cgeneralbid , cgeneralbid)" , 
+			"storprice->getColValue(ic_general_b , storprice , cgeneralbid , cgeneralbid)" , 
+			"copermodeid->getColValue(ic_general_b , copermodeid , cgeneralbid , cgeneralbid)" , 
+			"ctransmodeid->getColValue(ic_general_b , ctransmodeid , cgeneralbid , cgeneralbid)" ,
+			"pk_transport_b->getColValue(ic_general_b , pk_transport_b , cgeneralbid , cgeneralbid)" ,
+			"pk_storcont_b->getColValue(ic_general_b , pk_storcont_b , cgeneralbid , cgeneralbid)" , 
+	};
 
 	/**
 	 * ClientUI2 构造子注解。
@@ -870,8 +885,8 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 				if("卡片显示".equals(boName) || "首页".equals(boName) || "上页".equals(boName) || "下页".equals(boName) || "末页".equals(boName) || "取消".equals(boName)) {
 					getBillCardPanel().execHeadFormulas(new String[]{
 							"contracttype->getColValue(ic_general_h , contracttype , cgeneralhid , cgeneralhid)",
-							"storprice->getColValue(ic_general_h , pk_storcontract_b , cgeneralhid , cgeneralhid)",
-							"transprice->getColValue(ic_general_h , pk_transport_b , cgeneralhid , cgeneralhid)",
+//							"storprice->getColValue(ic_general_h , pk_storcontract_b , cgeneralhid , cgeneralhid)",
+//							"transprice->getColValue(ic_general_h , pk_transport_b , cgeneralhid , cgeneralhid)",
 							
 						});
 					
@@ -1104,8 +1119,8 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			
 			getBillCardPanel().execHeadFormulas(new String[]{
 				"contracttype->getColValue(ic_general_h , contracttype , cgeneralhid , cgeneralhid)",
-				"storprice->getColValue(ic_general_h , pk_storcontract_b , cgeneralhid , cgeneralhid)",
-				"transprice->getColValue(ic_general_h , pk_transport_b , cgeneralhid , cgeneralhid)",
+//				"storprice->getColValue(ic_general_h , pk_storcontract_b , cgeneralhid , cgeneralhid)",
+//				"transprice->getColValue(ic_general_h , pk_transport_b , cgeneralhid , cgeneralhid)",
 				
 			});
 		}
@@ -1131,12 +1146,12 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 					"cgeneralhid" ,
 					"concode" ,
 					"pk_transport" ,
-					"transprice" ,
-					"storprice" ,
+//					"transprice" ,
+//					"storprice" ,
 					"contracttype" ,
 					"salecode" ,
-					"pk_storcontract_b" ,
-					"pk_transport_b" ,
+//					"pk_storcontract_b" ,
+//					"pk_transport_b" ,
 					"pk_contract" ,
 			};
 			
@@ -2637,27 +2652,77 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 	 */
 	public void setListBodyData(GeneralBillItemVO voi[]) {
 		getBB3Info(voi, getBillListPanel().getBodyBillModel());
+		
+		boolean check = false;
+		
 		if (voi != null && voi.length > 0) {
 			setCurrDigit(BillMode.List,
 					(String) voi[0].getAttributeValue("cquotecurrency"));
+			
+			// add by river for 2012-10-29
+			// start part1
+			if(voi[0].getPrimaryKey() != null) 
+				check = true;
+			
 		}
 		super.setListBodyData(voi);
+		
+		// add by river for 2012-10-29
+		// part2
+		if(check) {
+			int selRow = getBillListPanel().getHeadTable().getSelectedRow();
+			getBillListPanel().getHeadBillModel().execFormula(selRow , headFormulas);
+			
+			for(int row = 0 , len = voi.length ; row < len ; row ++) {
+				getBillListPanel().getBodyBillModel().execFormulas(row, bodyFormulas);
+			}
+			
+		}
 	}
-
+	
 	/**
 	 * 创建者：王乃军 功能：在表单设置显示VO 参数： 返回： 例外： 日期：(2001-5-9 9:23:32)
 	 * 修改日期，修改人，修改原因，注释标志：
 	 */
 	public void setBillVO(GeneralBillVO bvo, boolean bUpdateBotton,
 			boolean bExeFormule) {
+		
+		boolean check = false;
+		
 		if (bvo != null && bvo.getChildrenVO() != null
 				&& bvo.getChildrenVO().length > 0) {
 			getBB3Info(bvo.getItemVOs(), getBillCardPanel().getBillModel());
 			setCurrDigit(BillMode.Card,
 					(String) bvo.getChildrenVO()[0]
 							.getAttributeValue("cquotecurrency"));
+			
+			// 判断当前获取的单据是否已经保存到数据库
+			// add by river for 2012-10-29
+			// start part1
+			try {
+				if(bvo.getParentVO().getPrimaryKey() != null)
+					check = true;
+			
+			} catch(Exception ex) {
+				Logger.error(ex.getMessage(), ex);
+			}
 		}
+		
 		super.setBillVO(bvo, bUpdateBotton, bExeFormule);
+		
+		// 对已经保存到数据库的单据执行表体、表体的公式
+		// add by river for 2012-10-29
+		// part2
+		if(check) {
+			
+			getBillCardPanel().execHeadFormulas(headFormulas);
+			
+			for(int row = 0 , len = bvo.getChildrenVO().length ; row < len ; row ++) {
+				getBillCardPanel().execBodyFormulas(row, bodyFormulas);
+			}
+			
+		}
+		
 	}
 
 	/**
@@ -2959,20 +3024,20 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 	@Override
 	public boolean beforeEdit(BillItemEvent e) {
 		
-		if("storprice".equals(e.getItem().getKey())) {
-			Object cwarehouseid = getBillCardPanel().getHeadItem("cwarehouseid").getValueObject();
-			//　0001A810000000000JB9　-> 自提
-			if("0001A810000000000JB9".equals(getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject()))
-				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
-			else 
-				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and pk_stordoc = '"+cwarehouseid+"' ");
-		} else if("transprice".equals(e.getItem().getKey())) {
-			// 0001A810000000000JB9 -> 自提
-			if("0001A810000000000JB9".equals(getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject()))
-				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
-			else 
-				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and nvl(dr,0)=0 and pk_corp = '"+getCorpPrimaryKey()+"' and vbillstatus = 1 and pk_transport = '"+getBillCardPanel().getHeadItem("pk_transport").getValueObject()+"'");
-		}
+//		if("storprice".equals(e.getItem().getKey())) {
+//			Object cwarehouseid = getBillCardPanel().getHeadItem("cwarehouseid").getValueObject();
+//			//　0001A810000000000JB9　-> 自提
+//			if("0001A810000000000JB9".equals(getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject()))
+//				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
+//			else 
+//				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and pk_stordoc = '"+cwarehouseid+"' ");
+//		} else if("transprice".equals(e.getItem().getKey())) {
+//			// 0001A810000000000JB9 -> 自提
+//			if("0001A810000000000JB9".equals(getBillCardPanel().getHeadItem("cdilivertypeid").getValueObject()))
+//				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 0 ");
+//			else 
+//				((UIRefPane)e.getItem().getComponent()).setWhereString(" 1 = 1 and nvl(dr,0)=0 and pk_corp = '"+getCorpPrimaryKey()+"' and vbillstatus = 1 and pk_transport = '"+getBillCardPanel().getHeadItem("pk_transport").getValueObject()+"'");
+//		}
 		
 		return super.beforeEdit(e);
 	}
@@ -2985,13 +3050,13 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		super.afterEdit(e);
 		
 		try {
-			if("transprice".equals(e.getKey()))
-				afterTransprice(e);
-		
-			else if("storprice".equals(e.getKey()))
-				afterStorprice(e);
-			
-			else if("cdilivertypeid".equals(e.getKey()))
+//			if("transprice".equals(e.getKey()))
+//				afterTransprice(e);
+//		
+//			else if("storprice".equals(e.getKey()))
+//				afterStorprice(e);
+//			else 
+			if("cdilivertypeid".equals(e.getKey()))
 				afterCdilivertypeid(e);
 				
 		} catch(Exception e1) {
@@ -3001,31 +3066,31 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 	}
 	
 	protected final void afterTransprice(BillEditEvent e) throws Exception {
-		getBillCardPanel().getHeadItem("pk_transport_b").setValue(((UIRefPane)e.getSource()).getRefPK());
+//		getBillCardPanel().getHeadItem("pk_transport_b").setValue(((UIRefPane)e.getSource()).getRefPK());
 		
 	}
 	
 	protected final void afterStorprice(BillEditEvent e) throws Exception {
-		getBillCardPanel().getHeadItem("pk_storcontract_b").setValue(((UIRefPane)e.getSource()).getRefPK());
+//		getBillCardPanel().getHeadItem("pk_storcontract_b").setValue(((UIRefPane)e.getSource()).getRefPK());
 		
 	}
 	
 	protected final void afterCdilivertypeid(BillEditEvent e) throws Exception {
 		
-		if("自提".equals(((UIRefPane)e.getSource()).getRefName())) {
-			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setPK(null);
-			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setValue(null);
-			getBillCardPanel().getHeadItem("pk_storcontract_b").setValue(null);
-			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setEnabled(false);
-			
-			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setPK(null);
-			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setValue(null);
-			getBillCardPanel().getHeadItem("pk_transport_b").setValue(null);
-			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setEnabled(false);
-		} else {
-			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setEnabled(true);
-			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setEnabled(true);
-		}
+//		if("自提".equals(((UIRefPane)e.getSource()).getRefName())) {
+//			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setPK(null);
+//			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setValue(null);
+//			getBillCardPanel().getHeadItem("pk_storcontract_b").setValue(null);
+//			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setEnabled(false);
+//			
+//			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setPK(null);
+//			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setValue(null);
+//			getBillCardPanel().getHeadItem("pk_transport_b").setValue(null);
+//			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setEnabled(false);
+//		} else {
+//			((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).setEnabled(true);
+//			((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).setEnabled(true);
+//		}
 		
 	}
 	
@@ -3043,25 +3108,27 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		
 		GeneralBillVO voInputBill = getBillVO();
 		
-		/* 在此添加验证 ： 如果运输方式为自提时运输单价及装卸费不需要填写 ， 否则这2个字段为必填  by river */
-		if(voInputBill != null && voInputBill.getParentVO() != null) {
-			
-			// 读取销售订单中的 [ 是否自提 ] ，以判断运输单价是否必填。
-			CircularlyAccessibleValueObject[] bodyVOs = voInputBill.getChildrenVO();
-			if(bodyVOs != null && bodyVOs.length > 0) {
-				Object csourcebillhid = bodyVOs[0].getAttributeValue("csourcebillhid");
-				Object issince = null;
-				try { issince = UAPQueryBS.getInstance().executeQuery("select issince from so_sale where csaleid = '"+csourcebillhid+"' ", new ColumnProcessor()); } catch(Exception e) { Logger.error(e.getMessage(), e, this.getClass(), "onSave"); }
-				if(!(issince != null && "Y".equals(issince))) {
-					if(((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName() == null) {
-						showErrorMessage("表头 [ 运输单价 ] 不能为空。");
-						return false;
-					}
-				}
-			
-			}
-			
-		}
+		// 去除表头的验证，这里已经不需要此验证
+		// remove by river for 2012-10-29
+//		/* 在此添加验证 ： 如果运输方式为自提时运输单价及装卸费不需要填写 ， 否则这2个字段为必填  by river */
+//		if(voInputBill != null && voInputBill.getParentVO() != null) {
+//			
+//			// 读取销售订单中的 [ 是否自提 ] ，以判断运输单价是否必填。
+//			CircularlyAccessibleValueObject[] bodyVOs = voInputBill.getChildrenVO();
+//			if(bodyVOs != null && bodyVOs.length > 0) {
+//				Object csourcebillhid = bodyVOs[0].getAttributeValue("csourcebillhid");
+//				Object issince = null;
+//				try { issince = UAPQueryBS.getInstance().executeQuery("select issince from so_sale where csaleid = '"+csourcebillhid+"' ", new ColumnProcessor()); } catch(Exception e) { Logger.error(e.getMessage(), e, this.getClass(), "onSave"); }
+//				if(!(issince != null && "Y".equals(issince))) {
+//					if(((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName() == null) {
+//						showErrorMessage("表头 [ 运输单价 ] 不能为空。");
+//						return false;
+//					}
+//				}
+//			
+//			}
+//			
+//		}
 		
 		retType = super.onSave();
 		
@@ -3088,40 +3155,97 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 			
 			Object concode = voInputBill.getParentVO().getAttributeValue("concode");
 			Object pk_transport = voInputBill.getParentVO().getAttributeValue("pk_transport");
-			Object transprice = ((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName();
-			Object storprice = ((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).getRefName();
+//			Object transprice = ((UIRefPane)getBillCardPanel().getHeadItem("transprice").getComponent()).getRefName();
+//			Object storprice = ((UIRefPane)getBillCardPanel().getHeadItem("storprice").getComponent()).getRefName();
 			Object contracttype = voInputBill.getParentVO().getAttributeValue("contracttype");
 			Object salecode = voInputBill.getParentVO().getAttributeValue("salecode");
-			Object pk_storcontract_b = getBillCardPanel().getHeadItem("pk_storcontract_b").getValueObject();
-			Object pk_transport_b = getBillCardPanel().getHeadItem("pk_transport_b").getValueObject();
+//			Object pk_storcontract_b = getBillCardPanel().getHeadItem("pk_storcontract_b").getValueObject();
+//			Object pk_transport_b = getBillCardPanel().getHeadItem("pk_transport_b").getValueObject();
 			Object pk_contract = voInputBill.getParentVO().getAttributeValue("pk_contract");
+			Object version = voInputBill.getParentVO().getAttributeValue("version");
 			
-			newBill.getParentVO().setAttributeValue("transprice", transprice);
-			newBill.getParentVO().setAttributeValue("storprice", storprice);
-			newBill.getParentVO().setAttributeValue("pk_storcontract_b", pk_storcontract_b);
-			newBill.getParentVO().setAttributeValue("pk_transport_b", pk_transport_b);
+			Object estoraddrid = voInputBill.getParentVO().getAttributeValue("estoraddrid");
+			
+//			newBill.getParentVO().setAttributeValue("transprice", transprice);
+//			newBill.getParentVO().setAttributeValue("storprice", storprice);
+//			newBill.getParentVO().setAttributeValue("pk_storcontract_b", pk_storcontract_b);
+//			newBill.getParentVO().setAttributeValue("pk_transport_b", pk_transport_b);
 			
 			try { 
-				
+				// 更新表头下列字段的数据
 				String sqlField = ConvertFunc.change(new String[]{
 						" concode = '" + (concode == null ? "" : concode) + "' " ,
 						" pk_transport = '" + (pk_transport == null ? "" : pk_transport) + "' " ,
-						" transprice = '" + (transprice == null ? "" : transprice) + "' " ,
-						" storprice = '" + (storprice == null ? "" : storprice) + "' " ,
+//						" transprice = '" + (transprice == null ? "" : transprice) + "' " ,
+//						" storprice = '" + (storprice == null ? "" : storprice) + "' " ,
 						" contracttype = '" + (contracttype == null ? "" : contracttype) + "' " ,
 						" salecode = '" + (salecode == null ? "" : salecode) + "' " ,
-						" pk_storcontract_b = '" + (pk_storcontract_b == null ? "" : pk_storcontract_b) + "' " ,
-						" pk_transport_b = '" + (pk_transport_b == null ? "" : pk_transport_b) + "' " ,
+//						" pk_storcontract_b = '" + (pk_storcontract_b == null ? "" : pk_storcontract_b) + "' " ,
+//						" pk_transport_b = '" + (pk_transport_b == null ? "" : pk_transport_b) + "' " ,
 						" pk_contract = '"+(pk_contract == null ? "" : pk_contract)+"' " ,
+						" estoraddrid = '" + (estoraddrid == null ? "" : estoraddrid) + "'" ,
+						" version = '"+(version == null ? "" : version)+"' " ,
 				});
 				
 				UAPQueryBS.getInstance().executeQuery("update ic_general_h set "+sqlField+" where cgeneralhid = '"+newBill.getPrimaryKey()+"'", null); 
 				
 			} catch(Exception ex) { }
 			
+			// 更新表体下列字段的数据
+			CircularlyAccessibleValueObject[] bodyVOs = newBill.getChildrenVO();
+			if(bodyVOs != null && bodyVOs.length > 0) {
+				
+				for(CircularlyAccessibleValueObject bodyVO : bodyVOs) {
+					
+					CircularlyAccessibleValueObject[] formBodyVOs = voInputBill.getChildrenVO();
+					if(formBodyVOs != null && formBodyVOs.length > 0) {
+						
+						for(CircularlyAccessibleValueObject formBodyVO : formBodyVOs) {
+							
+							try {
+								if(formBodyVO.getPrimaryKey().equals(bodyVO.getPrimaryKey())) {
+									
+									Object transprice = formBodyVO.getAttributeValue("transprice");
+									Object storprice = formBodyVO.getAttributeValue("storprice");
+									Object copermodeid = formBodyVO.getAttributeValue("copermodeid");
+									Object ctransmodeid = formBodyVO.getAttributeValue("ctransmodeid");
+									Object pk_transport_b = formBodyVO.getAttributeValue("pk_transport_b");
+									Object pk_storcont_b = formBodyVO.getAttributeValue("pk_storcont_b");
+									
+									String sqlField = ConvertFunc.change(new String[]{
+										" transprice = " + (transprice == null ? "0.0" : transprice) , 
+										" storprice = " + (storprice == null ? "0.0" : storprice) , 
+										" copermodeid = '" + (copermodeid == null ? "" : copermodeid) + "'" , 
+										" ctransmodeid = '" + (ctransmodeid == null ? "" : ctransmodeid) + "'" , 
+										" pk_transport_b = '" + (pk_transport_b == null ? "" : pk_transport_b) + "'" , 
+										" pk_storcont_b = '" + (pk_storcont_b == null ? "" : pk_storcont_b) + "'" , 
+									});
+								
+									try { UAPQueryBS.getInstance().executeQuery("update ic_general_b set "+sqlField+" where cgeneralbid = '"+formBodyVO.getPrimaryKey()+"'", null); } catch(Exception e) { } 
+								
+									Object ts = UAPQueryBS.getInstance().executeQuery("select ts from ic_general_b where cgeneralbid = '"+formBodyVO.getPrimaryKey()+"'", new ColumnProcessor());
+									
+									bodyVO.setAttributeValue("ts", ts);
+									
+									break;
+								}
+							} catch(Exception ex) {
+								Logger.error(ex.getMessage());
+							}
+							
+						}
+						
+					}
+					
+				}
+				
+				newBill.setChildrenVO(bodyVOs);
+				
+			}
+			
 			// 更新数据后对TS字段重新取值，解决后续签字提示被修改、删除
 			try {
-				Object ts = UAPQueryBS.getInstance().executeQuery("select ts from ic_general_h where cgeneralhid = '"+newBill.getPrimaryKey()+"'", new ColumnProcessor());
+				Object ts = UAPQueryBS.getInstance().executeQuery("select ts from ic_general_h where cgeneralhid = '"+newBill.getParentVO().getPrimaryKey()+"'", new ColumnProcessor());
 				newBill.getParentVO().setAttributeValue("ts", ts);
 				
 				updateBillToList(newBill);

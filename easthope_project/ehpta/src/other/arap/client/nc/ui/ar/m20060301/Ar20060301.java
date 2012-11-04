@@ -134,7 +134,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 		Vector retVector = null;
 		if (!"".equals(whereSql)) {
 			try {
-				retVector = (Vector) UAPQueryBS.getInstance().executeQuery( "select djzt , spzt , zyx6 , zyx8 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in (" + whereSql + ") and dwbm = '" + getCorpPrimaryKey() + "' and zyx6 is not null and nvl(dr,0) = 0 ", new VectorProcessor());
+				retVector = (Vector) UAPQueryBS.getInstance().executeQuery( "select djzt , spzt , zyx6 , zyx8 , vouchid , shr , shrq , ybje from arap_djzb where vouchid in (" + whereSql + ") and dwbm = '" + getCorpPrimaryKey() + "' and zyx6 is not null and nvl(dr,0) = 0 and nvl(djzt , 0) = 3 ", new VectorProcessor());
 			} catch (BusinessException e) {
 				e.printStackTrace();
 			}
@@ -284,7 +284,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 												+ whereSql
 												+ ") and dwbm = '"
 												+ getCorpPrimaryKey()
-												+ "' and zyx6 is not null and nvl(dr,0)=0 ",
+												+ "' and zyx6 is not null and nvl(dr,0)=0 and nvl(djzt,0) = 3 ",
 										new VectorProcessor());
 					} catch (BusinessException e) {
 						e.printStackTrace();

@@ -37,12 +37,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	
 	protected QueryConditionClient condition = null;
 	
-//	protected final String[] bodyFamulas = new String[] {
-//			"rises->int(abs(dieselprice / def7 - 1 ) * 100 / def8)",
-//			"fee->def9 * (1 + (rises / 100))",	
-//			"transmny->recnum * fee",
-//			"paymny-> transmny - outmny",
-//	};
+	protected final String[] bodyFamulas = new String[] {
+			"rises->int(abs(dieselprice / def7 - 1 ) * 100 / def8)",
+			"fee->def9 * (1 + (rises / 100))",	
+			"transmny->recnum * fee",
+			"paymny-> transmny - outmny",
+	};
 	
 	protected AbstractManageController createController() {
 		return new ClientUICtrl();
@@ -252,7 +252,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		if(e.getSource() instanceof BillCellEditor) {
 			
 //			getBillCardPanel().execBodyFormulas(e.getRow(), bodyFamulas);
-			if("dieselprice".equals(e.getKey()) || "rises".equals(e.getKey())) {
+			if("dieselprice".equals(e.getKey()) || "rises".equals(e.getKey()) || "outmny".equals(e.getKey())) {
 				
 				UFDouble rises = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "rises");
 				UFDouble dieselprice = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "dieselprice");
@@ -275,7 +275,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 					UFDouble fee = def9.multiply(rises.div(100).add(1));
 					getBillCardPanel().setBodyValueAt(fee, e.getRow(), "fee");
 					
-					dieselprice = dieselprice.multiply(rises.div(100).add(1));
+					dieselprice = def7.multiply(rises.div(100).add(1));
 					getBillCardPanel().setBodyValueAt(dieselprice, e.getRow(), "dieselprice");
 					
 					UFDouble transmny = recnum.multiply(fee);
@@ -285,7 +285,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 					
 				} else if("dieselprice".equals(e.getKey())) {
 					
-					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).abs().multiply(100).intValue() / def8.doubleValue()).intValue());
+					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).multiply(100).intValue() / def8.doubleValue()).intValue());
 					getBillCardPanel().setBodyValueAt(newRises, e.getRow(), "rises");
 					
 					UFDouble fee = def9.multiply(newRises.div(100).add(1));
@@ -294,6 +294,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 					UFDouble transmny = recnum.multiply(fee);
 					getBillCardPanel().setBodyValueAt(transmny, e.getRow(), "transmny");
 					
+					getBillCardPanel().setBodyValueAt(transmny.sub(outmny), e.getRow(), "paymny");
+					
+				} else if("outmny".equals(e.getKey())) {
+					
+					UFDouble fee = def9.multiply(rises.div(100).add(1));
+					UFDouble transmny = recnum.multiply(fee);
 					getBillCardPanel().setBodyValueAt(transmny.sub(outmny), e.getRow(), "paymny");
 					
 				}

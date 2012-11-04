@@ -14,6 +14,7 @@ import nc.ui.ehpta.pub.calc.CalcFunc;
 import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ehpta.pub.ref.LPriceRefPane;
 import nc.ui.pub.ButtonObject;
+import nc.ui.pub.beans.UIComboBox;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.beans.UITextField;
@@ -82,6 +83,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 			beforeOnBoCancleAudit(ctx);
 		} else if(bo.getParent() != null && "打印管理".equals(bo.getParent().getName())) {
+			
 			AggregatedValueObject billVO = null;
 			
 			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))  {
@@ -386,7 +388,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
 		String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
 		
-		Object settlemny = UAPQueryBS.getInstance().executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 2", new ColumnProcessor());
+		Object settletype = ((UIComboBox)ctx.getBillCardPanel().getHeadItem("settletype").getComponent()).getSelectdItemValue();
+		
+		Object settlemny = UAPQueryBS.getInstance().executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = " + (settletype == null ? "2" : settletype), new ColumnProcessor());
 		Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1", new ColumnProcessor());
 		
 		
@@ -403,13 +407,15 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				lpRef.setWhereString("nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1");
 				
 				ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(lpRef);
+				
 			}
 			
 		} else if("增行".equals(bo.getName())) {
 			
+			AggregatedValueObject  billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+			
 			if(settlemny != null) {
 				
-				AggregatedValueObject  billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
 				if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
 					
 					ctx.getBillCardPanel().setBodyValueAt(new UFDouble(settlemny.toString(),2), billVO.getChildrenVO().length - 1, "lastingprice", "table");
@@ -422,6 +428,17 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 					ctx.getBillCardPanel().getBodyItem("lastingprice").setEnabled(false);
 					
 				}
+			} else {
+				
+				Object lastingprice = UAPQueryBS.getInstance().executeQuery("select max(listingmny) from ehpta_maintain where maindate =  ( select max(maindate) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1 ) and nvl(dr,0)=0 and vbillstatus = 1 and type = 1 " , new ColumnProcessor());
+				ctx.getBillCardPanel().execBodyFormulas(billVO.getChildrenVO().length - 1, new String[]{
+					"lastingprice->" + lastingprice , 
+					"noriginalcurtaxprice->lastingprice" , 
+				});
+				
+				ctx.getBillCardPanel().execBodyFormulas(billVO.getChildrenVO().length - 1, formulas);
+				
+				
 			}
 			
 		}
@@ -448,7 +465,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	protected final void beforeOperModeEdit(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
 		if("卡片".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState)) {
-			((UIRefPane)ctx.getBillCardPanel().getBodyItem("copermodecode").getComponent()).setWhereString(" bd_jobmngfil.pk_corp='" + ctx.getLoginCorpID() + "' and bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename = '作业方式' and nvl(dr,0)=0) ");
+			((UIRefPane)ctx.getBillCardPanel().getBodyItem("copermodecode").getComponent()).setWhereString(" bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename = '作业方式' and nvl(dr,0)=0) ");
 		}
 		
 	}
@@ -562,7 +579,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				builder = new StringBuilder();
 				builder.append(" select storcontb.pk_storcontract_b pk_storcont_b , storcontb.signprice storprice from ehpta_storcontract_b storcontb ");
 				builder.append(" left join ehpta_storcontract storcont on storcont.pk_storagedoc = storcontb.pk_storagedoc ");
-				builder.append(" where storcont.pk_stordoc = '"+storage+"' and storcontb.feetype = (select  to_char(to_number(jobcode)) from bd_jobbasfil where pk_jobbasfil = '"+copermodeid+"') ");
+				builder.append(" where storcont.pk_stordoc = '"+storage+"' and storcontb.feetype = (select  to_char(to_number(bd_jobbasfil.jobcode)) from bd_jobmngfil  left join bd_jobbasfil on bd_jobbasfil.pk_jobbasfil = bd_jobmngfil.pk_jobbasfil where pk_jobmngfil = '"+copermodeid+"') ");
 				builder.append(" and storcont.vbillstatus = 1 and storcont.pk_corp = '"+ctx.getLoginCorpID()+"' and nvl(storcont.dr,0) = 0 and nvl(storcontb.dr,0) = 0 ");
 				
 				retMap = (Map) UAPQueryBS.getInstance().executeQuery(builder.toString(), new MapProcessor());
@@ -669,7 +686,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			}
 			
 			ctx.getBillCardPanel().execBodyFormulas(0, new String[]{
-					"cinventorycode->getColValue(bd_invbasdoc,invcode,pk_invbasdoc,cinvbasdocid)"
+					"cinventorycode->getColValue(bd_invbasdoc,invcode,pk_invbasdoc,cinvbasdocid)" , 
 			});
 			
 			/* 待续... */
@@ -824,7 +841,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 			String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
 			
-			Object settlemny = UAPQueryBS.getInstance().executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 2", new ColumnProcessor());
+			Object settletype = ((UIComboBox)ctx.getBillCardPanel().getHeadItem("settletype").getComponent()).getSelectdItemValue();
+			
+			Object settlemny = UAPQueryBS.getInstance().executeQuery("select settlemny from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = " + (settletype == null ? "2" : settletype ), new ColumnProcessor());
 			Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1", new ColumnProcessor());
 			
 			if(settlemny != null && !"".equals(settlemny)) {
@@ -865,8 +884,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				lpRef.setRefModel(new LPriceRefPane());
 				lpRef.setWhereString("nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1");
 				
-					
 				ctx.getBillCardPanel().getBodyItem("lastingprice").setComponent(lpRef);
+				
+				Object lastingprice = UAPQueryBS.getInstance().executeQuery("select max(listingmny) from ehpta_maintain where maindate =  ( select max(maindate) from ehpta_maintain where nvl(dr,0)=0 and vbillstatus = 1 and maindate >= '"+period+"-01' and maindate <= '"+period+"-"+lastDay+"' and type = 1 ) and nvl(dr,0)=0 and vbillstatus = 1 and type = 1 " , new ColumnProcessor());
+				
+				ctx.getBillCardPanel().execBodyFormulas(0, new String[]{
+						"lastingprice->" + lastingprice , 
+						"noriginalcurtaxprice->lastingprice" , 
+				});
+				
+				ctx.getBillCardPanel().execBodyFormulas(0, formulas);
 				
 			} else {
 				if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0 ) {
