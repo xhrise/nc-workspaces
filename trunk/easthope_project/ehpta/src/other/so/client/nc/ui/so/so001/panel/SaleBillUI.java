@@ -6671,7 +6671,7 @@ public abstract class SaleBillUI extends SaleBillListUI implements IFreshTsListe
 	/**
 	 * @return 2007-8-21wsy 得到打印VO，这方法为了迎合以前的用法，因此带来很多不便。
 	 */
-	private AggregatedValueObject getPrintVO() {
+	public AggregatedValueObject getPrintVO() {
 		getBillCardPanel().execHeadLoadFormulas();
 		getBillCardPanel().getBillModel().execLoadFormula();
 
