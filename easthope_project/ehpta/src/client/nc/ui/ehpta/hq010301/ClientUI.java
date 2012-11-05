@@ -211,7 +211,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			String lastDay = CalcFunc.builder(maindate);
 			UFDate lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
 			
-			String type = "";
+			String type = "2";
 			if("结算价".equals(pjfenlei))
 				type = "2";
 			
@@ -269,7 +269,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			String lastDay = CalcFunc.builder(maindate);
 			UFDate lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
 			
-			String type = "";
+			String type = "2";
 			if("结算价".equals(pjfenlei))
 				type = "2";
 			

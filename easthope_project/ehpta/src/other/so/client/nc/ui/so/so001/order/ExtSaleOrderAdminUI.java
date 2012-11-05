@@ -1,5 +1,6 @@
 package nc.ui.so.so001.order;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import nc.bs.logging.Logger;
@@ -15,8 +16,12 @@ import nc.ui.pub.pf.PfUtilClient;
 import nc.ui.scm.extend.IFuncExtend;
 import nc.ui.scm.so.SaleBillType;
 import nc.ui.so.so001.panel.SaleBillUI;
+import nc.ui.so.so001.panel.SaleOrderPrintDataInterface;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.lang.UFDate;
+import nc.vo.so.so001.SaleOrderVO;
+import nc.vo.so.so001.SaleorderBVO;
+import nc.vo.so.so001.SaleorderHVO;
 
 /**
  * 销售订单管理 创建日期：(2012-07-22 )
@@ -412,6 +417,58 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		}
 		
 		return true;
+	}
+	
+	@Override
+	protected void onPrint(boolean needPreview) throws Exception {
+		super.onPrint(needPreview);
+	}
+	
+	@Override
+	protected void onPrintCard(boolean needPreview) {
+		
+		// 手工设置打印模板。
+		//add by river for 2012-11-05
+		getPrintEntry().setTemplateID(getCorpPrimaryKey(), "HQ010601", getClientEnvironment().getUser().getPrimaryKey() , getBillCardPanel().getBusiType());
+		// end
+		
+		// 打印模板
+		if (getPrintEntry().selectTemplate() < 0)
+			return;
+
+		SaleOrderVO saleorder = (SaleOrderVO) getBillCardPanel().getBillValueVO(
+				SaleOrderVO.class.getName(), SaleorderHVO.class.getName(),
+				SaleorderBVO.class.getName());
+
+		nc.ui.scm.print.PrintLogClient plc = new nc.ui.scm.print.PrintLogClient();
+		showHintMessage(plc.getBeforePrintMsg(needPreview, false));
+		plc.addFreshTsListener(this);
+		plc.setPrintEntry(getPrintEntry());
+		plc.setPrintInfo(saleorder.getHeadVO().getScmPrintlogVO());
+
+		// 打印模板上设置打印监听
+		getPrintEntry().setPrintListener(plc);
+
+		// 打印数据源
+		SaleOrderPrintDataInterface prds = getDataSource();
+		ArrayList prlistvo = new ArrayList();
+		prlistvo.add(getPrintVO());
+		prds.setListVOs(prlistvo);
+		prds.setIsNeedSpaceRowInOneVO(false);// 不打印空行
+		prds.setTotalLinesInOnePage(m_print.getBreakPos());
+
+		// 打印模板上设置打印数据源
+		getPrintEntry().setDataSource(prds);
+
+		// 开始打印
+		if (needPreview) {
+			getPrintEntry().preview();
+		} else {
+			getPrintEntry().print(true);
+		}
+
+		showHintMessage(plc.getPrintResultMsg(needPreview));
+				
 	}
 	
 }
