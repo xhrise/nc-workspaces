@@ -112,7 +112,13 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 	private final void afterOnBoAudit() {
 
 		Object userObj = new nc.ui.ehpta.hq010403.ClientUICheckRuleGetter();
-		Vector<String> djpks = getAllSelectedDJPK();
+		Vector<String> djpks = new Vector<String>();
+		
+		try {
+			djpks = getAllSelectedDJPK();
+		
+		} catch(Exception e) { }
+		
 		if (djpks != null && djpks.size() == 0)
 			if (getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid") != null)
 				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
@@ -253,12 +259,16 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 	 */
 	private final void afterOnBoCancleAudit() {
 
-		Vector<String> djpks = getAllSelectedDJPK();
+		Vector<String> djpks = new Vector<String>();
+		
+		try {
+			djpks = getAllSelectedDJPK();
+		} catch(Exception e) { }
+		 
+		
 		if (djpks != null && djpks.size() == 0)
-			if (getArapDjPanel1().getBillCardPanelDj().getBillData()
-					.getHeadItem("vouchid") != null)
-				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData()
-						.getHeadItem("vouchid").getValueObject().toString());
+			if (getArapDjPanel1().getBillCardPanelDj().getBillData() .getHeadItem("vouchid") != null)
+				djpks.add(getArapDjPanel1().getBillCardPanelDj().getBillData().getHeadItem("vouchid").getValueObject().toString());
 
 		if (djpks != null && djpks.size() > 0) {
 			try {

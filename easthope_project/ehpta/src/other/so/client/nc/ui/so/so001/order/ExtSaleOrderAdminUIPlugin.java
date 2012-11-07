@@ -210,7 +210,8 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			if(billVO == null) 
 				throw new BusinessException("billVO is null");
 			
-			Object iscredit = billVO.getParentVO().getAttributeValue("iscredit");
+			Object temp = billVO.getParentVO().getAttributeValue("iscredit");
+			UFBoolean iscredit = new UFBoolean(temp == null || "".equals(temp) ? "N" : temp.toString());
 			String sqlPart = " ";
 			Object Rebates = null;
 			try {
@@ -232,7 +233,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 						"'" + IAdjustType.LSSubPrice + "'" , 
 					};
 					
-					sqlPart += "and type in ("+ConvertFunc.change(adjustType)+") and ( pk_cumandoc = '"+billVO.getParentVO().getAttributeValue("ccustomerid")+"' or pk_cumandoc is null ) ";
+					sqlPart += /* "and type in ("+ConvertFunc.change(adjustType)+") " + */ " and ( pk_cumandoc = '"+billVO.getParentVO().getAttributeValue("ccustomerid")+"' or pk_cumandoc is null ) ";
 				
 					Rebates = UAPQueryBS.getInstance().executeQuery(" select nvl(sum(mny),0) mny from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and type = '"+IAdjustType.Rebates+"'", new ColumnProcessor());
 				}
@@ -970,13 +971,24 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		
 		if(selVO != null) {
 			UFDouble noriginalcursummny = new UFDouble("0" , 2);
+			UFDouble totalNnumber = new UFDouble("0" , 2);
+			
 			for(CircularlyAccessibleValueObject vo : selVO.getChildrenVO()) {
 				noriginalcursummny = noriginalcursummny.add(vo.getAttributeValue("noriginalcursummny") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("noriginalcursummny").toString()));
+				totalNnumber = totalNnumber.add(vo.getAttributeValue("nnumber") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("nnumber").toString()));
 			}
 		
 			ctx.getBillCardPanel().execHeadFormula("nheadsummny->" + noriginalcursummny.toString());
-
-		}
+			ctx.getBillCardPanel().execHeadFormula("totalnnumber->" + totalNnumber.toString());
+			
+			String totalcnnumber = ConvertFunc.getChinaNum(totalNnumber.toString());
+			
+			if("".equals(totalcnnumber) || totalcnnumber == null)
+				totalcnnumber = "Áã¶ÖÕû";
+			
+			ctx.getBillCardPanel().execHeadFormula("totalcnnumber->" + totalcnnumber);
+			
+		} 
 		
 	}
 	

@@ -196,7 +196,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			
 			try {
 				
-				Integer vbillstatus = (Integer) getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus");
+				Integer vbillstatus = 0;
+				
+				try {
+					vbillstatus = (Integer) getBufferData().getCurrentVO().getParentVO().getAttributeValue("vbillstatus");
+				} catch(Exception e) { }
 				
 				switch (vbillstatus) {
 				

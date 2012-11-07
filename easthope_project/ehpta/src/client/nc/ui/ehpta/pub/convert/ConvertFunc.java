@@ -64,4 +64,132 @@ public class ConvertFunc {
 		
 		return value;
 	}
+	
+	public static final String getChinaNum(String number) {
+		
+		if(number == null || "".equals(number) || Double.valueOf(number) == 0)
+			return "";
+		
+		String val = "";
+		boolean check = false;
+		for (int i = 0; i < number.length(); i++) {
+			char splitChar = number.charAt(number.length() - i - 1);
+			
+			if(splitChar != '.') {
+				Integer signnum = Integer.valueOf(String.valueOf(splitChar));
+				
+				if(signnum != 0)
+					check = true;
+				
+				if(signnum != 0 || check)
+					val += signnum;
+			} else {
+				val += splitChar;
+				check = true;
+			}
+		}
+		
+		String[] numArray = val.split("\\.");
+		String bigNum = "";
+		
+		String xiao = numArray[0];
+		String zheng = numArray[1];
+		
+		for (int i = 0; i < xiao.length(); i++) {
+			bigNum = getChinaSignNum(xiao.substring(i, i + 1)) + bigNum;
+		}
+		
+		if(xiao.length() > 0 )
+			bigNum = "µã" + bigNum + "¶Ö";
+		else 
+			bigNum = "¶ÖÕû";
+		
+		String f = "";
+		String x = "";
+		for (int i = 1; i < zheng.length() + 1; i++) {
+			x = zheng.substring(i - 1, i);
+			int w = i % 8;
+			if (i == 1) {
+				if (x.equals("0") == false) {
+					bigNum = getChinaSignNum(x) + bigNum;
+				}
+			} else {
+				if (w == 1)
+					f = "";
+				if (w == 2)
+					f = "Ê°";
+				if (w == 3)
+					f = "°Û";
+				if (w == 4)
+					f = "Çª";
+				if (w == 5)
+					f = "Íò";
+				if (w == 6)
+					f = "Ê°";
+				if (w == 7)
+					f = "°Û";
+				if (w == 0)
+					f = "Çª";
+				if (w == 5) {
+					if (zheng.length() - i > 3 && x.equals("0")
+							&& (zheng.substring(i, i + 1)).equals("0")
+							&& (zheng.substring(i + 1, i + 2)).equals("0")
+							&& (zheng.substring(i + 2, i + 3)).equals("0")) {
+					} else if (x.equals("0") == false) {
+					} else
+						bigNum = "Íò" + bigNum;
+				}
+				if (w == 1)
+					bigNum = "ÒÚ" + bigNum;
+				if (x.equals("0")
+						&& (zheng.substring(i - 2, i - 1)).equals("0")
+						|| x.equals("0") && w == 1 || x.equals("0") && w == 5) {
+				} else {
+					if (x.equals("0")) {
+						bigNum = getChinaSignNum(x) + bigNum;
+					} else {
+						bigNum = getChinaSignNum(x) + f + bigNum;
+					}
+				}
+			}
+		}
+		
+		return bigNum;
+	}
+	
+	public static final String getChinaSignNum(String number) {
+		
+		if (number.equals("0"))
+			return "Áã";
+		
+		if (number.equals("1"))
+			return "Ò¼";
+		
+		if (number.equals("2"))
+			return "·¡";
+		
+		if (number.equals("3"))
+			return "Èş";
+		
+		if (number.equals("4"))
+			return "ËÁ";
+		
+		if (number.equals("5"))
+			return "Îé";
+		
+		if (number.equals("6"))
+			return "Â½";
+		
+		if (number.equals("7"))
+			return "Æâ";
+		
+		if (number.equals("8"))
+			return "°Æ";
+		
+		if (number.equals("9"))
+			return "¾Á";
+		
+		return "";
+		
+	}
 }

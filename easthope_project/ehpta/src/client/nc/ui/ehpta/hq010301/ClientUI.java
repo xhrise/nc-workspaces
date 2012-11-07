@@ -2,6 +2,7 @@ package nc.ui.ehpta.hq010301;
 
 import javax.swing.table.TableColumn;
 
+import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.calc.CalcFunc;
@@ -205,11 +206,19 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			StringBuilder builder = new StringBuilder();
 			
 			String temp = ((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName();
-			UFDate maindate = new UFDate(temp);
-			UFDate firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
 			
-			String lastDay = CalcFunc.builder(maindate);
-			UFDate lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
+			UFDate maindate = null;
+			UFDate firstDate = null;
+			UFDate lastDate = null;
+			try {
+				maindate = new UFDate(temp);
+				firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
+				String lastDay = CalcFunc.builder(maindate);
+				lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
+				
+			} catch(Exception ex) {
+				Logger.error(ex.getMessage(), ex, this.getClass(), "afterEdit_type");
+			}
 			
 			String type = "2";
 			if("结算价".equals(pjfenlei))
@@ -219,7 +228,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 				type = "3";
 			
 			builder.append("select nvl(count(1),0) from ehpta_maintain where");
-			builder.append(" maindate >= '"+firstDate.toString()+"' and maindate <= '"+lastDate.toString()+"'");
+			builder.append(" maindate >= '"+(firstDate == null ? "" : firstDate.toString())+"' and maindate <= '"+(lastDate == null ? "" : lastDate.toString())+"'");
 			builder.append(" and type='"+type+"' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0) = 0");
 			
 			int i = (Integer) UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());
@@ -263,11 +272,19 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			StringBuilder builder = new StringBuilder();
 			
 			String temp = ((UIRefPane)getBillCardPanel().getHeadItem("maindate").getComponent()).getRefName();
-			UFDate maindate = new UFDate(temp);
-			UFDate firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
-			
-			String lastDay = CalcFunc.builder(maindate);
-			UFDate lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
+
+			UFDate maindate = null;
+			UFDate firstDate = null;
+			UFDate lastDate = null;
+			try {
+				maindate = new UFDate(temp);
+				firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
+				String lastDay = CalcFunc.builder(maindate);
+				lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
+				
+			} catch(Exception ex) {
+				Logger.error(ex.getMessage(), ex, this.getClass(), "afterEdit_type");
+			}
 			
 			String type = "2";
 			if("结算价".equals(pjfenlei))
@@ -277,7 +294,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 				type = "3";
 			
 			builder.append("select nvl(count(1),0) from ehpta_maintain where");
-			builder.append(" maindate >= '"+firstDate.toString()+"' and maindate <= '"+lastDate.toString()+"'");
+			builder.append(" maindate >= '"+(firstDate == null ? "" : firstDate.toString())+"' and maindate <= '"+(lastDate == null ? "" : lastDate.toString())+"'");
 			builder.append(" and type='"+type+"' and pk_corp='"+_getCorp().getPk_corp()+"' and nvl(dr,0) = 0");
 			
 			int i = (Integer)UAPQueryBS.getInstance().executeQuery(builder.toString(), new ColumnProcessor());

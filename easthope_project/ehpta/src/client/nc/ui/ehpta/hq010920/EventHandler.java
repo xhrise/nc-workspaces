@@ -290,12 +290,12 @@ public class EventHandler extends ManageEventHandler {
 					UFDouble def8 = (UFDouble) bodyVO.getAttributeValue("def8");
 					
 					rises = rises == null ? new UFDouble("0") : rises;
-					dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
 					def9 = def9 == null ? new UFDouble("0") : def9;
 					recnum = recnum == null ? new UFDouble("0") : recnum;
 					outmny = outmny == null ? new UFDouble("0") : outmny;
 					def7 = def7 == null ? new UFDouble("0") : def7;
 					def8 = def8 == null ? new UFDouble("0") : def8;
+					dieselprice = dieselprice == null ? def7 : dieselprice;
 					
 					UFDouble fee = def9.multiply(rises.div(100).add(1));
 					bodyVO.setAttributeValue("fee", fee);
@@ -323,12 +323,12 @@ public class EventHandler extends ManageEventHandler {
 					UFDouble def8 = (UFDouble) bodyVO.getAttributeValue("def8");
 					
 					rises = rises == null ? new UFDouble("0") : rises;
-					dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
 					def9 = def9 == null ? new UFDouble("0") : def9;
 					recnum = recnum == null ? new UFDouble("0") : recnum;
 					outmny = outmny == null ? new UFDouble("0") : outmny;
 					def7 = def7 == null ? new UFDouble("0") : def7;
 					def8 = def8 == null ? new UFDouble("0") : def8;
+					dieselprice = dieselprice == null ? def7 : dieselprice;
 					
 					UFDouble newRises = def8.doubleValue() == 0 ? def8 : new UFDouble(new UFDouble(dieselprice.div(def7).sub(1).multiply(100).intValue() / def8.doubleValue()).intValue());
 					bodyVO.setAttributeValue("rises", newRises);

@@ -77,3 +77,7 @@ alter table ic_general_b add pk_storcont_b varchar2(20);
 -- 2012-11-02
 alter table so_sale add settletype varchar2(10);
 
+-- 2012-11-07
+alter table so_sale add totalnnumber number(32,8);
+alter table so_sale add totalcnnumber varchar2(128);
+

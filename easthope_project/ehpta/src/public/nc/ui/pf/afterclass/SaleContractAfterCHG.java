@@ -1,5 +1,6 @@
 package nc.ui.pf.afterclass;
 
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.ehpta.hq010401.SaleContractVO;
 import nc.vo.ehpta.hq010402.AidcustVO;
@@ -23,6 +24,20 @@ public class SaleContractAfterCHG implements IchangeVO {
 		
 		// 多表体无法获取表体数据，这里直接进行赋值.
 		setMultiBody(preVO , nowVO);
+		
+		if(nowVO != null && nowVO.getChildrenVO() != null && nowVO.getChildrenVO().length > 0) {
+			UFDouble totalNnumber = new UFDouble("0" , 2);
+			
+			for(CircularlyAccessibleValueObject vo : nowVO.getChildrenVO()) {
+				totalNnumber = totalNnumber.add(vo.getAttributeValue("nnumber") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("nnumber").toString()));
+			}
+			
+			String totalcnnumber = ConvertFunc.getChinaNum(totalNnumber.toString());
+			
+			nowVO.getParentVO().setAttributeValue("totalnnumber", totalNnumber);
+			nowVO.getParentVO().setAttributeValue("totalcnnumber", totalcnnumber);
+			
+		}
 		
 		return nowVO; 
 	}
@@ -96,6 +111,135 @@ public class SaleContractAfterCHG implements IchangeVO {
 				}
 			}
 		}
+	}
+	
+	public  final String getChinaNum(String number) {
+		
+		if(number == null || "".equals(number) || Double.valueOf(number) == 0)
+			return "";
+		
+		String val = "";
+		boolean check = false;
+		for (int i = 0; i < number.length(); i++) {
+			char splitChar = number.charAt(number.length() - i - 1);
+			
+			if(splitChar != '.') {
+				Integer signnum = Integer.valueOf(String.valueOf(splitChar));
+				
+				if(signnum != 0)
+					check = true;
+				
+				if(signnum != 0 || check)
+					val += signnum;
+			} else {
+				val += splitChar;
+				check = true;
+			}
+		}
+		
+		String[] numArray = val.split("\\.");
+		String bigNum = "";
+		
+		String xiao = numArray[0];
+		String zheng = numArray[1];
+		
+		for (int i = 0; i < xiao.length(); i++) {
+			bigNum = getChinaSignNum(xiao.substring(i, i + 1)) + bigNum;
+		}
+		
+		if(xiao.length() > 0 )
+			bigNum = "点" + bigNum + "吨";
+		else 
+			bigNum = "吨整";
+		
+		String f = "";
+		String x = "";
+		for (int i = 1; i < zheng.length() + 1; i++) {
+			x = zheng.substring(i - 1, i);
+			int w = i % 8;
+			if (i == 1) {
+				if (x.equals("0") == false) {
+					bigNum = getChinaSignNum(x) + bigNum;
+				}
+			} else {
+				if (w == 1)
+					f = "";
+				if (w == 2)
+					f = "拾";
+				if (w == 3)
+					f = "佰";
+				if (w == 4)
+					f = "仟";
+				if (w == 5)
+					f = "万";
+				if (w == 6)
+					f = "拾";
+				if (w == 7)
+					f = "佰";
+				if (w == 0)
+					f = "仟";
+				if (w == 5) {
+					if (zheng.length() - i > 3 && x.equals("0")
+							&& (zheng.substring(i, i + 1)).equals("0")
+							&& (zheng.substring(i + 1, i + 2)).equals("0")
+							&& (zheng.substring(i + 2, i + 3)).equals("0")) {
+					} else if (x.equals("0") == false) {
+					} else
+						bigNum = "万" + bigNum;
+				}
+				if (w == 1)
+					bigNum = "亿" + bigNum;
+				if (x.equals("0")
+						&& (zheng.substring(i - 2, i - 1)).equals("0")
+						|| x.equals("0") && w == 1 || x.equals("0") && w == 5) {
+				} else {
+					if (x.equals("0")) {
+						bigNum = getChinaSignNum(x) + bigNum;
+					} else {
+						bigNum = getChinaSignNum(x) + f + bigNum;
+					}
+				}
+			}
+		}
+		
+		return bigNum;
+		
+	}
+	
+	public  final String getChinaSignNum(String number) {
+		
+		if (number.equals("0"))
+			return "零";
+		
+		if (number.equals("1"))
+			return "壹";
+		
+		if (number.equals("2"))
+			return "贰";
+		
+		if (number.equals("3"))
+			return "叁";
+		
+		if (number.equals("4"))
+			return "肆";
+		
+		if (number.equals("5"))
+			return "伍";
+		
+		if (number.equals("6"))
+			return "陆";
+		
+		if (number.equals("7"))
+			return "柒";
+		
+		if (number.equals("8"))
+			return "捌";
+		
+		if (number.equals("9"))
+			return "玖";
+		
+		return "";
+		
 	}
 
 }
