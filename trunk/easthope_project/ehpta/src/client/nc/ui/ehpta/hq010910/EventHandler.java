@@ -197,7 +197,7 @@ public class EventHandler extends ManageEventHandler {
 
 		updateBuffer();
 		
-		afterOnBoConfirm(nowSettleVOs);
+		afterOnBoConfirm(queryVOs);
 		
 	}
 	
@@ -254,7 +254,7 @@ public class EventHandler extends ManageEventHandler {
 			
 			if(count > 0) {
 				try { UAPQueryBS.getInstance().executeQuery("update so_sale set settleflag = 'N' , settledate = null where csaleid = '"+billVO.getParentVO().getAttributeValue("csaleid")+"' ", null); } catch(Exception e) { }
-				adjustList.add("'" + billVO.getParentVO().getAttributeValue("csaleid") + "'");
+				adjustList.add("'" + billVO.getParentVO().getPrimaryKey() + "'");
 			}	
 		}
 		
@@ -283,6 +283,7 @@ public class EventHandler extends ManageEventHandler {
 					HYBillVO newBillVO = new HYBillVO();
 					newBillVO.setParentVO(adjust);
 
+					
 					getBusinessAction().delete(newBillVO, "HQ07", billVO.getParentVO().getAttributeValue("dapprovedate").toString(), userObj);
 				
 				} catch (Exception e) {

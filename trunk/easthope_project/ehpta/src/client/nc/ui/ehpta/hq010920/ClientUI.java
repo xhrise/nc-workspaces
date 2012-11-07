@@ -263,12 +263,12 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				UFDouble def8 = (UFDouble) getBillCardPanel().getBodyValueAt(e.getRow(), "def8");
 				
 				rises = rises == null ? new UFDouble("0") : rises;
-				dieselprice = dieselprice == null ? new UFDouble("0") : dieselprice;
 				def9 = def9 == null ? new UFDouble("0") : def9;
 				recnum = recnum == null ? new UFDouble("0") : recnum;
 				outmny = outmny == null ? new UFDouble("0") : outmny;
 				def7 = def7 == null ? new UFDouble("0") : def7;
 				def8 = def8 == null ? new UFDouble("0") : def8;
+				dieselprice = dieselprice == null ? def7 : dieselprice;
 				
 				if("rises".equals(e.getKey())) {
 					

@@ -12,6 +12,46 @@
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
 				<field>
+					<!--整单数量（大写）-->
+					<dbfieldname>totalcnnumber</dbfieldname>
+					<vofieldname>totalcnnumber</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>128</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>整单数量（大写）</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
+					<!--整单数量-->
+					<dbfieldname>totalnnumber</dbfieldname>
+					<vofieldname>totalnnumber</vofieldname>
+					<dbfieldtype>3</dbfieldtype>
+					<vofieldtype>1</vofieldtype>
+					<persistence>Y</persistence>
+					<length>28</length>
+					<allownull>Y</allownull>
+					<precision>8</precision>
+					<showprop>
+						<showname>整单数量</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
 					<!--结算类型-->
 					<dbfieldname>settletype</dbfieldname>
 					<vofieldname>settletype</vofieldname>
