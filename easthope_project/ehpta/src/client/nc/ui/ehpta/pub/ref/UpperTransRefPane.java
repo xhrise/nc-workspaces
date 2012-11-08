@@ -18,6 +18,7 @@ public class UpperTransRefPane extends AbstractRefModel {
 			"vbillno",
 			"transtype",
 			"carrier",
+			"addrname",
 			"sendname",
 			"price"
 			
@@ -28,6 +29,7 @@ public class UpperTransRefPane extends AbstractRefModel {
 			"合同编码",
 			"合同类型",
 			"承运商",
+			"到站地",
 			"运输方式",
 			"运输价格"
 		});
@@ -52,12 +54,13 @@ public class UpperTransRefPane extends AbstractRefModel {
 		builder.append(" transcont.vbillstatus, ");
 		builder.append(" send.sendname, ");
 		builder.append(" case when transcont.transtype = 'upper' then transcontb.shipprice when transcont.transtype = 'under' then transcontb.transprice else 0 end price , ");
-		builder.append(" transcont.pk_transport ");
+		builder.append(" transcont.pk_transport , address.addrname ");
 		builder.append(" from ehpta_transport_contract transcont ");
 		builder.append(" left join bd_cumandoc man on man.pk_cumandoc = transcont.pk_carrier ");
 		builder.append(" left join bd_cubasdoc bas on bas.pk_cubasdoc = man.pk_cubasdoc ");
 		builder.append(" left join ehpta_transport_contract_b transcontb on transcontb.pk_transport = transcont.pk_transport ");
-		builder.append(" left join bd_sendtype send on send.pk_sendtype = transcontb.pk_sendtype) ");
+		builder.append(" left join bd_sendtype send on send.pk_sendtype = transcontb.pk_sendtype ");
+		builder.append(" left join bd_address address on address.pk_address = transcontb.estoraddr) ");
 		
 		setTableName(builder.toString() + " ehpta_transport_contract ");
 		
