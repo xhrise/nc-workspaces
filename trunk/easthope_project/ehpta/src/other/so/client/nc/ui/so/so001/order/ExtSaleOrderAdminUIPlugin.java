@@ -299,9 +299,39 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			if("修改".equals(bo.getName()) || "增行".equals(bo.getName())) 
 				afterOnBoEditOrAddLine(bo, ctx);
 				
+			if(bo.getParent() != null && "行操作".equals(bo.getParent().getName())) 
+				afterLineExec(ctx);
+			
 		} catch (Exception e) { 
 			Logger.error(e.getMessage(), e, this.getClass(), "afterButtonClicked"); 
 		}
+		
+	}
+	
+	protected final void afterLineExec(SCMUIContext ctx) throws Exception {
+		
+		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		
+		if(selVO != null) {
+			UFDouble noriginalcursummny = new UFDouble("0" , 2);
+			UFDouble totalNnumber = new UFDouble("0" , 2);
+			
+			for(CircularlyAccessibleValueObject vo : selVO.getChildrenVO()) {
+				noriginalcursummny = noriginalcursummny.add(vo.getAttributeValue("noriginalcursummny") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("noriginalcursummny").toString()));
+				totalNnumber = totalNnumber.add(vo.getAttributeValue("nnumber") == null ? new UFDouble("0") : new UFDouble(vo.getAttributeValue("nnumber").toString()));
+			}
+		
+			ctx.getBillCardPanel().execHeadFormula("nheadsummny->" + noriginalcursummny.toString());
+			ctx.getBillCardPanel().execHeadFormula("totalnnumber->" + totalNnumber.toString());
+			
+			String totalcnnumber = ConvertFunc.getChinaNum(totalNnumber.toString());
+			
+			if("".equals(totalcnnumber) || totalcnnumber == null)
+				totalcnnumber = "零吨整";
+			
+			ctx.getBillCardPanel().execHeadFormula("totalcnnumber->" + totalcnnumber);
+			
+		} 
 		
 	}
 	
@@ -387,6 +417,10 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	protected final void afterOnBoEditOrAddLine(ButtonObject bo, SCMUIContext ctx) throws Exception {
 		
 		Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
+		
+		if(period == null)
+			return ;
+		
 		String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
 		
 		Object settletype = ((UIComboBox)ctx.getBillCardPanel().getHeadItem("settletype").getComponent()).getSelectdItemValue();

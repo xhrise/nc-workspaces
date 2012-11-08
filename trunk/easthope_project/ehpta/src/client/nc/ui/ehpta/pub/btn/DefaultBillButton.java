@@ -31,7 +31,7 @@ public final class DefaultBillButton {
 	public static final int LINKQUERY = 105;
 	
 	/**
-	 *  结算维护
+	 *  维护
 	 */
 	public static final int Maintain = 106;
 	
@@ -248,9 +248,9 @@ public final class DefaultBillButton {
 		
 		ButtonVO btnVO = new ButtonVO();
 		btnVO.setBtnNo(Maintain);
-		btnVO.setBtnCode("结算维护");
-		btnVO.setBtnName("结算维护");
-		btnVO.setBtnChinaName("结算维护");
+		btnVO.setBtnCode("维护");
+		btnVO.setBtnName("维护");
+		btnVO.setBtnChinaName("维护");
 		
 		btnVO.setChildAry(new int[] {
 				DefaultBillButton.Statistics,

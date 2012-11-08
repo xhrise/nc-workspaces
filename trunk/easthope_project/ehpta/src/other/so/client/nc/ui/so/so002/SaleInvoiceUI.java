@@ -13,9 +13,7 @@ import java.util.Set;
 
 import nc.bs.bd.b21.BusinessCurrencyRateUtil;
 import nc.bs.framework.common.NCLocator;
-
 import nc.itf.ic.service.IICToSO;
-
 import nc.ui.ml.NCLangRes;
 import nc.ui.pf.change.PfUtilUITools;
 import nc.ui.pf.pub.PfUIDataCache;
@@ -58,9 +56,9 @@ import nc.ui.so.pub.ProccDlg;
 import nc.ui.so.pub.ShowToolsInThread;
 import nc.ui.so.pub.plugin.SOPluginUI;
 import nc.ui.so.so001.SaleOrderBO_Client;
-
 import nc.vo.ic.pub.bill.GeneralBillItemVO;
 import nc.vo.jcom.lang.StringUtil;
+import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.VOStatus;
@@ -1764,10 +1762,9 @@ public class SaleInvoiceUI extends nc.ui.pub.ToftPanel implements
       onCard();
       // 如果是新单据,则需直接修改
       
-      // 双击时不在进行判断单据是否为新单据  // modify by river for 2012-09-21 
-//      if (getBillCardPanel().isNewBill()) {
-//        onModify();
-//      }
+      if (getBillCardPanel().isNewBill()) {
+        onModify();
+      }
     }
   }
 
@@ -4304,8 +4301,11 @@ private void dealMny(SaleinvoiceVO[] aryRetVO) {
    */
   private void onAuditFlowStatus() {
     SaleinvoiceVO hvo = null;
-    if (getShowState() == ListShow) hvo = getBillListPanel().getSelectedVO();
-    else hvo = (SaleinvoiceVO) getBillCardPanel().getVO();
+    if (getShowState() == ListShow) 
+    	hvo = getBillListPanel().getSelectedVO();
+    else 
+    	hvo = (SaleinvoiceVO) getBillCardPanel().getVO();
+    
     if (hvo == null || hvo.getParentVO() == null) {
       showErrorMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID("SCMCOMMON",
           "UPPSCMCommon-000199")/* @res "请选择单据" */);
@@ -4313,6 +4313,7 @@ private void dealMny(SaleinvoiceVO[] aryRetVO) {
     else {
       SaleVO header = (SaleVO) hvo.getParentVO();
       String pk = header.getCsaleid();
+      
       if (pk == null) {
         showErrorMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
             "SCMCOMMON", "UPPSCMCommon-000067")/* @res "单据号为空" */);
