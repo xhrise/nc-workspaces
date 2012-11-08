@@ -30,9 +30,7 @@ select * from pub_billcode_rule where pk_billtypecode like 'HQ%' and pk_billtype
 
 select * from pub_systemplate where funnode like 'HQ%';
 
-select * from vw_sale_contract_bs
-select * from vw_sale_contract
-select * from vw_ehpta_settlement
+
 
 
 
