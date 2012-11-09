@@ -69,10 +69,147 @@ public class EventHandler extends ManageEventHandler {
 				onBoSelNone();
 				break;
 				
+			case DefaultBillButton.Settle:
+				onBoSettle();
+				break;
+				
+			case DefaultBillButton.CancleSettle:
+				onBoCancleSettle();
+				break;
+				
 			default :
 				
 				break;
 		}
+		
+	}
+	
+	protected final void onBoCancleSettle() throws Exception {
+		
+		if(getBufferData().getCurrentVO() == null)
+			return ;
+		
+		CalcUpperTransfeeBVO[] selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcUpperTransfeeBVO.class.getName());
+		if(selBodyVOs == null || selBodyVOs.length == 0)
+			selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+		
+		if(selBodyVOs == null || selBodyVOs.length == 0) {
+			getBillUI().showErrorMessage("请至少选择一条记录进行此操作。");
+			return ;
+		}
+		
+		int dialogId = getBillUI().showYesNoMessage("确定执行此操作吗？");
+		if(dialogId == UIDialog.ID_YES) {
+			
+			for(CalcUpperTransfeeBVO selBodyVO : selBodyVOs) {
+				selBodyVO.setDef10("N");
+				selBodyVO.setDef11(null);
+			}
+			
+			HYPubBO_Client.updateAry(selBodyVOs);
+			
+			updateCurrentBodyVO();
+		}
+		
+	}
+	
+	protected final void onBoSettle() throws Exception {
+
+		if(getBufferData().getCurrentVO() == null)
+			return ;
+		
+		CalcUpperTransfeeBVO[] selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getBillCardPanel().getBillModel().getBodySelectedVOs(CalcUpperTransfeeBVO.class.getName());
+		if(selBodyVOs == null || selBodyVOs.length == 0)
+			selBodyVOs = (CalcUpperTransfeeBVO[]) getBillCardPanelWrapper().getSelectedBodyVOs();
+		
+		if(selBodyVOs == null || selBodyVOs.length == 0) {
+			getBillUI().showErrorMessage("请至少选择一条记录进行此操作。");
+			return ;
+		}
+		
+		boolean check = false;
+		
+		for(CalcUpperTransfeeBVO selBodyVO : selBodyVOs) {
+			if("Y".equals(selBodyVO.getDef10()) || selBodyVO.getDef11() != null ) {
+				check = true;
+			}
+		}
+		
+		if(check) {
+			int dialogId = getBillUI().showYesNoMessage("选中的信息中存在已经结算的记录，是否继续执行？");
+			if(dialogId == UIDialog.ID_YES) {
+				
+				dialogId = getBillUI().showYesNoMessage("是否同时更新已经结算的记录的时间？");
+				
+				if(dialogId == UIDialog.ID_YES) {
+					
+					for(CalcUpperTransfeeBVO selBodyVO : selBodyVOs) {
+						selBodyVO.setDef10("Y");
+						selBodyVO.setDef11(_getDate().toString());
+						
+					}
+					
+					HYPubBO_Client.updateAry(selBodyVOs);
+					
+				} else {
+					
+					for(CalcUpperTransfeeBVO selBodyVO : selBodyVOs) {
+						if(!"Y".equals(selBodyVO.getDef10())) {
+							selBodyVO.setDef10("Y");
+							selBodyVO.setDef11(_getDate().toString());
+						}
+						
+						
+					}
+					
+					HYPubBO_Client.updateAry(selBodyVOs);
+					
+				}
+				
+				updateCurrentBodyVO();
+				
+			} 
+		} else {
+			
+			int dialogId = getBillUI().showYesNoMessage("确定结算选中的记录吗？");
+			
+			if(dialogId == UIDialog.ID_YES) {
+				
+				for(CalcUpperTransfeeBVO selBodyVO : selBodyVOs) {
+					selBodyVO.setDef10("Y");
+					selBodyVO.setDef11(_getDate().toString());
+					
+				}
+				
+				HYPubBO_Client.updateAry(selBodyVOs);
+				
+				updateCurrentBodyVO();
+				
+			}
+			
+		}
+		
+	}
+	
+	/**
+	 * 更新表体记录到当前选中行
+	 */
+	protected final void updateCurrentBodyVO() throws Exception {
+		
+		CalcUpperTransfeeBVO[] bodyVOs = (CalcUpperTransfeeBVO[]) getBufferData().getCurrentVO().getChildrenVO();
+		List<String> primaryKeys = new ArrayList<String>();
+		for(CalcUpperTransfeeBVO bodyVO : bodyVOs) {
+			primaryKeys.add("'" + bodyVO.getPk_transfee_b() + "'");
+		}
+		
+		SuperVO[] queryVOs = HYPubBO_Client.queryByCondition(CalcUpperTransfeeBVO.class, CalcUpperTransfeeBVO.PK_TRANSFEE_B + " in ("+ConvertFunc.change(primaryKeys.toArray(new String[0]))+") ");
+		
+		int currRow = getBufferData().getCurrentRow();
+		AggregatedValueObject billVO = getBufferData().getCurrentVO();
+		billVO.setChildrenVO(queryVOs);
+		getBufferData().setCurrentVO(billVO);
+		updateBuffer();
+		getBufferData().setCurrentRow(currRow);
 		
 	}
 	
@@ -191,6 +328,8 @@ public class EventHandler extends ManageEventHandler {
 				}
 				
 				uppertransBVO.setAttributeValue("def1", String.valueOf(row));
+				uppertransBVO.setAttributeValue("def10", "Y");
+				uppertransBVO.setAttributeValue("def11", _getDate().toString());
 				
 				uppertransBVOs[row] = uppertransBVO;
 				

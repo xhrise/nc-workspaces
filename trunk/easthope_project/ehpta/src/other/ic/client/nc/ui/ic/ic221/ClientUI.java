@@ -3,11 +3,12 @@ package nc.ui.ic.ic221;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import nc.bs.logging.Logger;
+import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ic.ic001.BatchCodeDefSetTool;
 import nc.ui.ic.pub.InvOnHandDialog;
 import nc.ui.ic.pub.PageCtrlBtn;
-import nc.ui.ic.pub.bill.GeneralBillUICtl;
 import nc.ui.ic.pub.bill.QueryDlgHelpForSpec;
 import nc.ui.ic.pub.bill.SpecialBillBaseUI;
 import nc.ui.ic.pub.bill.SpecialBillHelper;
@@ -18,28 +19,25 @@ import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIMenuItem;
 import nc.ui.pub.bill.BillCardPanel;
 import nc.ui.pub.bill.BillItem;
-import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.ic.pub.BillTypeConst;
 import nc.vo.ic.pub.GenMethod;
 import nc.vo.ic.pub.bill.GeneralBillHeaderVO;
 import nc.vo.ic.pub.bill.GeneralBillItemVO;
 import nc.vo.ic.pub.bill.GeneralBillVO;
-import nc.vo.ic.pub.bill.IItemKey;
-import nc.vo.ic.pub.bill.OnhandnumVO;
 import nc.vo.ic.pub.bill.QryConditionVO;
 import nc.vo.ic.pub.bill.SpecialBillHeaderVO;
 import nc.vo.ic.pub.bill.SpecialBillItemVO;
 import nc.vo.ic.pub.bill.SpecialBillVO;
 import nc.vo.ic.pub.lang.ResBase;
+import nc.vo.pub.lang.UFDouble;
+import nc.vo.scm.constant.ic.BillMode;
+import nc.vo.scm.constant.ic.InOutFlag;
 import nc.vo.scm.ic.bill.InvVO;
 import nc.vo.scm.ic.bill.WhVO;
 import nc.vo.scm.pub.BD_TYPE;
 import nc.vo.scm.pub.BillRowNoVO;
 import nc.vo.scm.pub.SCMEnv;
 import nc.vo.scm.pub.query.DataPowerCtl;
-import nc.vo.pub.lang.UFDouble;
-import nc.vo.scm.constant.ic.BillMode;
-import nc.vo.scm.constant.ic.InOutFlag;
 
 /*
  * 创建者：仲瑞庆
@@ -284,16 +282,23 @@ public class ClientUI extends SpecialBillBaseUI {
 	 * 
 	 * 
 	 */
+	@SuppressWarnings("restriction")
 	public void afterEdit(nc.ui.pub.bill.BillEditEvent e) {
 
 		super.afterEdit(e);
 		
 		if("vbatchcode".equals(e.getKey())) {
-			
-			getBillCardPanel().execBodyFormulas(e.getRow(), new String[]{
-				"dshldtransnum->getColValue(ic_onhandnum , nonhandnum , vlot , vbatchcode) " , 
-			});
-			
+			try {
+				
+				Object coutwarehouseid = getBillCardPanel().getHeadItem("coutwarehouseid").getValueObject();
+				Object vbatchcode = getBillCardPanel().getBodyValueAt(e.getRow(), "vbatchcode");
+				
+				Object nonhandnum = UAPQueryBS.getInstance().executeQuery("select nonhandnum from ic_onhandnum where vlot = '"+vbatchcode+"' and cwarehouseid = '"+coutwarehouseid+"'", new ColumnProcessor());
+				getBillCardPanel().setBodyValueAt(nonhandnum, e.getRow(), "dshldtransnum");
+				
+			} catch(Exception ex) {
+				Logger.error(ex.getMessage(), ex, this.getClass(), "afterEdit");
+			}
 		}
 		
 		if (e.getKey().equals("pk_calbody_out")) { //出库仓库

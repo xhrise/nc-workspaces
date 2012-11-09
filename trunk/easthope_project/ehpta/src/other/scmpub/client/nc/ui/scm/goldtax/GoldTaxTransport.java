@@ -18,11 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
-import nc.bs.framework.common.NCLocator;
-import nc.itf.uap.IUAPQueryBS;
-import nc.jdbc.framework.processor.VectorProcessor;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.BusinessRuntimeException;
 import nc.vo.pub.lang.UFDate;
@@ -430,7 +426,44 @@ public class GoldTaxTransport {
 				os.write(joinString(getAggregatedString(goldTaxVOs[0])).getBytes());
 				os.write("\r\n".getBytes());
 			}
+			
+			List<GoldTaxVO> taxVOList = new ArrayList<GoldTaxVO>();
 			for (GoldTaxVO taxVO : goldTaxVOs) {
+				
+				// modify by river for 2012-11-08
+				GoldTaxBodyVO nowBodyVO = new GoldTaxBodyVO();
+				for (GoldTaxBodyVO bodyVO : taxVO.getChildrenVO()) {
+					
+					for(String attr : nowBodyVO.getAttributeNames()) {
+						
+						if("number".equals(attr) || "money".equals(attr)) {
+							UFDouble val = (UFDouble) nowBodyVO.getAttributeValue(attr);
+							UFDouble bodyVal = (UFDouble) bodyVO.getAttributeValue(attr);
+							
+							if(val == null)
+								val = new UFDouble(0,2);
+							
+							if(bodyVal == null)
+								bodyVal = new UFDouble(0,2);
+							
+							nowBodyVO.setAttributeValue(attr, val.add(bodyVal));
+							
+						} else
+							nowBodyVO.setAttributeValue(attr, bodyVO.getAttributeValue(attr));
+					}
+					
+				}
+				
+				UFDouble taxMny = nowBodyVO.getMoney() == null ? new UFDouble(0 , 2) : nowBodyVO.getMoney();
+				if(taxMny.doubleValue() > (11700000) ) {
+					taxVOList.addAll(Arrays.asList(splitGoldTax(nowBodyVO , taxVO.getParentVO())));
+				} 
+				
+			}
+			
+			GoldTaxVO[] nowTaxVOs = taxVOList.toArray(new GoldTaxVO[0]);
+			for (GoldTaxVO taxVO : nowTaxVOs) {
+				
 				// 输出表头
 				os.write(joinString(getHeadString(taxVO)).getBytes());
 				os.write("\r\n".getBytes());
@@ -445,6 +478,70 @@ public class GoldTaxTransport {
 			SCMEnv.error("写入到文件发生异常", e);
 			throw new BusinessRuntimeException("写入到文件发生异常", e);
 		}
+	}
+	
+	/**
+	 * 处理大于1170W的发票进行拆分
+	 * 只处理总金额的拆分，不处理其他金额，导出时其他金额并不起效。
+	 * 
+	 * @author river
+	 */
+	protected final GoldTaxVO[] splitGoldTax(GoldTaxBodyVO bodyVO , GoldTaxHeadVO taxHeadVO ) {
+		
+		List<GoldTaxVO> bodyList = new ArrayList<GoldTaxVO>();
+		
+		UFDouble moeny = bodyVO.getMoney() == null ? new UFDouble(0 , 2) : bodyVO.getMoney();
+		UFDouble price = bodyVO.getPrice() == null ? new UFDouble(0 , 2) : bodyVO.getPrice();
+		UFDouble number = bodyVO.getNumber() == null ? new UFDouble(0 , 2) : bodyVO.getNumber();
+		UFDouble sumMny = new UFDouble(0, 2);
+		UFDouble sumNumber = new UFDouble(0 , 2);
+		UFDouble maxMny = new UFDouble(11700000 , 2);
+		
+		int num = 1;
+		while(moeny.sub(sumMny).doubleValue() > maxMny.doubleValue()) {
+			
+			int minNumber = maxMny.div(price).intValue();
+			sumNumber = sumNumber.add(minNumber);
+			UFDouble minMny = price.multiply(minNumber);
+			sumMny = sumMny.add(minMny);
+			
+			GoldTaxBodyVO calcBody = (GoldTaxBodyVO) bodyVO.clone();
+			calcBody.setNumber(new UFDouble(minNumber , 2));
+			calcBody.setMoney(minMny);
+			
+			GoldTaxVO caclTaxVO = new GoldTaxVO();
+			GoldTaxHeadVO headVO = (GoldTaxHeadVO) taxHeadVO.clone();
+			headVO.setCode(headVO.getCode() + num);
+			headVO.setRowNum(1);
+			caclTaxVO.setParentVO(headVO);
+			caclTaxVO.setChildrenVO(new GoldTaxBodyVO[]{calcBody} );
+			
+			bodyList.add(caclTaxVO);
+			
+			num++;
+		}
+		
+		if(moeny.sub(sumMny).doubleValue() > 0) {
+			
+			UFDouble resNumber = number.sub(sumNumber);
+			UFDouble resMny = moeny.sub(sumMny);
+			
+			GoldTaxBodyVO calcBody = (GoldTaxBodyVO) bodyVO.clone();
+			calcBody.setNumber(resNumber);
+			calcBody.setMoney(resMny);
+			
+			GoldTaxVO caclTaxVO = new GoldTaxVO();
+			GoldTaxHeadVO headVO = (GoldTaxHeadVO) taxHeadVO.clone();
+			headVO.setCode(headVO.getCode() + (num + 1));
+			headVO.setRowNum(1);
+			caclTaxVO.setParentVO(headVO);
+			caclTaxVO.setChildrenVO(new GoldTaxBodyVO[]{calcBody} );
+			
+			bodyList.add(caclTaxVO);
+			
+		}
+		
+		return bodyList.toArray(new GoldTaxVO[0]);
 	}
 
 	/**
