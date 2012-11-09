@@ -100,6 +100,40 @@ public final class DefaultBillButton {
 	 */
 	public static final int CancleDataIn = 133;
 	
+	/**
+	 *  结算
+	 */
+	public static final int Settle = 134;
+	
+	/**
+	 * 反结算
+	 */
+	public static final int CancleSettle = 135;
+	
+	public static final ButtonVO getSettleButtonVO() {
+		ButtonVO btnVo = new ButtonVO();
+		btnVo.setBtnNo(Settle);
+		btnVo.setBtnCode("结算");
+		btnVo.setBtnName("结算");
+		btnVo.setBtnChinaName("结算");
+
+		btnVo.setChildAry(new int[] {  });
+
+		return btnVo;
+	}
+	
+	public static final ButtonVO getCancleSettleButtonVO() {
+		ButtonVO btnVo = new ButtonVO();
+		btnVo.setBtnNo(CancleSettle);
+		btnVo.setBtnCode("反结算");
+		btnVo.setBtnName("反结算");
+		btnVo.setBtnChinaName("反结算");
+
+		btnVo.setChildAry(new int[] {  });
+
+		return btnVo;
+	}
+	
 	public static final ButtonVO getOpenOrCloseButtonVO() {
 		ButtonVO btnVo = new ButtonVO();
 		btnVo.setBtnNo(OpenOrClose);

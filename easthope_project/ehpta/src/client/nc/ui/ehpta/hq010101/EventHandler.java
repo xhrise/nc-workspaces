@@ -3,10 +3,16 @@ package nc.ui.ehpta.hq010101;
 import java.util.ArrayList;
 import java.util.List;
 
+import nc.ui.trade.bill.ISingleController;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
+import nc.vo.engine.status.IStatus;
+import nc.vo.engine.status.element.IStatusOperator;
+import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
+import nc.vo.pub.VOStatus;
 
 /**
  * 
@@ -61,6 +67,26 @@ public class EventHandler extends ManageEventHandler {
 		
 		return filterList.toArray(new SuperVO[0]);
 		
+	}
+	
+	@Override
+	protected void onBoLineCopy() throws Exception {
+		int selectedRow = getBillCardPanelWrapper().getBillCardPanel().getBillTable().getSelectedRow();
+		if (selectedRow != -1) {
+			CircularlyAccessibleValueObject[] vos = getBillCardPanelWrapper().getSelectedBodyVOs();
+			
+			/**
+			 *  复制行是将原有主键删除。 否则将造成后续保存异常。
+			 */
+			if(vos != null && vos.length > 0) {
+				for(CircularlyAccessibleValueObject vo : vos) {
+					vo.setPrimaryKey(null);
+				}
+			}
+			
+			getBillCardPanelWrapper().setCopyedBodyVOs(vos);
+
+		}
 	}
 
 }
