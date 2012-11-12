@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import nc.vo.pub.lang.UFDate;
+import nc.vo.pub.lang.UFDouble;
 
 public class CalcFunc {
 	
@@ -44,5 +45,14 @@ public class CalcFunc {
 		int lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 		
 		return (lastDay < 10 ? "0" + lastDay : "" + lastDay);
+	}
+	
+	public static final Integer calcNumOf(UFDouble number) throws Exception {
+		
+		if(number.doubleValue() > number.intValue())
+			return number.intValue() + 1;
+		
+		return number.intValue();
+		
 	}
 }

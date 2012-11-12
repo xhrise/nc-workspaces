@@ -2,14 +2,14 @@ package nc.ui.ehpta.hq010201;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
-import nc.bs.framework.common.NCLocator;
 import nc.bs.logging.Logger;
-import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.jdbc.framework.processor.MapProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.pub.ClientEnvironment;
@@ -23,7 +23,6 @@ import nc.ui.trade.bill.AbstractManageController;
 import nc.ui.trade.bill.BillTemplateWrapper;
 import nc.ui.trade.bsdelegate.BusinessDelegator;
 import nc.ui.trade.buffer.BillUIBuffer;
-import nc.ui.trade.button.IBillButton;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
@@ -207,10 +206,30 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				Object storaddr = UAPQueryBS.getInstance().executeQuery("select storaddr from bd_stordoc where pk_stordoc = '" + storRef.getRefPK()
 						+ "'" , new ColumnProcessor());
 				getBillCardPanel().getHeadItem("storaddr").setValue(storaddr);
+				
+			} else if("deffeetype".equals(e.getKey())) {
+				
+				Object type = getBillCardPanel().getBodyValueAt(e.getRow(), e.getKey());
+				Map jobMap = (Map) UAPQueryBS.getInstance().executeQuery("select pk_jobbasfil , to_number(jobcode) jobcode from bd_jobbasfil where jobname = '"+type+"'", new MapProcessor());
+				
+				getBillCardPanel().setBodyValueAt(jobMap.get("pk_jobbasfil"), e.getRow(), "def1");
+				getBillCardPanel().setBodyValueAt(jobMap.get("jobcode"), e.getRow(), "feetype");
+				
 			}
+			
 		} catch(Exception ex) {
 			AppDebug.debug(ex);
 		}
+	}
+	
+	@Override
+	public boolean beforeEdit(BillEditEvent e) {
+		
+		if("deffeetype".equals(e.getKey())) {
+			((UIRefPane) getBillCardPanel().getBodyItem(e.getKey()).getComponent()).setWhereString(" bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename = '作业方式' and nvl(dr,0)=0) ");
+		}
+		
+		return super.beforeEdit(e);
 	}
 	
 	@Override

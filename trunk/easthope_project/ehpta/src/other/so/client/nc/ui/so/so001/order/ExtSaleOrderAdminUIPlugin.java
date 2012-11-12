@@ -757,11 +757,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row++) {
 					ctx.getBillCardPanel().setBodyValueAt(null, row, "ctransmodecode");
 					ctx.getBillCardPanel().execBodyFormula(row, "ctransmodecode");
+					
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "transprice");
+					ctx.getBillCardPanel().setBodyValueAt(null, row, "pk_transport_bid");
+					ctx.getBillCardPanel().execBodyFormula(row, "pk_transport_bid");
 				}
 				
 				ctx.getBillCardPanel().getBodyItem("ctransmodecode").setNull(false);
 				ctx.getBillCardPanel().getBodyItem("ctransmodecode").setEnabled(false);
 				
+				ctx.getBillCardPanel().getBodyItem("transprice").setNull(false);
 			}
 			
 			ctx.getBillCardPanel().getHeadItem("estoraddrid").setValue(null);
@@ -775,6 +780,8 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 			ctx.getBillCardPanel().getBodyItem("ctransmodecode").setNull(true);
 			ctx.getBillCardPanel().getBodyItem("ctransmodecode").setEnabled(true);
+			
+			ctx.getBillCardPanel().getBodyItem("transprice").setNull(true);
 			
 			ctx.getBillCardPanel().getHeadItem("estoraddrid").setNull(true);
 			ctx.getBillCardPanel().getHeadItem("estoraddrid").setEnabled(true);
