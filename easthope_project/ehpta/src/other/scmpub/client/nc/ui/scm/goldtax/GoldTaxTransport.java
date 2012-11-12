@@ -7,7 +7,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,10 +14,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.BusinessRuntimeException;
 import nc.vo.pub.lang.UFDate;
@@ -429,36 +432,7 @@ public class GoldTaxTransport {
 			
 			List<GoldTaxVO> taxVOList = new ArrayList<GoldTaxVO>();
 			for (GoldTaxVO taxVO : goldTaxVOs) {
-				
-				// modify by river for 2012-11-08
-				GoldTaxBodyVO nowBodyVO = new GoldTaxBodyVO();
-				for (GoldTaxBodyVO bodyVO : taxVO.getChildrenVO()) {
-					
-					for(String attr : nowBodyVO.getAttributeNames()) {
-						
-						if("number".equals(attr) || "money".equals(attr)) {
-							UFDouble val = (UFDouble) nowBodyVO.getAttributeValue(attr);
-							UFDouble bodyVal = (UFDouble) bodyVO.getAttributeValue(attr);
-							
-							if(val == null)
-								val = new UFDouble(0,2);
-							
-							if(bodyVal == null)
-								bodyVal = new UFDouble(0,2);
-							
-							nowBodyVO.setAttributeValue(attr, val.add(bodyVal));
-							
-						} else
-							nowBodyVO.setAttributeValue(attr, bodyVO.getAttributeValue(attr));
-					}
-					
-				}
-				
-				UFDouble taxMny = nowBodyVO.getMoney() == null ? new UFDouble(0 , 2) : nowBodyVO.getMoney();
-				if(taxMny.doubleValue() > (11700000) ) {
-					taxVOList.addAll(Arrays.asList(splitGoldTax(nowBodyVO , taxVO.getParentVO())));
-				} 
-				
+				taxVOList.addAll(mergeAndSplitGoldTax(taxVO));
 			}
 			
 			GoldTaxVO[] nowTaxVOs = taxVOList.toArray(new GoldTaxVO[0]);
@@ -474,10 +448,202 @@ public class GoldTaxTransport {
 				}
 			}
 			os.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			SCMEnv.error("写入到文件发生异常", e);
 			throw new BusinessRuntimeException("写入到文件发生异常", e);
 		}
+	}
+	
+	/**
+	 * 
+	 * 1.先合并同规格的金额，如果大于1170W，则执行拆分。并将剩余的金额进行如下处理。
+	 * 2.如果发票中只有一个规格，则直接将剩余金额另开一张发票。
+	 * 3.如果发票中存在不同规格，如 规格1 + 规格2 + ... + 规格n <= 1170W ， 则将不同规格合并到同一张发票中。
+	 * 4.如果 规格1 + 规格2 + ... + 规格 (n/2) > 1170W ， 则将 规格1 + 规格2 + ... + 规格 (n/2 - 1)的金额项合并到同一张发票中
+	 * 5.将剩余的金额项合并到同一发票中。
+	 * 
+	 * @author river
+	 * @param taxVO
+	 * @return
+	 * @throws Exception
+	 */
+	protected final List<GoldTaxVO> mergeAndSplitGoldTax(GoldTaxVO taxVO) throws Exception {
+		
+		List<GoldTaxVO> taxList = new ArrayList<GoldTaxVO>();
+		List<GoldTaxBodyVO> lessTaxBodyList = new ArrayList<GoldTaxBodyVO>();
+		
+		if(taxVO == null )
+			return taxList;
+					
+		GoldTaxBodyVO[] taxBodyVO = taxVO.getChildrenVO().clone();
+		
+		if(taxBodyVO == null || taxBodyVO.length == 0)
+			return taxList;
+		
+		Map<String , GoldTaxBodyVO> bodyMap = new ConcurrentHashMap<String , GoldTaxBodyVO>();
+		Set<String> invSet = new HashSet<String>();
+		for(GoldTaxBodyVO bodyVO : taxBodyVO) {
+			invSet.add(bodyVO.getInvName() + "_" + bodyVO.getInvSpec());
+		}
+		
+		/** 划分并合并同物料同规格 Start */
+		for(String inv : invSet) {
+			
+			for(GoldTaxBodyVO bodyVO : taxBodyVO) {
+				
+				if(inv.equals(bodyVO.getInvName() + "_" + bodyVO.getInvSpec())) {
+					
+					if(bodyMap.get(bodyVO.getInvName() + "_" + bodyVO.getInvSpec()) == null)
+						bodyMap.put(bodyVO.getInvName() + "_" + bodyVO.getInvSpec() , bodyVO);
+					
+					else {
+						
+						GoldTaxBodyVO cubodyVO = bodyMap.get(bodyVO.getInvName() + "_" + bodyVO.getInvSpec());
+						GoldTaxBodyVO cbodyVO = (GoldTaxBodyVO) bodyVO.clone();
+						
+						cubodyVO.setNumber(ConvertFunc.change(cubodyVO.getNumber()).add(ConvertFunc.change(cbodyVO.getNumber())));
+						cubodyVO.setMoney(ConvertFunc.change(cubodyVO.getMoney()).add(ConvertFunc.change(cbodyVO.getMoney())));
+						
+						bodyMap.put(bodyVO.getInvName() + "_" + bodyVO.getInvSpec() , bodyVO);
+						
+					}
+					
+				}
+				
+			}
+			
+		} /** End 划分并合并同物料同规格 */
+		
+		/** 如果发票中只有一种物料，则直接进行拆分  */
+		if(bodyMap != null && bodyMap.size() == 1) 
+			return splitGoldTax(bodyMap.get(0), taxVO.getParentVO());
+		
+		/** 如果发票中存在多种物料，进行VO整合及拆分 Start */
+		splitMoreGoldTax(bodyMap, taxList, lessTaxBodyList, taxVO);
+		
+		/** 处理剩余的金额项 Start */
+		if(lessTaxBodyList != null && lessTaxBodyList.size() > 0) {
+			
+			int page = taxList.size();
+			
+			UFDouble sumMoney = UFDouble.ZERO_DBL;
+			List<GoldTaxBodyVO> mergeBodyList = new ArrayList<GoldTaxBodyVO>();
+			
+			int mergeNum = 0;
+			for(GoldTaxBodyVO taxBody : lessTaxBodyList) {
+				
+				sumMoney = sumMoney.add(ConvertFunc.change(taxBody.getMoney()));
+				if(sumMoney.doubleValue() > ConvertFunc.getMaxMoney().doubleValue()) {
+
+					GoldTaxHeadVO taxHeadVO = (GoldTaxHeadVO) taxVO.getParentVO().clone();
+					taxHeadVO.setCode(taxHeadVO.getCode() + page + "" + mergeNum);
+					taxHeadVO.setRowNum(mergeBodyList.size());
+					
+					GoldTaxVO mergeTaxVO = new GoldTaxVO();
+					mergeTaxVO.setParentVO(taxHeadVO);
+					mergeTaxVO.setChildrenVO(mergeBodyList.toArray(new GoldTaxBodyVO[0]));
+					taxList.add(mergeTaxVO);
+					
+					mergeBodyList = new ArrayList<GoldTaxBodyVO>();
+					mergeBodyList.add(taxBody);
+					mergeNum++ ;
+					sumMoney = ConvertFunc.change(taxBody.getMoney());
+					
+				} else {
+					
+					mergeBodyList.add(taxBody);
+					mergeNum++ ;
+					
+					if(mergeNum == lessTaxBodyList.size()) {
+						
+						GoldTaxHeadVO taxHeadVO = (GoldTaxHeadVO) taxVO.getParentVO().clone();
+						taxHeadVO.setCode(taxHeadVO.getCode() + page + "" + mergeNum);
+						taxHeadVO.setRowNum(mergeBodyList.size());
+						
+						GoldTaxVO mergeTaxVO = new GoldTaxVO();
+						mergeTaxVO.setParentVO(taxHeadVO);
+						mergeTaxVO.setChildrenVO(mergeBodyList.toArray(new GoldTaxBodyVO[0]));
+						taxList.add(mergeTaxVO);
+						
+						mergeBodyList = new ArrayList<GoldTaxBodyVO>();
+						mergeBodyList.add(taxBody);
+						mergeNum++ ;
+						sumMoney = ConvertFunc.change(taxBody.getMoney());
+						
+					}
+					
+				}
+				
+				
+				
+			}
+			
+		}
+		
+		return taxList;
+	}
+	
+	/** 如果发票中存在多种物料，进行VO整合及拆分 Start */
+	@SuppressWarnings("rawtypes")
+	protected final void splitMoreGoldTax(Map<String , GoldTaxBodyVO> bodyMap , List<GoldTaxVO> taxList , List<GoldTaxBodyVO> lessTaxBodyList , GoldTaxVO taxVO) throws Exception {
+		
+		Iterator iter = bodyMap.entrySet().iterator();
+		while(iter.hasNext()) {
+			
+			Entry entry = (Entry) iter.next();
+			
+			GoldTaxBodyVO bodyVO = (GoldTaxBodyVO) entry.getValue();
+			
+			UFDouble moeny = ConvertFunc.change(bodyVO.getMoney());
+			UFDouble price = ConvertFunc.change(bodyVO.getPrice());
+			UFDouble number = ConvertFunc.change(bodyVO.getNumber());
+			UFDouble sumMny = UFDouble.ZERO_DBL;
+			UFDouble sumNumber = UFDouble.ZERO_DBL;
+			UFDouble maxMny = ConvertFunc.getMaxMoney();
+			
+			int num = 1;
+			while(moeny.sub(sumMny).doubleValue() > maxMny.doubleValue()) {
+				
+				int minNumber = maxMny.div(price).intValue();
+				sumNumber = sumNumber.add(minNumber);
+				UFDouble minMny = price.multiply(minNumber);
+				sumMny = sumMny.add(minMny);
+				
+				GoldTaxBodyVO calcBody = (GoldTaxBodyVO) bodyVO.clone();
+				calcBody.setNumber(new UFDouble(minNumber , 2));
+				calcBody.setMoney(minMny);
+				
+				String flag = "";
+				if(calcBody.getInvBaseId() != null)
+					flag = calcBody.getInvBaseId().substring(calcBody.getInvBaseId().length() - 2, calcBody.getInvBaseId().length());
+				
+				GoldTaxVO caclTaxVO = new GoldTaxVO();
+				GoldTaxHeadVO headVO = (GoldTaxHeadVO) taxVO.getParentVO().clone();
+				headVO.setCode(headVO.getCode() + flag + num);
+				headVO.setRowNum(1);
+				caclTaxVO.setParentVO(headVO);
+				caclTaxVO.setChildrenVO(new GoldTaxBodyVO[]{calcBody} );
+				
+				taxList.add(caclTaxVO);
+				
+				num++;
+			}
+			
+			if(moeny.sub(sumMny).doubleValue() > 0) {
+				
+				UFDouble resNumber = number.sub(sumNumber);
+				UFDouble resMny = moeny.sub(sumMny);
+				
+				GoldTaxBodyVO calcBody = (GoldTaxBodyVO) bodyVO.clone();
+				calcBody.setNumber(resNumber);
+				calcBody.setMoney(resMny);
+				
+				lessTaxBodyList.add(calcBody);
+				
+			}
+			
+		}
+		
 	}
 	
 	/**
@@ -486,7 +652,7 @@ public class GoldTaxTransport {
 	 * 
 	 * @author river
 	 */
-	protected final GoldTaxVO[] splitGoldTax(GoldTaxBodyVO bodyVO , GoldTaxHeadVO taxHeadVO ) {
+	protected final List<GoldTaxVO> splitGoldTax(GoldTaxBodyVO bodyVO , GoldTaxHeadVO taxHeadVO ) throws Exception {
 		
 		List<GoldTaxVO> bodyList = new ArrayList<GoldTaxVO>();
 		
@@ -495,7 +661,7 @@ public class GoldTaxTransport {
 		UFDouble number = bodyVO.getNumber() == null ? new UFDouble(0 , 2) : bodyVO.getNumber();
 		UFDouble sumMny = new UFDouble(0, 2);
 		UFDouble sumNumber = new UFDouble(0 , 2);
-		UFDouble maxMny = new UFDouble(11700000 , 2);
+		UFDouble maxMny = ConvertFunc.getMaxMoney();
 		
 		int num = 1;
 		while(moeny.sub(sumMny).doubleValue() > maxMny.doubleValue()) {
@@ -532,7 +698,7 @@ public class GoldTaxTransport {
 			
 			GoldTaxVO caclTaxVO = new GoldTaxVO();
 			GoldTaxHeadVO headVO = (GoldTaxHeadVO) taxHeadVO.clone();
-			headVO.setCode(headVO.getCode() + (num + 1));
+			headVO.setCode(headVO.getCode() + num);
 			headVO.setRowNum(1);
 			caclTaxVO.setParentVO(headVO);
 			caclTaxVO.setChildrenVO(new GoldTaxBodyVO[]{calcBody} );
@@ -541,7 +707,7 @@ public class GoldTaxTransport {
 			
 		}
 		
-		return bodyList.toArray(new GoldTaxVO[0]);
+		return bodyList;
 	}
 
 	/**

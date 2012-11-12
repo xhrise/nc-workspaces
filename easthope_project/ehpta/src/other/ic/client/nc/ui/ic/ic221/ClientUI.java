@@ -287,13 +287,15 @@ public class ClientUI extends SpecialBillBaseUI {
 
 		super.afterEdit(e);
 		
+		// add by river for 2012-11-12
 		if("vbatchcode".equals(e.getKey())) {
 			try {
 				
 				Object coutwarehouseid = getBillCardPanel().getHeadItem("coutwarehouseid").getValueObject();
 				Object vbatchcode = getBillCardPanel().getBodyValueAt(e.getRow(), "vbatchcode");
+				Object cinventoryid = getBillCardPanel().getBodyValueAt(e.getRow(), "cinventoryid");
 				
-				Object nonhandnum = UAPQueryBS.getInstance().executeQuery("select nonhandnum from ic_onhandnum where vlot = '"+vbatchcode+"' and cwarehouseid = '"+coutwarehouseid+"'", new ColumnProcessor());
+				Object nonhandnum = UAPQueryBS.getInstance().executeQuery("select nonhandnum from ic_onhandnum where vlot = '"+vbatchcode+"' and cwarehouseid = '"+coutwarehouseid+"' and cinventoryid = '"+cinventoryid+"'", new ColumnProcessor());
 				getBillCardPanel().setBodyValueAt(nonhandnum, e.getRow(), "dshldtransnum");
 				
 			} catch(Exception ex) {

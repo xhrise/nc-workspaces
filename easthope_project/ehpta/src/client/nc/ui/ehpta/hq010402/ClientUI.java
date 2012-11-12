@@ -13,6 +13,7 @@ import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.VectorProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.calc.CalcFunc;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.beans.UIRefPane;
@@ -406,7 +407,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 				try {
 					UFDouble invspecNum = new UFDouble(unitweight.toString());
 					if(invspecNum.doubleValue() > 0)
-						getBillCardPanel().setBodyValueAt(num.div(invspecNum).intValue() , e.getRow(), "numof");
+						getBillCardPanel().setBodyValueAt(CalcFunc.calcNumOf(num.div(invspecNum)) , e.getRow(), "numof");
 					else 
 						getBillCardPanel().setBodyValueAt(num , e.getRow(), "numof");
 				} catch(Exception ex) {
@@ -451,7 +452,7 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 			try {
 				UFDouble invspecNum = new UFDouble(unitweight.toString());
 				if(invspecNum.doubleValue() > 0)
-					getBillCardPanel().setBodyValueAt(num.div(invspecNum).intValue() , e.getRow(), "numof");
+					getBillCardPanel().setBodyValueAt(CalcFunc.calcNumOf(num.div(invspecNum)) , e.getRow(), "numof");
 				else 
 					getBillCardPanel().setBodyValueAt(num , e.getRow(), "numof");
 			} catch(Exception ex) {

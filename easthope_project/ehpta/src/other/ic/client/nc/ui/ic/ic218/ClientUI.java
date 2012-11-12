@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.calc.CalcFunc;
 import nc.ui.ic.pub.bill.GeneralBillClientUI;
 import nc.ui.ic.pub.bill.GeneralBillUICtl;
 import nc.ui.ic.pub.bill.IButtonManager;
@@ -140,8 +141,9 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 				return ;
 			
 			UFDouble noutnum = new UFDouble(e.getValue() == null ? "0" : e.getValue().toString() , 2);
-			Double divValue = (noutnum.doubleValue() / weight.doubleValue());
-			getBillCardPanel().setBodyValueAt( divValue.intValue(), e.getRow(), "ncountnum");
+			
+			UFDouble divValue = noutnum.div(weight);
+			getBillCardPanel().setBodyValueAt( CalcFunc.calcNumOf(divValue) , e.getRow(), "ncountnum");
 			
 		} catch(Exception ex) {
 			Logger.error(ex.getMessage(), ex, this.getClass(), "afterEdit");

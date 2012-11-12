@@ -7,8 +7,19 @@ import nc.vo.pub.lang.UFDouble;
 
 public class ConvertFunc {
 
+	private static final UFDouble maxMoney = new UFDouble(11700000 , 2);
+	
 	private ConvertFunc() {
 		
+	}
+	
+	/**
+	 *  获取发票最大金额 1170W
+	 * @return
+	 * @throws Exception
+	 */
+	public static final UFDouble getMaxMoney() throws Exception {
+		return maxMoney;
 	}
 	
 	/**
@@ -63,6 +74,21 @@ public class ConvertFunc {
 			return new UFDouble(value == null ? "0" : value.toString() , 2);
 		
 		return value;
+	}
+	
+	/**
+	 *  将NULL的UFDouble数值转化为非NULL的数据
+	 * @param val
+	 * @return
+	 * @throws Exception
+	 */
+	public static final UFDouble change(UFDouble val) throws Exception {
+		
+		if(val == null)
+			return UFDouble.ZERO_DBL;
+		
+		return val;
+		
 	}
 	
 	public static final String getChinaNum(String number) {
