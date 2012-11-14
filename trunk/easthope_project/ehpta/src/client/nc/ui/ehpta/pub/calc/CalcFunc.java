@@ -25,7 +25,7 @@ public class CalcFunc {
 	 * @return
 	 * @throws Exception
 	 */
-	public static final String builder(Object date) throws Exception {
+	public static final String getLastDay(Object date) throws Exception {
 
 		if(date == null)
 			throw new Exception("日期 is NULL");
@@ -44,13 +44,39 @@ public class CalcFunc {
 			
 		int lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 		
-		return (lastDay < 10 ? "0" + lastDay : "" + lastDay);
+		return (lastDay < 0xA ? "0" + lastDay : "" + lastDay);
+	}
+	
+	/**
+	 *  获取当前会计期间的前一期间
+	 * @param period
+	 * @return
+	 * @throws Exception
+	 */
+	public static final String getUpperPeriod(String period) throws Exception {
+		
+		if(period == null || "".equals(period))
+			return period;
+		
+		UFDate tempDate = new UFDate(period + "-01");
+		
+		int year = tempDate.getYear();
+		int month = tempDate.getMonth();
+		
+		if(month == 0x1) {
+			month = 0xC;
+			year -= 0x1;
+		} else 
+			month -= 0x1;
+		
+		return year + "-" + (month < 0xA ? "0" + month : "" + month);
+		
 	}
 	
 	public static final Integer calcNumOf(UFDouble number) throws Exception {
 		
 		if(number.doubleValue() > number.intValue())
-			return number.intValue() + 1;
+			return number.intValue() + 0x1;
 		
 		return number.intValue();
 		

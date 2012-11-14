@@ -167,6 +167,13 @@ public class CHG30TO4C extends nc.ui.pf.change.VOConversionUI {
 				"B_nshouldoutassistnum->(  B_nnumber   -   B_ntotalinventorynumber    - iif(B_ntotalshouldoutnum==null,0,B_ntotalshouldoutnum) + iif(B_ntranslossnum==null,0,B_ntranslossnum)  )   *  ( iif(B_npacknumber==null,0,B_npacknumber) /   B_nnumber   )",
 				"H_ctrancustid->getColValue(ehpta_transport_contract , pk_carrier , pk_transport , H_pk_transport)",
 				"H_contracttype->tostring(H_contracttype)", 
+		};
+	}
+	
+	@Override
+	public String[] getAssign() {
+		return new String[] {
+			"H_cdispatcherid->0001B8100000000BAS9I",	
 				
 		};
 	}

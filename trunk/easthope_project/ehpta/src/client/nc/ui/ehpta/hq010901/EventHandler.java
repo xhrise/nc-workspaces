@@ -309,7 +309,7 @@ public class EventHandler extends ManageEventHandler {
 //			throw new Exception("当前期间已统计，请弃审并删除当前期间统计的记录后再做统计操作。");
 		
 		UFDate period = new UFDate(interest.getPeriod() + "-01");
-		String lastDay = CalcFunc.builder(period);
+		String lastDay = CalcFunc.getLastDay(period);
 		
 		UFDate endPeriod = new UFDate(interest.getPeriod() + "-" + lastDay);
 		
