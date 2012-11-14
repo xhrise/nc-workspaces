@@ -163,6 +163,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		
 		getBillListPanel().setMultiSelect(true);
 		getBillCardPanel().setBodyMultiSelect(true);
+		
 	}
 
 	public void setDefaultData() throws Exception {
@@ -208,7 +209,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 //			}
 //
 //		}
-
+		
 		return super.getExtendStatus(vo);
 	}
 	
@@ -267,6 +268,11 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		}
 
 		super.updateButtons();
+	}
+	
+	@Override
+	public void bodyRowChange(BillEditEvent e) {
+		super.bodyRowChange(e);
 	}
 	
 	@Override

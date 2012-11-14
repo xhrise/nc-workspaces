@@ -125,7 +125,7 @@ public class EventHandler extends CardEventHandler {
 		String peroid = peroidDlg.getFieldRef().getRefName();
 		
 		UFDate firstDate = new UFDate(peroid + "-01");
-		UFDate lastDate = new UFDate(peroid + "-" + CalcFunc.builder(firstDate));
+		UFDate lastDate = new UFDate(peroid + "-" + CalcFunc.getLastDay(firstDate));
 		
 		super.onBoAdd(getButtonManager().getButton(IBillButton.Add));
 		
@@ -136,7 +136,10 @@ public class EventHandler extends CardEventHandler {
 		builder.append(" orderb.nprice, orderb.nqtnetprc, orderb.nqtprc, orderb.noriginalcursummny, orderb.nsummny, ");
 		builder.append(" orderb.nmny, orderb.noriginalcurmny, orderb.noriginalcurtaxmny, orderb.ntaxmny, orderb.ntaxrate , orderb.nnumber , ");
 		builder.append(" orderb.corder_bid, orderb.csaleid, sale.vreceiptcode, sale.concode, sale.pk_contract ");
+		builder.append(" , cubas.custname def1 ");
 		builder.append(" from so_saleorder_b orderb left join so_sale sale on sale.csaleid = orderb.csaleid ");
+		builder.append(" left join bd_cumandoc cuman on cuman.pk_cumandoc = sale.ccustomerid ");
+		builder.append(" left join bd_cubasdoc cubas on cubas.pk_cubasdoc = cuman.pk_cubasdoc ");
 		builder.append(" where not exists (select 1 from so_saleinvoice_b invb where orderb.corder_bid = invb.csourcebillbodyid and nvl(invb.dr, 0) = 0) ");
 		builder.append(" and sale.pk_contract is not null and sale.contracttype = '10' and nvl(orderb.dr, 0) = 0 and nvl(sale.dr, 0) = 0 ");
 		builder.append(" and sale.dbilldate between '"+firstDate.toString()+"' and '"+lastDate.toString()+"' and sale.pk_corp = '"+_getCorp().getPk_corp()+"' ");

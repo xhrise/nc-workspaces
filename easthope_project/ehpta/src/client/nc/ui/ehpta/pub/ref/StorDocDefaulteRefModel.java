@@ -53,7 +53,7 @@ public class StorDocDefaulteRefModel extends AbstractRefModel {
 
 		}
 		
-		setWherePart(" pk_corp='" + getPk_corp() + "' and pk_calbody in ("+subSqlCalBoby+")");
+		setWherePart(" pk_corp='" + getPk_corp() + "' and pk_calbody in ("+subSqlCalBoby+") and memo = 'PTA' ");
 		
 		setOrderPart(" bd_stordoc.pk_stordoc ");
 		

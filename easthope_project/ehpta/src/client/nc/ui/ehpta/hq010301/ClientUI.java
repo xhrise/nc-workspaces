@@ -213,7 +213,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			try {
 				maindate = new UFDate(temp);
 				firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
-				String lastDay = CalcFunc.builder(maindate);
+				String lastDay = CalcFunc.getLastDay(maindate);
 				lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
 				
 			} catch(Exception ex) {
@@ -279,7 +279,7 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI
 			try {
 				maindate = new UFDate(temp);
 				firstDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-01");
-				String lastDay = CalcFunc.builder(maindate);
+				String lastDay = CalcFunc.getLastDay(maindate);
 				lastDate = new UFDate(maindate.getYear() + "-" + maindate.getMonth() + "-" + lastDay);
 				
 			} catch(Exception ex) {

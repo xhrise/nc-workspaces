@@ -37,6 +37,10 @@ public class ConvertFunc {
 		
 		String newStr = "";
 		for(String str : strArray) {
+			if(str == null || "".equals(str)) {
+				continue;
+			}
+			
 			newStr += str + ",";
 		}
 		

@@ -82,7 +82,10 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				throw new BusinessException("列表状态不能进行弃审操作，请转至卡片界面操作。");
 			
 			beforeOnBoCancleAudit(ctx);
-		} else if(bo.getParent() != null && "打印管理".equals(bo.getParent().getName())) {
+		} 
+		
+		/* 
+		else if(bo.getParent() != null && "打印管理".equals(bo.getParent().getName())) {
 			
 			AggregatedValueObject billVO = null;
 			
@@ -101,6 +104,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				throw new BusinessException("请选择一条提单信息！");
 			
 		}
+		*/
 		
 	}
 	
@@ -421,7 +425,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		if(period == null)
 			return ;
 		
-		String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
+		String lastDay = CalcFunc.getLastDay(new UFDate(period + "-01"));
 		
 		Object settletype = ((UIComboBox)ctx.getBillCardPanel().getHeadItem("settletype").getComponent()).getSelectdItemValue();
 		
@@ -889,7 +893,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		
 		if(period != null && !"".equals(period) && !iscredit) {
 			
-			String lastDay = CalcFunc.builder(new UFDate(period + "-01"));
+			String lastDay = CalcFunc.getLastDay(new UFDate(period + "-01"));
 			
 			Object settletype = ((UIComboBox)ctx.getBillCardPanel().getHeadItem("settletype").getComponent()).getSelectdItemValue();
 			

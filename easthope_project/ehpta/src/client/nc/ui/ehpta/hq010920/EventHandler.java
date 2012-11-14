@@ -258,7 +258,7 @@ public class EventHandler extends ManageEventHandler {
 			throw new Exception("请选择表头期间后再进行统计");
 		
 		UFDate period = new UFDate(uppertrans.getPeriod() + "-01");
-		String lastDay = CalcFunc.builder(period);
+		String lastDay = CalcFunc.getLastDay(period);
 		UFDate endPeriod = new UFDate(uppertrans.getPeriod() + "-" + lastDay);
 		
 		// 统计上游运费视图

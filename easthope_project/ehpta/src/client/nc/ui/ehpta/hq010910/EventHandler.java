@@ -89,7 +89,7 @@ public class EventHandler extends ManageEventHandler {
 		String peroid = peroidDlg.getFieldRef().getRefName();
 		
 		UFDate firstDate = new UFDate(peroid + "-01");
-		UFDate lastDate = new UFDate(peroid + "-" + CalcFunc.builder(firstDate));
+		UFDate lastDate = new UFDate(peroid + "-" + CalcFunc.getLastDay(firstDate));
 		
 		View_CalcSettlementVO[] vsettleVOs = (View_CalcSettlementVO[]) HYPubBO_Client.queryByCondition(View_CalcSettlementVO.class, " cmakedate >= '"+firstDate.toString()+"' and cmakedate <= '" + lastDate.toString() + "' and nvl(settleflag , 'N') = 'N' ");
 

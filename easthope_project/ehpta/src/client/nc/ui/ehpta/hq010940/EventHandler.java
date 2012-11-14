@@ -84,7 +84,7 @@ public class EventHandler extends ManageEventHandler {
 			throw new Exception("请选择表头期间后再进行统计");
 		
 		UFDate period = new UFDate(undertrans.getPeriod() + "-01");
-		String lastDay = CalcFunc.builder(period);
+		String lastDay = CalcFunc.getLastDay(period);
 		UFDate endPeriod = new UFDate(undertrans.getPeriod() + "-" + lastDay);
 		
 //		create or replace view vw_pta_storfee as

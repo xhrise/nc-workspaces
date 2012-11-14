@@ -3213,12 +3213,12 @@ public class ExtClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 									Object pk_storcont_b = formBodyVO.getAttributeValue("pk_storcont_b");
 									
 									String sqlField = ConvertFunc.change(new String[]{
-										" transprice = " + (transprice == null ? "0.0" : transprice) , 
-										" storprice = " + (storprice == null ? "0.0" : storprice) , 
-										" copermodeid = '" + (copermodeid == null ? "" : copermodeid) + "'" , 
-										" ctransmodeid = '" + (ctransmodeid == null ? "" : ctransmodeid) + "'" , 
-										" pk_transport_b = '" + (pk_transport_b == null ? "" : pk_transport_b) + "'" , 
-										" pk_storcont_b = '" + (pk_storcont_b == null ? "" : pk_storcont_b) + "'" , 
+										transprice == null ? "" : " transprice = " + transprice , 
+										storprice == null ? "" : " storprice = " + storprice , 
+										copermodeid == null ? "" : " copermodeid = '" + copermodeid + "'" , 
+										ctransmodeid == null ? "" : " ctransmodeid = '" + ctransmodeid + "'" , 
+										pk_transport_b == null ? "" : " pk_transport_b = '" + pk_transport_b + "'" , 
+										pk_storcont_b == null ? "" : " pk_storcont_b = '" + pk_storcont_b + "'" , 
 									});
 								
 									try { UAPQueryBS.getInstance().executeQuery("update ic_general_b set "+sqlField+" where cgeneralbid = '"+formBodyVO.getPrimaryKey()+"'", null); } catch(Exception e) { } 
