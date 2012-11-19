@@ -13,7 +13,9 @@ import java.util.Set;
 
 import nc.bs.bd.b21.BusinessCurrencyRateUtil;
 import nc.bs.framework.common.NCLocator;
+import nc.bs.logging.Logger;
 import nc.itf.ic.service.IICToSO;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ml.NCLangRes;
 import nc.ui.pf.change.PfUtilUITools;
 import nc.ui.pf.pub.PfUIDataCache;
@@ -44,6 +46,7 @@ import nc.ui.pub.query.QueryConditionClient;
 import nc.ui.scm.file.DocumentManager;
 import nc.ui.scm.goldtax.TransGoldTaxDlg;
 import nc.ui.scm.plugin.InvokeEventProxy;
+import nc.ui.scm.plugin.SCMUIContext;
 import nc.ui.scm.print.BillPrintTool;
 import nc.ui.scm.print.IFreshTsListener;
 import nc.ui.scm.print.PrintLogClient;
@@ -1604,9 +1607,18 @@ public class SaleInvoiceUI extends nc.ui.pub.ToftPanel implements
     try {
       // 插件支持
       getPluginProxy().beforeAction(Action.DELETE, new SaleinvoiceVO[] { voInvoice });
+      
+      // 删除前操作 add by river for 2012-11-16
+      beforeDelete(new SaleinvoiceVO[] { voInvoice });
+      
       onDelete(voInvoice);
-    }
-    catch (Exception e) {
+      
+      // add by river for 2012-11-16
+      // 删除后动作
+      getPluginProxy().afterAction(Action.DELETE, new SaleinvoiceVO[] { voInvoice });
+      
+      
+    } catch (Exception e) {
       showErrorMessage(e.getMessage());
       nc.vo.scm.pub.SCMEnv.out(e.getMessage());
       return;
@@ -1631,6 +1643,32 @@ public class SaleInvoiceUI extends nc.ui.pub.ToftPanel implements
     setButtonsStateBrowse();
 
   }
+  
+  protected final void beforeDelete(AggregatedValueObject[] billvos ) throws BusinessException {
+		
+		if(billvos != null) {
+			
+			try {
+				UFDouble summny = new UFDouble(0 , 2);
+				for(AggregatedValueObject billVO : billvos ) {
+					for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
+						UFDouble noriginalcurdiscountmny = (UFDouble)bodyVO.getAttributeValue("noriginalcurdiscountmny");	
+						summny = summny.add(ConvertFunc.change(noriginalcurdiscountmny));
+					}
+				}
+				
+				if(summny.doubleValue() > 0) {
+					int check = showYesNoMessage("是否取消合并开票？");
+					if(!(check == UIDialog.ID_YES))
+						throw new BusinessException("删除操作已终止！");
+				}
+				
+			} catch(Exception e) {
+				Logger.error(e.getMessage(), e, this.getClass(), "afterDelete");
+			}
+		}
+		
+	}
 
   /**
    * 此处插入方法说明。 创建日期：(2001-3-17 9:00:09)
@@ -5331,14 +5369,23 @@ private boolean checkHeadItem(String curstr,String addstr){
 	    if (getBillCardPanel().getVO().getHeadVO().getFcounteractflag() == SaleVO.FCOUNTERACTFLAG_COUNTERACT_GEN) {
 	      getBtns().m_boUnite.setEnabled(false);
 	      getBtns().m_boUniteCancel.setEnabled(false);
-	    }
-	    else {
+	      
+	      getBtns().m_boPTAUnite.setEnabled(false);
+	      getBtns().m_boPTAUniteCancle.setEnabled(false);
+	    } else {
 	      // 只有发票总金额>0 才可进行冲减。
 	      getBtns().m_boUnite.setEnabled(getBillCardPanel().getVO().getHeadVO()
 	          .isLgtZero());
 	      getBtns().m_boUniteCancel.setEnabled(getBillCardPanel().getVO()
 	          .getHeadVO().isLgtZero()
 	          && getBillCardPanel().getVO().getHeadVO().isStrike());
+	      
+	      getBtns().m_boPTAUnite.setEnabled(getBillCardPanel().getVO().getHeadVO()
+		          .isLgtZero());
+		  getBtns().m_boPTAUniteCancle.setEnabled(getBillCardPanel().getVO()
+		          .getHeadVO().isLgtZero()
+		          && getBillCardPanel().getVO().getHeadVO().isStrike());
+	      
 	    }
     }
 

@@ -2,6 +2,7 @@ package nc.ui.so.so002;
 
 import java.awt.event.ActionEvent;
 
+import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.IAdjustType;
 import nc.ui.ehpta.pub.UAPQueryBS;
@@ -9,14 +10,13 @@ import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.bill.BillEditEvent;
-import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.bill.BillMouseEnent;
 import nc.ui.pub.query.QueryConditionClient;
 import nc.ui.scm.plugin.IScmUIPlugin;
 import nc.ui.scm.plugin.SCMUIContext;
-import nc.ui.so.so001.order.ExtSaleOrderAdminUI;
+import nc.ui.scm.pub.bill.ScmButtonConst;
 import nc.ui.so.so001.order.SaleContractBalanceDlg;
 import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.uap.sf.SFClientUtil;
@@ -27,9 +27,6 @@ import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDouble;
 import nc.vo.scm.plugin.Action;
-import nc.vo.so.so001.SaleOrderVO;
-import nc.vo.so.so001.SaleorderBVO;
-import nc.vo.so.so001.SaleorderHVO;
 import nc.vo.so.so002.SaleinvoiceVO;
 
 @SuppressWarnings("restriction")
@@ -39,6 +36,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		return true;
 	}
 
+	// river
 	public void beforeButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 		
@@ -49,6 +47,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		
 	}
 	
+	// river
 	@SuppressWarnings({ "unused", "static-access" })
 	protected final void beforeOnBoAudit(SCMUIContext ctx , ButtonObject bo) throws BusinessException {
 		
@@ -147,7 +146,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 			throws BusinessException {
 		
 		
-		
+		// river
 		if("合同余额".equals(bo.getName())) {
 			afterOnBoContBalance(bo , ctx);
 			
@@ -164,6 +163,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 
 	}
 	
+	// river
 	public final void afterOnBoContBalance(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
 		
 		Object[] obj = new Object[4];
@@ -227,6 +227,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		balanceDlg.showModal();
 	}
 	
+	// river
 	public final void afterOnBoPTAUnite(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
 		
 		QueryConditionClient condition = new QueryConditionClient(ctx.getToftPanel());
@@ -238,9 +239,9 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 			String pk_contract = (String) billVO.getParentVO().getAttributeValue("pk_contract");
 			String whereSql = condition.getWhereSQL();
 			if(whereSql == null || "".equals(whereSql))
-				whereSql = " 1 = 1 and pk_contract = '"+pk_contract+"' and nvl(def4 , 'N') = 'N' and nvl(dr,0) = 0 and nvl(type,1) <> 1 ";
+				whereSql = " 1 = 1 and vbillstatus = 1 and pk_contract = '"+pk_contract+"' and nvl(def4 , 'N') = 'N' and nvl(dr,0) = 0 and nvl(type,1) <> 1 ";
 			else 
-				whereSql += " and pk_contract = '"+pk_contract+"' and nvl(def4 , 'N') = 'N' and nvl(dr,0) = 0 and nvl(type,1) <> 1 ";
+				whereSql += " and vbillstatus = 1 and pk_contract = '"+pk_contract+"' and nvl(def4 , 'N') = 'N' and nvl(dr,0) = 0 and nvl(type,1) <> 1 ";
 			
 			LinkQueryData data = new LinkQueryData(whereSql == null ? "" : whereSql , (ExtSaleInvoiceUI)ctx.getToftPanel());
 			SFClientUtil.openLinkedQueryDialog("HQ010403", (ExtSaleInvoiceUI)ctx.getToftPanel(), data);
@@ -249,6 +250,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		
 	}
 	
+	// river
 	public final void afterOnBoPTAUniteCancle(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
 		
 		ctx.getBillCardPanel().setBodyValueAt(0, 0, "noriginalcurdiscountmny");
@@ -264,6 +266,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		
 	}
 	
+	// river
 	public final void afterOnBoSave(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
 		
 		AdjustVO[] adjustVOs = ((ExtSaleInvoiceUI)ctx.getToftPanel()).getAdjustVOs();
@@ -321,15 +324,65 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 
 	public void beforeAction(Action action, AggregatedValueObject[] billvos,
 			SCMUIContext conx) throws BusinessException {
-
+		
 	}
 
 	public void afterAction(Action action, AggregatedValueObject[] billvos,
 			SCMUIContext conx) throws BusinessException {
 
+		if(action == Action.DELETE)
+			afterDelete(billvos , conx);
+		
+	}
+	
+	protected final void afterDelete(AggregatedValueObject[] billvos , SCMUIContext conx) throws BusinessException {
+		
+		if(billvos != null) {
+			
+			try {
+				for(AggregatedValueObject billVO : billvos ) {
+					String primaryKey = billVO.getParentVO().getPrimaryKey();
+					try { UAPQueryBS.getInstance().executeQuery("update ehpta_adjust set def4 = 'N' , def5 = '' where def5 = '"+primaryKey+"'", null); } catch(Exception ex) { }
+				}
+			} catch(Exception e) {
+				Logger.error(e.getMessage(), e, this.getClass(), "afterDelete");
+			}
+			
+		}
+		
 	}
 
 	public void setButtonStatus(SCMUIContext conx) {
+		
+		// add by river for 2012-11-16
+		// 根据表体折扣金额，将行操作相关按钮进行状态设置
+		try {
+			SaleInvoiceUI ui = (SaleInvoiceUI)conx.getToftPanel();
+			AggregatedValueObject billVO = ui.getVo();
+			if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+				
+				UFDouble summny = new UFDouble(0 , 2);
+				for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
+					UFDouble noriginalcurdiscountmny = (UFDouble)bodyVO.getAttributeValue("noriginalcurdiscountmny");	
+					summny = summny.add(ConvertFunc.change(noriginalcurdiscountmny));
+				}
+				
+				if(summny.doubleValue() > 0) {
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_ADD).setEnabled(false);
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_COPY).setEnabled(false);
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_DELETE).setEnabled(false);
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_PASTE).setEnabled(false);
+				} else {
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_ADD).setEnabled(true);
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_COPY).setEnabled(true);
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_DELETE).setEnabled(true);
+					ui.getButtonObjectByCode(ScmButtonConst.BTN_LINE_PASTE).setEnabled(true);
+				}
+				
+			}
+		} catch(Exception e) {
+			Logger.error(e.getMessage(), e, this.getClass(), "setButtonStatus");
+		}
 		
 	}
 

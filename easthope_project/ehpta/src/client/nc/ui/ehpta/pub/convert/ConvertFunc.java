@@ -95,12 +95,18 @@ public class ConvertFunc {
 		
 	}
 	
+	/**
+	 * 阿拉伯数字转中文大写
+	 * @param number
+	 * @return
+	 */
 	public static final String getChinaNum(String number) {
 		
 		if(number == null || "".equals(number) || Double.valueOf(number) == 0)
 			return "";
 		
 		String val = "";
+		
 		boolean check = false;
 		for (int i = 0; i < number.length(); i++) {
 			char splitChar = number.charAt(number.length() - i - 1);
@@ -187,6 +193,11 @@ public class ConvertFunc {
 		return bigNum;
 	}
 	
+	/**
+	 * 单一阿拉伯数字转中文大写
+	 * @param number
+	 * @return
+	 */
 	public static final String getChinaSignNum(String number) {
 		
 		if (number.equals("0"))

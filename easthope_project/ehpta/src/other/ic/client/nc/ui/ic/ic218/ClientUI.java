@@ -131,6 +131,13 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		
 	}
   
+  /**
+   * river 
+   * 
+   * ¼þÊý¼ÆËã
+   * 
+   * @param e
+   */
   protected final void afterSetNoutnum(BillEditEvent e) {
 	  try {
 		  

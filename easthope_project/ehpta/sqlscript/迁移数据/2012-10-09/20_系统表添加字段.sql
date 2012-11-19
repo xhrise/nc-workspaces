@@ -81,3 +81,5 @@ alter table so_sale add settletype varchar2(10);
 alter table so_sale add totalnnumber number(32,8);
 alter table so_sale add totalcnnumber varchar2(128);
 
+-- 2012-11-15
+alter table so_sale add stordoc varchar2(20);
