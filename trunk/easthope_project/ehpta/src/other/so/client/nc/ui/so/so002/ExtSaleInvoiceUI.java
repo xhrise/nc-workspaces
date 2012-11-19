@@ -1,12 +1,17 @@
 package nc.ui.so.so002;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.bill.BillModel;
-import nc.ui.scm.pub.bill.ScmButtonConst;
 import nc.vo.ehpta.hq010403.AdjustVO;
+import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
+import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.lang.UFDouble;
 import nc.vo.so.so002.SaleinvoiceVO;
 
@@ -126,18 +131,47 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 				
 			}
 			
-			getBillCardPanel().setBodyValueAt(mny, 0, "nuniteinvoicemny");
-			getBillCardPanel().execBodyFormulas(0, formulas);
+			AggregatedValueObject billVO = getBillCardPanel().getVO();
+			if(billVO != null && billVO.getParentVO() != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+				
+				UFDouble ntotalsummny = ConvertFunc.change((UFDouble) billVO.getParentVO().getAttributeValue("ntotalsummny"));
+				
+				int row = 0;
+				
+				UFDouble sumRate = new UFDouble(0 , 2);
+				List<UFDouble> rateList = new ArrayList<UFDouble>();
+				
+				for(CircularlyAccessibleValueObject bodyVO : billVO.getChildrenVO()) {
+					UFDouble nsummny = ConvertFunc.change((UFDouble) bodyVO.getAttributeValue("nsummny"));
+					
+					if(row == billVO.getChildrenVO().length - 1) {
+						rateList.add(new UFDouble(1).sub(sumRate));
+						
+					} else {
+						rateList.add(nsummny.div(ntotalsummny).setScale(2, 0));
+						sumRate = sumRate.add(nsummny.div(ntotalsummny).setScale(2, 0));
+					}
+					
+					row++;
+				}
+				
+				for(int i = 0 ; i < row ; i ++) {
+					getBillCardPanel().setBodyValueAt(mny.multiply(rateList.get(i)) , i, "nuniteinvoicemny");
+					getBillCardPanel().execBodyFormulas(i, formulas);
+					
+					getBillCardPanel().calculateNumber(i, "noriginalcursummny");
+				    getBillCardPanel().setHeadItem("ntotalsummny", getBillCardPanel().calcurateTotal("noriginalcursummny"));
+				    getBillCardPanel().execHeadFormula("nnetmny->ntotalsummny-nstrikemny");
+				    getBillCardPanel().setBodyValueAt(getBillCardPanel().getBodyValueAt(i, "noriginalcursummny"),
+				       i, "nsubsummny");
+				    getBillCardPanel().setBodyValueAt(getBillCardPanel().getBodyValueAt(i, "nsummny"), i,
+				        "nsubcursummny");
+					
+				    getBillCardPanel().getBillModel().setRowState(i, BillModel.MODIFICATION);
+				}
+			}
 			
-			getBillCardPanel().calculateNumber(0, "noriginalcursummny");
-		    getBillCardPanel().setHeadItem("ntotalsummny", getBillCardPanel().calcurateTotal("noriginalcursummny"));
-		    getBillCardPanel().execHeadFormula("nnetmny->ntotalsummny-nstrikemny");
-		    getBillCardPanel().setBodyValueAt(getBillCardPanel().getBodyValueAt(0, "noriginalcursummny"),
-		       0, "nsubsummny");
-		    getBillCardPanel().setBodyValueAt(getBillCardPanel().getBodyValueAt(0, "nsummny"), 0,
-		        "nsubcursummny");
 			
-		    getBillCardPanel().getBillModel().setRowState(0, BillModel.MODIFICATION);
 		    
 		    
 //		    if(mny.doubleValue() > 0) {
@@ -151,6 +185,10 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 //				getButtonObjectByCode(ScmButtonConst.BTN_LINE_DELETE).setEnabled(true);
 //				getButtonObjectByCode(ScmButtonConst.BTN_LINE_PASTE).setEnabled(true);
 //			}
+			
+			getBtns().m_boUnite.setEnabled(false);
+			getBtns().m_boPTAUnite.setEnabled(false);
+			getBtns().m_boPTAUniteCancle.setEnabled(true);
 		    
 		    updateButtons();
 		    

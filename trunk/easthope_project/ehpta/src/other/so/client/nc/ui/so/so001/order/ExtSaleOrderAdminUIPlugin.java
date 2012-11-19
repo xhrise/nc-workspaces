@@ -539,7 +539,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 				if("vouchid".equals(e.getKey())) 
 					ctx.getBillCardPanel().getHeadItem("vouchmny").setValue(((UIRefPane)ctx.getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefCode());
 				
-				if("carriersname".equals(e.getKey()) || "storage".equals(e.getKey()) || "estoraddrid".equals(e.getKey()))
+				if("carriersname".equals(e.getKey()) || "storage".equals(e.getKey()) || "estoraddrid".equals(e.getKey()) || "stordoc".equals(e.getKey()))
 					afterSetBodyTransprice(e , ctx);
 					
 			} else {
@@ -569,8 +569,15 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	protected final void afterSetStordoc(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
 		System.out.println(e.getKey());
-//		String refpk = ((UIRefPane)ctx.getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefPK();
-//		UAPQueryBS.getInstance().executeQuery("select pk_stordoc , storaddr from bd_stordoc stordoc  ", processor);
+		String refpk = ((UIRefPane)ctx.getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefPK();
+		Map storMap = (Map) UAPQueryBS.getInstance().executeQuery("select pk_stordoc , storaddr from ehpta_storcontract where pk_storagedoc = '"+refpk+"'", new MapProcessor());
+		Object pk_stordoc= storMap.get("pk_stordoc");
+		
+		ctx.getBillCardPanel().getHeadItem("storage").setValue(pk_stordoc);
+		ctx.getBillCardPanel().execHeadFormula("storage->getColValue(bd_stordoc , pk_stordoc , pk_stordoc , storage)");
+		ctx.getBillCardPanel().execHeadFormula("storageaddress->getColValue(bd_stordoc , storaddr , pk_stordoc , storage)");
+	
+	
 	}
 	
 	protected final void afterSetHeadPk_transport(BillEditEvent e, SCMUIContext ctx) throws Exception {

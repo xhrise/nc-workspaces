@@ -6,14 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
+import nc.ui.ehpta.pub.convert.ConvertFunc;
 import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.IFuncWindow;
 import nc.ui.pub.beans.UIDialog;
+import nc.ui.pub.beans.UITable.SortItem;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.filesystem.FileManageUI;
 import nc.ui.trade.base.IBillOperate;
-import nc.ui.trade.bill.ISingleController;
+import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.trade.businessaction.IBusinessController;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
@@ -22,6 +24,7 @@ import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
+import nc.vo.trade.pub.HYBillVO;
 
 /**
  * 
@@ -55,10 +58,118 @@ public class EventHandler extends ManageEventHandler {
 				onBoSelNone();
 				break;
 				
+			case DefaultBillButton.ENABLED :
+				onBoEnabled();
+				break;
+				
+			case DefaultBillButton.DISABLED : 
+				onBoDisabled();
+				break;
+				
 			default:
 	
 				break;
 		}
+	}
+	
+	protected final void onBoEnabled() throws Exception {
+		
+		AggregatedValueObject[] selectedVOs = ((ClientUI) getBillUI()).getBillListPanel().getMultiSelectedVOs(HYBillVO.class.getName(), AdjustVO.class.getName(), AdjustVO.class.getName());
+		
+		if(selectedVOs != null && selectedVOs.length > 0) {
+			boolean check = false;
+			
+			List<AdjustVO> adjustList = new ArrayList<AdjustVO>();
+			for(AggregatedValueObject billVO : selectedVOs) {
+				String type = ((AdjustVO)billVO.getParentVO()).getType();
+				
+				if("4".equals(type)) {
+					((AdjustVO)billVO.getParentVO()).setDef6("Y");
+					adjustList.add((AdjustVO) billVO.getParentVO());
+				} else 
+					check = true;
+				
+			}
+			
+			if(adjustList == null || adjustList.size() == 0) {
+				getBillUI().showErrorMessage("选中的项中没有有效的记录！");
+				return ;
+			}
+			
+			if(!(getBillUI().showYesNoMessage("确定要启用选中的金额吗？") == UIDialog.ID_YES))
+				return ;
+			
+			if(check)
+				getBillUI().showWarningMessage("选中的记录中存在非返利的类型，这些记录在处理中将被忽略！");
+			
+			
+			HYPubBO_Client.updateAry(adjustList.toArray(new AdjustVO[0]));
+			
+			CircularlyAccessibleValueObject[] headVOs = getBufferData().getAllHeadVOsFromBuffer();
+			if(headVOs != null && headVOs.length > 0 ) {
+				List<String> pkList = new ArrayList<String>();
+				for(CircularlyAccessibleValueObject headVO : headVOs) {
+					pkList.add("'" + headVO.getPrimaryKey() + "'");
+				}
+				
+				AggregatedValueObject[] billVOs = HYPubBO_Client.queryBillVOByCondition(new String[] { HYBillVO.class.getName(), AdjustVO.class.getName() }, " pk_adjust in ("+ConvertFunc.change(pkList.toArray(new String[0]))+") order by vbillno desc ");
+				getBufferData().clear();
+				getBufferData().addVOsToBuffer(billVOs);
+				updateBuffer();
+			
+			}
+		}
+		
+	}
+	
+	protected final void onBoDisabled() throws Exception {
+		
+		AggregatedValueObject[] selectedVOs = ((ClientUI) getBillUI()).getBillListPanel().getMultiSelectedVOs(HYBillVO.class.getName(), AdjustVO.class.getName(), AdjustVO.class.getName());
+		
+		if(selectedVOs != null && selectedVOs.length > 0) {
+			boolean check = false;
+			
+			List<AdjustVO> adjustList = new ArrayList<AdjustVO>();
+			for(AggregatedValueObject billVO : selectedVOs) {
+				String type = ((AdjustVO)billVO.getParentVO()).getType();
+				
+				if("4".equals(type)) {
+					((AdjustVO)billVO.getParentVO()).setDef6("N");
+					adjustList.add((AdjustVO) billVO.getParentVO());
+				} else 
+					check = true;
+				
+			}
+			
+			if(adjustList == null || adjustList.size() == 0) {
+				getBillUI().showErrorMessage("选中的项中没有有效的记录！");
+				return ;
+			}
+			
+			if(!(getBillUI().showYesNoMessage("确定要停用选中的金额吗？") == UIDialog.ID_YES))
+				return ;
+			
+			if(check)
+				getBillUI().showWarningMessage("选中的记录中存在非返利的类型，这些记录在处理中将被忽略！");
+			
+			
+			HYPubBO_Client.updateAry(adjustList.toArray(new AdjustVO[0]));
+			
+			CircularlyAccessibleValueObject[] headVOs = getBufferData().getAllHeadVOsFromBuffer();
+			if(headVOs != null && headVOs.length > 0 ) {
+				List<String> pkList = new ArrayList<String>();
+				for(CircularlyAccessibleValueObject headVO : headVOs) {
+					pkList.add("'" + headVO.getPrimaryKey() + "'");
+				}
+				
+				AggregatedValueObject[] billVOs = HYPubBO_Client.queryBillVOByCondition(new String[] { HYBillVO.class.getName(), AdjustVO.class.getName() } , " pk_adjust in ("+ConvertFunc.change(pkList.toArray(new String[0]))+") order by vbillno desc ");
+				getBufferData().clear();
+				getBufferData().addVOsToBuffer(billVOs);
+				updateBuffer();
+			
+			}
+		}
+		
 	}
 	
 	protected final void onBoConfirm() throws Exception {
@@ -213,6 +324,22 @@ public class EventHandler extends ManageEventHandler {
 	
 	public IBusinessController getBusiAction() {
 		return getBusinessAction();
+	}
+	
+	@Override
+	protected void onBoQuery() throws Exception {
+		super.onBoQuery();
+		
+		
+		// 查询后按vbillno字段进行排序。
+		int[] ints = { 0 };//第一行开始排序
+		List<SortItem> msgList = new ArrayList<SortItem>();
+		
+		SortItem sort = new SortItem(((ClientUI)getBillUI()).getBillListPanel().getHeadBillModel().getBodyColByKey("vbillno") , false); // 排序列号0
+		msgList.add(sort); // 添加到列表
+		
+		((ClientUI)getBillUI()).getBillListPanel().getHeadBillModel().sortByColumns(msgList, ints); // 这里用的是集合，
+		
 	}
 
 }

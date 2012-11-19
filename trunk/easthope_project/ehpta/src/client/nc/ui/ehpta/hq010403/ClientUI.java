@@ -119,6 +119,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		addPrivateButton(DefaultBillButton.getConfirmButtonVO());
 		addPrivateButton(DefaultBillButton.getSelAllButtonVO());
 		addPrivateButton(DefaultBillButton.getSelNoneButtonVO());
+		addPrivateButton(DefaultBillButton.getEnabledButtonVO());
+		addPrivateButton(DefaultBillButton.getDisabledButtonVO());
 		
 	}
 
@@ -189,6 +191,8 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 		getButtonManager().getButton(IBillButton.CancelAudit).setVisible(false);
 		getButtonManager().getButton(IBillButton.ApproveInfo).setVisible(false);
 		getButtonManager().getButton(IBillButton.Brow).setVisible(false);
+		getButtonManager().getButton(DefaultBillButton.ENABLED).setVisible(false);
+		getButtonManager().getButton(DefaultBillButton.DISABLED).setVisible(false);
 		
 		getButtonManager().getButton(DefaultBillButton.Confirm).setVisible(true);
 		getButtonManager().getButton(DefaultBillButton.SelAll).setVisible(true);

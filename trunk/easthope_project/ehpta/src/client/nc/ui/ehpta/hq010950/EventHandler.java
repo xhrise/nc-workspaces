@@ -605,6 +605,7 @@ public class EventHandler extends ManageEventHandler {
 		adjust.setAttributeValue("def1", bodyVO.getPk_rebates_b());
 		adjust.setAttributeValue("def2", "Y");
 		adjust.setAttributeValue("def3", "N");
+		adjust.setAttributeValue("def6", "Y");
 		
 		HYBillVO billVO = new HYBillVO();
 		billVO.setParentVO(adjust);
