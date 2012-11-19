@@ -253,17 +253,28 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 	// river
 	public final void afterOnBoPTAUniteCancle(ButtonObject bo, SCMUIContext ctx) throws BusinessException {
 		
-		ctx.getBillCardPanel().setBodyValueAt(0, 0, "noriginalcurdiscountmny");
-		ctx.getBillCardPanel().setBodyValueAt(0, 0, "nuniteinvoicemny");
-		ctx.getBillCardPanel().execBodyFormulas(0, new String[]{"noriginalcursummny->(nnumber * noriginalcurtaxprice )"});
+		SaleinvoiceVO billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
 		
-		((SaleInvoiceCardPanel )ctx.getBillCardPanel()).calculateNumber(0, "noriginalcursummny");
-		ctx.getBillCardPanel().setHeadItem("ntotalsummny", ((SaleInvoiceCardPanel )ctx.getBillCardPanel()).calcurateTotal("noriginalcursummny"));
-		ctx.getBillCardPanel().execHeadFormula("nnetmny->ntotalsummny-nstrikemny");
-		ctx.getBillCardPanel().setBodyValueAt(ctx.getBillCardPanel().getBodyValueAt(0, "noriginalcursummny"), 0, "nsubsummny");
-		ctx.getBillCardPanel().setBodyValueAt(ctx.getBillCardPanel().getBodyValueAt(0, "nsummny"), 0, "nsubcursummny");
-		ctx.getBillCardPanel().getBillModel().setRowState(0, BillModel.MODIFICATION);
-		
+		if(billVO != null && billVO.getParentVO() != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
+			
+			for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row ++ ) {
+				ctx.getBillCardPanel().setBodyValueAt(0, row, "noriginalcurdiscountmny");
+				ctx.getBillCardPanel().setBodyValueAt(0, row, "nuniteinvoicemny");
+				ctx.getBillCardPanel().execBodyFormulas(row, new String[]{"noriginalcursummny->(nnumber * noriginalcurtaxprice )"});
+				
+				((SaleInvoiceCardPanel )ctx.getBillCardPanel()).calculateNumber(row, "noriginalcursummny");
+				ctx.getBillCardPanel().setHeadItem("ntotalsummny", ((SaleInvoiceCardPanel )ctx.getBillCardPanel()).calcurateTotal("noriginalcursummny"));
+				ctx.getBillCardPanel().execHeadFormula("nnetmny->ntotalsummny-nstrikemny");
+				ctx.getBillCardPanel().setBodyValueAt(ctx.getBillCardPanel().getBodyValueAt(row, "noriginalcursummny"), row, "nsubsummny");
+				ctx.getBillCardPanel().setBodyValueAt(ctx.getBillCardPanel().getBodyValueAt(row, "nsummny"), row, "nsubcursummny");
+				ctx.getBillCardPanel().getBillModel().setRowState(row, BillModel.MODIFICATION);
+			
+			}
+			
+			((SaleInvoiceUI)ctx.getToftPanel()).getBtns().m_boUnite.setEnabled(true);
+			((SaleInvoiceUI)ctx.getToftPanel()).getBtns().m_boPTAUnite.setEnabled(true);
+			((SaleInvoiceUI)ctx.getToftPanel()).getBtns().m_boPTAUniteCancle.setEnabled(false);
+		}
 	}
 	
 	// river

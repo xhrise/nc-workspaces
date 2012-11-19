@@ -96,10 +96,24 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 			if("notetype".equals(e.getKey()))
 				afterSetNotetype(e);
 			
+			if("pj_jsfs".equals(e.getKey()))
+				afterSetPj_jsfs(e);
+			
 		} catch(Exception ex) {
-			AppDebug.error(ex);
+			Logger.error(ex.getMessage(), ex, this.getClass(), "afterEdit");
 		}
 			
+	}
+	
+	protected final void afterSetPj_jsfs(BillEditEvent e) throws Exception {
+		
+		String refPK = ((UIRefPane)getArapDjPanel1().getBillCardPanelDj().getHeadItem(e.getKey()).getComponent()).getRefPK();
+		
+		if("0001A810000000000JC0".equals(refPK)) 
+			((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem("zyx8").getComponent()).setSelected(true);
+		else 
+			((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem("zyx8").getComponent()).setSelected(false);
+		
 	}
 	
 	/**
@@ -139,10 +153,16 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 			boolean iscredit = ((UICheckBox)getArapDjPanel1().getBillCardPanelDj().getHeadItem(e.getKey()).getComponent()).isSelected();
 			
 			if(iscredit) {
-				getArapDjPanel1().getBillCardPanelDj().getHeadItem("notetype").setValue(null);
-				getArapDjPanel1().getBillCardPanelDj().getHeadItem("notetype").setEnabled(false);
+//				getArapDjPanel1().getBillCardPanelDj().getHeadItem("notetype").setValue(null);
+//				getArapDjPanel1().getBillCardPanelDj().getHeadItem("notetype").setEnabled(false);
+				getArapDjPanel1().getBillCardPanelDj().getHeadItem("pj_jsfs").setValue("0001A810000000000JC0");
+				getArapDjPanel1().getBillCardPanelDj().execHeadFormula("pj_jsfs->getColValue(bd_balatype , pk_balatype , pk_balatype , pj_jsfs)");
+				
 			} else {
-				getArapDjPanel1().getBillCardPanelDj().getHeadItem("notetype").setEnabled(true);
+//				getArapDjPanel1().getBillCardPanelDj().getHeadItem("notetype").setEnabled(true);
+				getArapDjPanel1().getBillCardPanelDj().getHeadItem("pj_jsfs").setValue(null);
+				getArapDjPanel1().getBillCardPanelDj().execHeadFormula("pj_jsfs->getColValue(bd_balatype , pk_balatype , pk_balatype , pj_jsfs)");
+				
 			}
 		}
 		
