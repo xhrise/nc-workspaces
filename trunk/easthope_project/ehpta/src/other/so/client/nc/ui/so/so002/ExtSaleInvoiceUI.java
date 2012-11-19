@@ -4,6 +4,7 @@ import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.pub.ButtonObject;
 import nc.ui.pub.bill.BillModel;
+import nc.ui.scm.pub.bill.ScmButtonConst;
 import nc.vo.ehpta.hq010403.AdjustVO;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.lang.UFDouble;
@@ -43,6 +44,7 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 	public void setButtonsState() {
 		super.setButtonsState();
 		
+		// river
 		if (getOperationState() == ISaleInvoiceOperState.STATE_EDIT) {
 			getBtns().m_boPTAUnite.setEnabled(true);
 			getBtns().m_boPTAUniteCancle.setEnabled(false);
@@ -98,6 +100,7 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 //		getBillCardPanel().execBodyFormulas(0, new String[]{"nuniteinvoicemny->(nnumber * noriginalcurtaxprice ) - noriginalcursummny"});
 	}
 	
+	// river
 	private AdjustVO[] adjustVOs = null;
 
 	public AdjustVO[] getAdjustVOs() {
@@ -108,6 +111,10 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 		this.adjustVOs = adjustVOs;
 	}
 	
+	/**
+	 * river
+	 * @throws Exception
+	 */
 	public void onBoConfirm() throws Exception {
 		
 		System.out.println(getAdjustVOs().length);
@@ -131,6 +138,21 @@ public class ExtSaleInvoiceUI extends SaleInvoiceUI {
 		        "nsubcursummny");
 			
 		    getBillCardPanel().getBillModel().setRowState(0, BillModel.MODIFICATION);
+		    
+		    
+//		    if(mny.doubleValue() > 0) {
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_ADD).setEnabled(false);
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_COPY).setEnabled(false);
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_DELETE).setEnabled(false);
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_PASTE).setEnabled(false);
+//			} else {
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_ADD).setEnabled(true);
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_COPY).setEnabled(true);
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_DELETE).setEnabled(true);
+//				getButtonObjectByCode(ScmButtonConst.BTN_LINE_PASTE).setEnabled(true);
+//			}
+		    
+		    updateButtons();
 		    
 		}
 		

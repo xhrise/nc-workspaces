@@ -170,6 +170,10 @@ public class EventHandler extends ManageEventHandler {
 		
 	}
 	
+	/**
+	 *  river
+	 * @throws Exception
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected final void afterOnBoAudit() throws Exception {
 		

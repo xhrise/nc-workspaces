@@ -12,6 +12,26 @@
 			<!--销售单据主表（主要需要添加的位置） -->
 			<fields>
 				<field>
+					<!--仓储合同-->
+					<dbfieldname>stordoc</dbfieldname>
+					<vofieldname>stordoc</vofieldname>
+					<dbfieldtype>12</dbfieldtype>
+					<vofieldtype>3</vofieldtype>
+					<persistence>Y</persistence>
+					<length>20</length>
+					<allownull>Y</allownull>
+					<precision></precision>
+					<showprop>
+						<showname>仓储合同</showname>
+						<isshow>Y</isshow>
+						<tabcode>main</tabcode>
+						<showformula/>
+						<loadformula/>
+						<reftype/>
+						<pos>0</pos>
+					</showprop>
+				</field>
+				<field>
 					<!--整单数量（大写）-->
 					<dbfieldname>totalcnnumber</dbfieldname>
 					<vofieldname>totalcnnumber</vofieldname>

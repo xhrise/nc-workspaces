@@ -519,6 +519,9 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 //				if("carriersname".equals(e.getKey()))
 //					afterSetCarriers(e , ctx);
 					
+				if("stordoc".equals(e.getKey()))
+					afterSetStordoc(e , ctx);
+				
 				if("storage".equals(e.getKey()))
 					afterSetStorage(e , ctx);
 				
@@ -561,6 +564,13 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			Logger.error(ex.getMessage());
 		}
 
+	}
+	
+	protected final void afterSetStordoc(BillEditEvent e, SCMUIContext ctx) throws Exception {
+		
+		System.out.println(e.getKey());
+//		String refpk = ((UIRefPane)ctx.getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefPK();
+//		UAPQueryBS.getInstance().executeQuery("select pk_stordoc , storaddr from bd_stordoc stordoc  ", processor);
 	}
 	
 	protected final void afterSetHeadPk_transport(BillEditEvent e, SCMUIContext ctx) throws Exception {

@@ -30,9 +30,9 @@ import nc.ui.pub.beans.ValueChangedListener;
 import nc.ui.pub.beans.textfield.UITextType;
 
 /**
- * 消息筛选条件设置对话框
+ * 根据单据模板中可编辑的字段显示参照内容，再工具字段的类型修改UITextFiled的类型。
  * 
- * @author huangzg 2006-5-23
+ * @author river
  */
 public class MarkDlg extends UIDialog implements ActionListener {
 
