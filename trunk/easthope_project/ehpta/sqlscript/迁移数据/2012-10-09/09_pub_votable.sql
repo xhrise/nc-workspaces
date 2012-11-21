@@ -50,19 +50,19 @@ insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2
 values (null, null, null, 'nc.vo.trade.pub.HYBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010101.TransportContractBVO', null, null, 'HQ08', null, '0001AA1000000020MY4D', 'pk_transport', '2012-08-23 14:15:57', 'ehpta_transport_contract_b');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values ('vapproveid', 'pk_calcinterest', 'vbillno', 'nc.vo.ehpta.hq010901.MyBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010901.CalcInterestVO', null, 'voperatorid', 'HQ09', null, '0001AA1000000020MQJ6', 'pk_calcinterest', '2012-08-20 10:36:11', 'ehpta_calc_interest');
+values ('vapproveid', 'pk_calcinterest', 'vbillno', 'nc.vo.trade.pub.HYBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010901.CalcInterestVO', null, 'voperatorid', 'HQ09', null, '0001AA1000000020MQJ6', 'pk_calcinterest', '2012-08-20 10:36:11', 'ehpta_calc_interest');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values (null, null, null, 'nc.vo.ehpta.hq010901.MyBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010901.EhptaCalcInterestBVO', null, null, 'HQ09', null, '0001AA1000000020MQJ7', 'pk_calcinterest', '2012-08-20 10:36:11', 'ehpta_calc_interest_b');
+values (null, null, null, 'nc.vo.trade.pub.HYBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010901.EhptaCalcInterestBVO', null, null, 'HQ09', null, '0001AA1000000020MQJ7', 'pk_calcinterest', '2012-08-20 10:36:11', 'ehpta_calc_interest_b');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values ('vapproveid', 'pk_settlement', 'vbillno', 'nc.vo.ehpta.MyBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.CalcSettlementVO', null, 'voperatorid', 'HQ10', null, '0001AA1000000020N24O', 'pk_settlement', '2012-08-27 11:49:19', 'ehpta_calc_settlement');
+values ('vapproveid', 'pk_settlement', 'vbillno', 'nc.vo.trade.pub.HYBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010910.CalcSettlementVO', null, 'voperatorid', 'HQ10', null, '0001AA1000000020N24O', 'pk_settlement', '2012-08-27 11:49:19', 'ehpta_calc_settlement');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values ('vapproveid', 'pk_transfee', 'vbillno', 'nc.vo.ehpta.hq010920.MyBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010920.CalcUpperTransfeeHVO', null, 'voperatorid', 'HQ11', null, '0001AA1000000020N89R', 'pk_transfee', '2012-09-11 11:54:21', 'ehpta_calc_upper_transfee_h');
+values ('vapproveid', 'pk_transfee', 'vbillno', 'nc.vo.trade.pub.HYBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010920.CalcUpperTransfeeHVO', null, 'voperatorid', 'HQ11', null, '0001AA1000000020N89R', 'pk_transfee', '2012-09-11 11:54:21', 'ehpta_calc_upper_transfee_h');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values (null, null, null, 'nc.vo.ehpta.hq010920.MyBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010920.EhptaCalcUpperTransfeeBVO', null, null, 'HQ11', null, '0001AA1000000020N89S', 'pk_transfee', '2012-09-11 11:54:21', 'ehpta_calc_upper_transfee_b');
+values (null, null, null, 'nc.vo.trade.pub.HYBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010920.EhptaCalcUpperTransfeeBVO', null, null, 'HQ11', null, '0001AA1000000020N89S', 'pk_transfee', '2012-09-11 11:54:21', 'ehpta_calc_upper_transfee_b');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
 values ('vapproveid', 'pk_transfee', 'vbillno', 'nc.vo.trade.pub.HYBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010930.CalcUnderTransfeeHVO', null, 'voperatorid', 'HQ12', null, '0001AA1000000020NGCX', 'pk_transfee', '2012-09-13 10:58:49', 'ehpta_calc_under_transfee_h');
@@ -77,9 +77,15 @@ insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2
 values (null, null, null, 'nc.vo.trade.pub.HYBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010940.CalcStorfeeBVO', null, null, 'HQ13', null, '0001AA1000000020NMXS', 'pk_storfee', '2012-09-17 14:48:30', 'ehpta_calc_storfee_b');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values ('vapproveid', 'pk_rebates', 'vbillno', 'nc.vo.ehpta.hq010950.MyBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010950.CalcRebatesHVO', null, 'voperatorid', 'HQ14', null, '0001AA1000000020O6Z8', 'pk_rebates', '2012-09-26 14:41:52', 'ehpta_calc_rebates_h');
+values ('vapproveid', 'pk_rebates', 'vbillno', 'nc.vo.trade.pub.HYBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq010950.CalcRebatesHVO', null, 'voperatorid', 'HQ14', null, '0001AA1000000020O6Z8', 'pk_rebates', '2012-09-26 14:41:52', 'ehpta_calc_rebates_h');
 
 insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
-values (null, null, null, 'nc.vo.ehpta.hq010950.MyBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010950.EhptaCalcRebatesBVO', null, null, 'HQ14', null, '0001AA1000000020O6Z9', 'pk_rebates', '2012-09-26 14:41:52', 'ehpta_calc_rebates_b');
+values (null, null, null, 'nc.vo.trade.pub.HYBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq010950.EhptaCalcRebatesBVO', null, null, 'HQ14', null, '0001AA1000000020O6Z9', 'pk_rebates', '2012-09-26 14:41:52', 'ehpta_calc_rebates_b');
+
+insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
+values ('vapproveid', 'pk_sale_balance', 'vbillno', 'nc.vo.trade.pub.HYBillVO', 'pk_busitype', null, null, null, null, 'Y', 'nc.vo.ehpta.hq0305.SaleBalanceHVO', null, 'voperatorid', 'HQ16', null, '0001AA1000000028JZIK', 'pk_sale_balance', '2012-11-13 17:11:49', 'ehpta_calc_sale_balance_h');
+
+insert into pub_votable (APPROVEID, BILLID, BILLNO, BILLVO, BUSITYPE, DEF1, DEF2, DEF3, DR, HEADBODYFLAG, HEADITEMVO, ITEMCODE, OPERATOR, PK_BILLTYPE, PK_CORP, PK_VOTABLE, PKFIELD, TS, VOTABLE)
+values (null, null, null, 'nc.vo.trade.pub.HYBillVO', null, null, null, null, null, 'N', 'nc.vo.ehpta.hq0305.SaleBalanceBVO', null, null, 'HQ16', null, '0001AA1000000028JZIL', 'pk_sale_balance', '2012-11-14 13:26:54', 'ehpta_calc_sale_balance_b');
 
 prompt Done.

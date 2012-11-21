@@ -956,7 +956,7 @@ public class SaleInvoiceTools {
       };
     else
       sHeaditems = new String[] {
-          "creceiptcorpid", "csalecorpid" , "pk_contract" /* 添加拆分规则，增加按合同拆分的维度  add by river for 2012-11-16 */
+          "creceiptcorpid", "csalecorpid" , "pk_contract" , "iscredit" , "vouchid" , /* 添加拆分规则，增加按合同拆分的维度  add by river for 2012-11-16 */
       };
     
     String sUpSrcType = arySourceVO[0].getItemVOs()[0].getCupreceipttype();

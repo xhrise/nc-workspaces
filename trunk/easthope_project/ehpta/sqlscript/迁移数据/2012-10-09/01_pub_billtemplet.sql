@@ -2,16 +2,19 @@ prompt Importing table pub_billtemplet...
 set feedback off
 set define off
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('销售出库单(PTA)', '销售出库单(PTA)', 0, null, null, '40080802', null, '0001AA1000000020KPVO', '4C', '0001', null, 'N', '2012-10-30 10:18:33', null);
+values ('客户提单余额表', 'SYSTEM', 0, null, null, 'HQ0305', null, '0001AA1000000028JZGR', 'HQ16', '@@@@', null, 'N', '2012-11-20 16:56:12', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('收款单（PTA）', '收款单（PTA）', 0, null, null, '2006', null, '0001AA1000000020K0ES', 'D2', '0001', null, 'N', '2012-10-19 14:52:29', null);
+values ('销售出库单(PTA)', '销售出库单(PTA)', 0, null, null, '40080802', null, '0001AA1000000020KPVO', '4C', '0001', null, 'N', '2012-11-14 16:59:57', null);
+
+insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
+values ('收款单（PTA）', '收款单（PTA）', 0, null, null, '2006', null, '0001AA1000000020K0ES', 'D2', '0001', null, 'N', '2012-11-16 09:45:55', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
 values ('销售发票(PTA)', '销售发票(PTA)', 0, null, null, '40060501', null, '0001AA1000000020JRX8', '32', '0001', null, 'N', '2012-11-08 10:06:26', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('余额调整单', 'SYSTEM', 0, null, null, 'HQ010403', null, '0001AA1000000020K49P', 'HQ07', '@@@@', null, 'N', '2012-10-18 09:53:14', null);
+values ('余额调整单', 'SYSTEM', 0, null, null, 'HQ010403', null, '0001AA1000000020K49P', 'HQ07', '@@@@', null, 'N', '2012-11-19 11:37:36', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
 values ('销售出库单_蓬石PTA', '销售出库单_蓬石PTA', 0, null, null, '40080802', null, '0001AA1000000020M3MB', '4C', '0001', null, 'N', '2012-08-13 12:07:38', null);
@@ -26,7 +29,7 @@ insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATA
 values ('采购入库单(PTA)', '采购入库单(PTA)', 0, null, null, '40080602', null, '1120AA1000000011JEQJ', '45', '1120', null, 'N', '2012-08-13 23:09:21', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('调拨出库单(PTA)', '调拨出库单(PTA)', 0, null, null, '40080820', null, '0001AA1000000020MLRY', '4Y', '0001', null, 'N', '2012-10-29 09:56:32', null);
+values ('调拨出库单(PTA)', '调拨出库单(PTA)', 0, null, null, '40080820', null, '0001AA1000000020MLRY', '4Y', '0001', null, 'N', '2012-11-21 10:28:16', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
 values ('挂结价差结算', 'SYSTEM', 0, null, null, 'HQ010910', null, '0001AA1000000020N17G', 'HQ10', '@@@@', null, 'N', '2012-08-27 17:16:43', null);
@@ -35,10 +38,10 @@ insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATA
 values ('其它出库单（PTA）', '其它出库单（PTA）', 0, null, null, '40080808', null, '0001AA1000000020N5U6', '4I', '0001', null, 'N', '2012-09-05 10:33:33', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('运输合同（上游）', '运输合同（上游）', 0, null, null, 'HQ010101', null, '0001AA1000000020MVT3', 'HQ02', '0001', null, 'N', '2012-11-02 13:05:26', null);
+values ('运输合同（上游）', '运输合同（上游）', 0, null, null, 'HQ010101', null, '0001AA1000000020MVT3', 'HQ02', '0001', null, 'N', '2012-11-09 09:50:41', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('上游运费结算', 'SYSTEM', 0, null, null, 'HQ010920', null, '0001AA1000000020N6LZ', 'HQ11', '@@@@', null, 'N', '2012-10-12 10:36:40', null);
+values ('上游运费结算', 'SYSTEM', 0, null, null, 'HQ010920', null, '0001AA1000000020N6LZ', 'HQ11', '@@@@', null, 'N', '2012-11-09 15:33:01', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
 values ('仓储及装卸费结算', 'SYSTEM', 0, null, null, 'HQ010940', null, '0001AA1000000020NMT7', 'HQ13', '@@@@', null, 'N', '2012-10-29 22:31:33', null);
@@ -53,7 +56,7 @@ insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATA
 values ('贴息计算', 'SYSTEM', 0, null, null, 'HQ010901', null, '1120ZZ1000000011IVY7', 'HQ09', '@@@@', null, 'N', '2012-08-22 14:16:15', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('销售订单(PTA)', '销售订单(PTA)', null, null, null, '40060301', null, '0001AA1000000020IEJF', '30', '0001', null, 'N', '2012-11-07 11:39:20', null);
+values ('销售订单(PTA)', '销售订单(PTA)', null, null, null, '40060301', null, '0001AA1000000020IEJF', '30', '0001', null, 'N', '2012-11-19 10:35:37', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
 values ('运输合同（下游）', 'SYSTEM', 0, null, null, 'HQ010102', null, '0001AA1000000020MY72', 'HQ08', '@@@@', null, 'N', '2012-11-01 17:24:37', null);
@@ -62,16 +65,16 @@ insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATA
 values ('下游运费结算', 'SYSTEM', 0, null, null, 'HQ010930', null, '0001AA1000000020NFV7', 'HQ12', '@@@@', null, 'N', '2012-10-29 21:45:29', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('返利统计表', 'SYSTEM', 0, null, null, 'HQ010950', null, '0001AA1000000020O6VI', 'HQ14', '@@@@', null, 'N', '2012-10-19 16:16:21', null);
+values ('返利统计表', 'SYSTEM', 0, null, null, 'HQ010950', null, '0001AA1000000020O6VI', 'HQ14', '@@@@', null, 'N', '2012-11-19 10:44:20', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('长单合同', 'SYSTEM', null, null, null, 'HQ010402', null, '0001A21000000020HI51', 'HQ06', '@@@@', null, 'N', '2012-11-02 15:06:46', null);
+values ('长单合同', 'SYSTEM', null, null, null, 'HQ010402', null, '0001A21000000020HI51', 'HQ06', '@@@@', null, 'N', '2012-11-16 09:43:58', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('仓储合同', 'SYSTEM', null, null, null, 'HQ010201', null, '0001AA1000000020DPK8', 'HQ01', '@@@@', null, 'N', '2012-11-01 18:13:32', null);
+values ('仓储合同', 'SYSTEM', null, null, null, 'HQ010201', null, '0001AA1000000020DPK8', 'HQ01', '@@@@', null, 'N', '2012-11-12 16:06:57', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('现货合同', 'SYSTEM', null, null, null, 'HQ010401', null, '0001AA1000000020GZM5', 'HQ04', '@@@@', null, 'N', '2012-10-12 13:00:43', null);
+values ('现货合同', 'SYSTEM', null, null, null, 'HQ010401', null, '0001AA1000000020GZM5', 'HQ04', '@@@@', null, 'N', '2012-11-20 14:45:15', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
 values ('挂结价维护', 'SYSTEM', null, null, null, 'HQ010301', null, '0001A11000000020FIDI', 'HQ03', '@@@@', null, 'N', '2012-11-02 16:52:02', null);
@@ -80,6 +83,6 @@ insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATA
 values ('运输合同', 'SYSTEM', null, null, null, 'HQ010101', null, '0001AA1000000020DZPI', 'HQ02', '@@@@', null, 'N', '2012-09-24 16:30:28', null);
 
 insert into pub_billtemplet (BILL_TEMPLETCAPTION, BILL_TEMPLETNAME, DR, METADATACLASS, MODEL_TYPE, NODECODE, OPTIONS, PK_BILLTEMPLET, PK_BILLTYPECODE, PK_CORP, RESID, SHAREFLAG, TS, VALIDATEFORMULA)
-values ('提货价格确认单', 'SYSTEM', 0, null, null, 'HQ010610', null, '0001AA1000000028J5CF', 'HQ15', '@@@@', null, 'N', '2012-11-08 14:30:00', null);
+values ('提货价格确认单', 'SYSTEM', 0, null, null, 'HQ010610', null, '0001AA1000000028J5CF', 'HQ15', '@@@@', null, 'N', '2012-11-14 13:47:34', null);
 
 prompt Done.

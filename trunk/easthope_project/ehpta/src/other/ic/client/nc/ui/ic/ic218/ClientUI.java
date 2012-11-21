@@ -10,6 +10,7 @@ import nc.ui.ic.pub.bill.GeneralBillClientUI;
 import nc.ui.ic.pub.bill.GeneralBillUICtl;
 import nc.ui.ic.pub.bill.IButtonManager;
 import nc.ui.ic.pub.bill.ICButtonConst;
+import nc.ui.ic.pub.bill.OffLineCtrl;
 import nc.ui.ic.pub.bill.QueryDlgHelp;
 import nc.ui.ic.pub.query.QueryDlgUtil;
 import nc.ui.ic.pub.query.SCMDefaultFilter;
@@ -38,6 +39,7 @@ import nc.vo.ic.pub.bill.IItemKey;
 import nc.vo.ic.pub.bill.QryInfoConst;
 import nc.vo.ic.pub.check.CheckTools;
 import nc.vo.ic.pub.check.VOCheck;
+import nc.vo.ic.pub.exp.ICBusinessException;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.lang.UFBoolean;
@@ -45,10 +47,13 @@ import nc.vo.pub.lang.UFDouble;
 import nc.vo.scm.constant.ic.BillMode;
 import nc.vo.scm.constant.ic.CONST;
 import nc.vo.scm.constant.ic.InOutFlag;
+import nc.vo.scm.ic.exp.ATPNotEnoughException;
 import nc.vo.scm.pub.FactoryVO;
 import nc.vo.scm.pub.SCMEnv;
 import nc.vo.scm.pub.session.ClientLink;
 import nc.vo.scm.pub.smart.SmartFieldMeta;
+import nc.vo.so.so120.CreditNotEnoughException;
+import nc.vo.so.so120.PeriodNotEnoughException;
 
 /**
  * 此处插入类型说明。
@@ -1873,5 +1878,293 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
       }
     }
   }
+  
+  @Override
+	public boolean onSaveBase() {
+	  try {
+			nc.vo.ic.pub.bill.Timer t = new nc.vo.ic.pub.bill.Timer();
+			m_timer.start("保存开始");
+			t.start();
+			// 滤去表单形式下的空行
+			filterNullLine();
+
+			m_timer.showExecuteTime("filterNullLine");
+			// 无表体行 ------------ EXIT -------------------
+			if (getBillCardPanel().getRowCount() <= 0) {
+				showHintMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
+						"4008bill", "UPP4008bill-000072")/* @res "请输入表体行!" */);
+				// 不添加新行 add by hanwei 2004-06-08 ,调拨出入库单有些情况下不能自制
+				return false;
+			}
+			// added by zhx 030626 检查行号的合法性; 该方法应放在过滤空行的后面。
+			if (!nc.ui.scm.pub.report.BillRowNo.verifyRowNosCorrect(
+					getBillCardPanel(), IItemKey.CROWNO)) {
+				return false;
+			}
+			// 当前的表体行数
+			int iRowCount = getBillCardPanel().getRowCount();
+			// 界面的单据数据
+			GeneralBillVO voInputBill = null;
+			// 从界面中获得需要的数据
+			voInputBill = getBillVO();
+			
+			// add by river for 2012-11-20
+			// 将承运商直接设置到VO中.   原因：界面中无法获取到承运商的数据。通过ITEM可以获取到。
+			Object ctrancustid = getBillCardPanel().getHeadItem("ctrancustid").getValueObject();
+			voInputBill.getParentVO().setAttributeValue("ctrancustid", ctrancustid);
+			
+			// 得到数据错误，出错 ------------ EXIT -------------------
+			if (voInputBill == null || voInputBill.getParentVO() == null
+					|| voInputBill.getChildrenVO() == null) {
+				SCMEnv.out("Bill is null !");
+				return false;
+			}
+			// 输入的表体行
+			GeneralBillItemVO voInputBillItem[] = voInputBill.getItemVOs();
+			// 得到数据行
+			int iVORowCount = voInputBillItem.length;
+			// 得到数据行和界面行数不一致，出错 ------------ EXIT -------------------
+			if (iVORowCount != iRowCount) {
+				SCMEnv.out("data error." + iVORowCount + "<>" + iRowCount);
+				return false;
+			}
+			m_timer.showExecuteTime("From fliterNullLine Before setIDItems");
+			// VO校验准备数据
+			getM_voBill().setIDItems(voInputBill);
+			// 设置单据类型
+			getM_voBill().setHeaderValue("cbilltypecode", getBillType());
+
+			m_timer.showExecuteTime("setIDItems");
+
+			// 重置单据行号zhx 0630:
+			if (iRowCount > 0 && getM_voBill().getChildrenVO() != null) {
+				if (getBillCardPanel().getBodyItem(IItemKey.CROWNO) != null)
+					for (int i = 0; i < iRowCount; i++) {
+						getM_voBill().setItemValue(
+								i,
+								IItemKey.CROWNO,
+								getBillCardPanel().getBodyValueAt(i,
+										IItemKey.CROWNO));
+
+					}
+			}
+			// VO校验 ------------ EXIT -------------------
+			if (!checkVO(getM_voBill())) {
+
+				return false;
+			}
+			m_timer.showExecuteTime("VO校验");
+
+			// 如果没有单据日期，填写为当前登录日期
+			if (getBillCardPanel().getHeadItem("dbilldate") == null
+					|| getBillCardPanel().getHeadItem("dbilldate")
+							.getValueObject() == null
+					|| getBillCardPanel().getHeadItem("dbilldate")
+							.getValueObject().toString().trim().length() == 0) {
+				SCMEnv.out("-->no bill date.");
+				getM_voBill().setHeaderValue("dbilldate",
+						getEnvironment().getLogDate());
+			}
+			m_timer.showExecuteTime("设置单据类型和单据日期");
+
+			// showHintMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
+			// "4008bill", "UPP4008bill-000102")/* @res "正在保存，请稍候..." */);
+
+			// 保存的核心方法入口 add by hanwei 2004-04
+
+			// 默认单据状态 add by hanwei
+			m_sBillStatus = nc.vo.ic.pub.bill.BillStatus.FREE;
+			// 实际m_sBillStatus的赋值在onSaveBaseKernel中的：saveUpdateBill,saveNewBill
+
+			getM_voBill().setIsCheckCredit(true);
+			getM_voBill().setIsCheckPeriod(true);
+			getM_voBill().setIsCheckAtp(true);
+			getM_voBill().setGetPlanPriceAtBs(false);
+			getM_voBill().setIsRwtPuUserConfirmFlag(false);
+
+			// 补充空值
+			//fillItemNullValue();
+
+			while (true) {
+				try {
+
+					onSaveBaseKernel(getM_voBill(), getEnvironment()
+							.getUserID());
+					break;
+
+				} catch (Exception ee1) {
+
+					BusinessException realbe = nc.ui.ic.pub.tools.GenMethod
+							.handleException(null, null, ee1);
+					if (realbe != null
+							&& realbe.getClass() == nc.vo.scm.pub.excp.RwtIcToPoException.class) {
+						// 错误信息显示，并询问用户“是否继续？”
+						int iFlag = showYesNoMessage(realbe.getMessage());
+						// 如果用户选择继续
+						if (iFlag == nc.ui.pub.beans.MessageDialog.ID_YES) {
+							getM_voBill().setIsRwtPuUserConfirmFlag(true);
+							continue;
+						} else
+							return false;
+					} else if (realbe != null
+							&& realbe.getClass() == CreditNotEnoughException.class) {
+						// 错误信息显示，并询问用户“是否继续？”
+						// 是否继续？ 改为多语形式 modify by qinchao  20081225 圣诞节，共3处替换
+						int iFlag = showYesNoMessage(realbe.getMessage()
+								+ " \r\n" + 
+								nc.ui.ml.NCLangRes.getInstance().getStrByID("40080802","ClientUI-000001")/* @res "是否继续" */);
+						// 如果用户选择继续
+						if (iFlag == nc.ui.pub.beans.MessageDialog.ID_YES) {
+							getM_voBill().setIsCheckCredit(false);
+							continue;
+						} else
+							return false;
+					} else if (realbe != null
+							&& realbe.getClass() == PeriodNotEnoughException.class) {
+						// 错误信息显示，并询问用户“是否继续？”
+						int iFlag = showYesNoMessage(realbe.getMessage()
+								+ " \r\n" + 
+								nc.ui.ml.NCLangRes.getInstance().getStrByID("40080802","ClientUI-000001")/* @res "是否继续" */);
+						// 如果用户选择继续
+						if (iFlag == nc.ui.pub.beans.MessageDialog.ID_YES) {
+							getM_voBill().setIsCheckPeriod(false);
+							continue;
+						} else
+							return false;
+					} else if (realbe != null
+							&& realbe.getClass() == ATPNotEnoughException.class) {
+						ATPNotEnoughException atpe = (ATPNotEnoughException) realbe;
+						if (atpe.getHint() == null) {
+							showErrorMessage(atpe.getMessage());
+							return false;
+						} else {
+							// 错误信息显示，并询问用户“是否继续？”
+							int iFlag = showYesNoMessage(atpe.getMessage()
+									+ " \r\n" + 
+									nc.ui.ml.NCLangRes.getInstance().getStrByID("40080802","ClientUI-000001")/* @res "是否继续" */);
+							// 如果用户选择继续
+							if (iFlag == nc.ui.pub.beans.MessageDialog.ID_YES) {
+								getM_voBill().setIsCheckAtp(false);
+								continue;
+							} else {
+								return false;
+							}
+						}
+					} else {
+						if (realbe != null)
+							throw realbe;
+						else
+							throw ee1;
+					}
+				}
+			}
+			
+			
+
+			// 是普通新增、或修改
+			if (BillMode.New == getM_iMode() || BillMode.Update == getM_iMode()) {
+				// necessary！//刷新单据状态
+				getBillCardPanel().updateValue();
+				m_timer.showExecuteTime("updateValue");
+				// coperatorid
+				setM_iMode(BillMode.Browse);
+				
+				getEditCtrl().resetCardEditFlag(getBillCardPanel());
+				// 不可编辑
+				getBillCardPanel().setEnabled(false);
+				// 重设按钮状态
+				setButtonStatus(false);
+				m_timer.showExecuteTime("setButtonStatus");
+
+				// 清空现存量
+				// 屏蔽 by hanwei 2003-11-13 避免保存后界面选择出现存量为空
+				// m_voBill.clearInvQtyInfo();
+				// 选中第一行
+				getBillCardPanel().getBillTable().setRowSelectionInterval(0, 0);
+				// 重置序列号是否可用
+				setBtnStatusSN(0, false);
+				// 刷新第一行现存量显示
+				setTailValue(0);
+				m_timer.showExecuteTime("刷新第一行现存量显示");
+			}
+
+//			if (m_sBillStatus != null && !m_sBillStatus.equals(BillStatus.FREE)
+//					&& !m_sBillStatus.equals(BillStatus.DELETED)) {
+//				SCMEnv.out("**** saved and signed ***");
+//				freshAfterSignedOK(m_sBillStatus);
+//				m_timer.showExecuteTime("freshAfterSignedOK");
+//			}
+    
+    m_sBillStatus = afterAuditFrushData(getM_voBill(),true);
+    
+			showHintMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
+					"common", "UCH005")/* @res "保存成功" */);
+
+			// 对于有来源的单据进行不同的界面控制；zhx 1130
+			ctrlSourceBillUI(true);
+			m_timer.showExecuteTime("来源单据界面控制");
+			t.stopAndShow("保存合计");
+
+			// save the barcodes to excel file according to param IC***
+			m_timer.showExecuteTime("开始执行保存条码文件");
+			OffLineCtrl ctrl = new OffLineCtrl(this);
+			ctrl.saveExcelFile(getM_voBill(), getCorpPrimaryKey());
+			m_timer.showExecuteTime("执行保存条码文件结束");
+			nc.ui.ic.pub.tools.GenMethod.reSetRowColorWhenNOException(getBillCardPanel());
+			return true;
+
+		} catch (java.net.ConnectException ex1) {
+			SCMEnv.out(ex1.getMessage());
+			if (showYesNoMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
+					"4008bill", "UPP4008bill-000104")/*
+														 * @res
+														 * "当前网络中断，是否将单据信息保存到默认目录："
+														 */
+			) == MessageDialog.ID_YES) {
+				onButtonClicked(getButtonManager().getButton(
+						ICButtonConst.BTN_EXPORT_TO_DIRECTORY));
+				// onBillExcel(1);// 保存单据信息到默认目录
+			}
+		} catch (Exception e) {
+
+			if (e instanceof nc.vo.ic.ic009.PackCheckBusException) {
+
+				handleException(e);
+				showHintMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
+						"4008bill", "UPP4008bill-000105")/* @res "保存出错。" */);
+				String se = e.getMessage();
+				if (se != null) {
+					int index = se.indexOf("$$ZZZ$$");
+					if (index >= 0)
+						se = se.substring(index + 7);
+				}
+				// packCheckBusDialog = null;
+				getpackCheckBusDialog().setText(se);
+
+				getpackCheckBusDialog().showModal();
+
+			} else {
+
+				handleException(e);
+				showHintMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
+						"4008bill", "UPP4008bill-000105")/* @res "保存出错。" */);
+				String se = e.getMessage();
+				if (se != null) {
+					int index = se.indexOf("$$ZZZ$$");
+					if (index >= 0)
+						se = se.substring(index + 7);
+				}
+				showErrorMessage(se);
+			}
+			
+			if (e instanceof ICBusinessException){
+				ICBusinessException ee = (ICBusinessException) e;
+				// 更改颜色
+				nc.ui.ic.pub.tools.GenMethod.setRowColorWhenException(getBillCardPanel(),ee);
+			}
+
+		}
+		return false;
+	}
 
 }

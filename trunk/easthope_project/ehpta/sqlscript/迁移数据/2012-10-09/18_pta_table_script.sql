@@ -1,16 +1,5 @@
-------------------------------------------------------
--- Export file for user NCCW                        --
--- Created by Administrator on 2012-10-30, 12:53:04 --
-------------------------------------------------------
 
-set define off
-spool 18_pta_table_script.log
-
-prompt
-prompt Creating table EHPTA_ADJUST
-prompt ===========================
-prompt
-create table EHPTA_ADJUST
+create table NCCW.EHPTA_ADJUST
 (
   pk_adjust    CHAR(20) not null,
   type         VARCHAR2(10),
@@ -56,7 +45,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_ADJUST
+alter table NCCW.EHPTA_ADJUST
   add constraint PK_EHPTA_ADJUST primary key (PK_ADJUST)
   using index 
   tablespace NNC_DATA01
@@ -72,11 +61,8 @@ alter table EHPTA_ADJUST
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_AIDCUST
-prompt ============================
-prompt
-create table EHPTA_AIDCUST
+
+create table NCCW.EHPTA_AIDCUST
 (
   pk_aidcust  CHAR(20) not null,
   pk_contract CHAR(20),
@@ -98,10 +84,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_AIDCUST
+alter table NCCW.EHPTA_AIDCUST
   add constraint PK_EHPTA_AIDCUST primary key (PK_AIDCUST)
   using index 
   tablespace NNC_DATA01
@@ -111,15 +99,14 @@ alter table EHPTA_AIDCUST
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_AIDCUST_HISTORY
-prompt ====================================
-prompt
-create table EHPTA_AIDCUST_HISTORY
+
+create table NCCW.EHPTA_AIDCUST_HISTORY
 (
   pk_aidcust_his CHAR(20) not null,
   version_his    INTEGER,
@@ -129,7 +116,7 @@ create table EHPTA_AIDCUST_HISTORY
   custname       VARCHAR2(64),
   custcode       VARCHAR2(64),
   dr             INTEGER default 0,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  ts             CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1           VARCHAR2(128),
   def2           VARCHAR2(128),
   def3           VARCHAR2(128),
@@ -143,10 +130,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_AIDCUST_HISTORY
+alter table NCCW.EHPTA_AIDCUST_HISTORY
   add constraint PK_EHPTA_AIDCUST_HISTORY primary key (PK_AIDCUST_HIS)
   using index 
   tablespace NNC_DATA01
@@ -156,15 +145,14 @@ alter table EHPTA_AIDCUST_HISTORY
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_BATCHCODE
-prompt ==============================
-prompt
-create table EHPTA_BATCHCODE
+
+create table NCCW.EHPTA_BATCHCODE
 (
   binqc           CHAR(1),
   bseal           CHAR(1),
@@ -196,7 +184,7 @@ create table EHPTA_BATCHCODE
   pk_invbasdoc    CHAR(20),
   tbatchtime      CHAR(19),
   tchecktime      CHAR(19),
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  ts              CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   vbatchcode      VARCHAR2(46),
   vdef1           VARCHAR2(151),
   vdef10          VARCHAR2(151),
@@ -233,7 +221,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-create unique index U_IND_INV_CODE_01 on EHPTA_BATCHCODE (PK_INVBASDOC, VBATCHCODE)
+create unique index NCCW.U_IND_INV_CODE_01 on NCCW.EHPTA_BATCHCODE (PK_INVBASDOC, VBATCHCODE)
   tablespace NNC_INDEX01
   pctfree 10
   initrans 2
@@ -246,7 +234,7 @@ create unique index U_IND_INV_CODE_01 on EHPTA_BATCHCODE (PK_INVBASDOC, VBATCHCO
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_BATCHCODE
+alter table NCCW.EHPTA_BATCHCODE
   add constraint PK_SCM_BATCHCODE_01 primary key (PK_BATCHCODE)
   using index 
   tablespace NNC_INDEX01
@@ -262,11 +250,8 @@ alter table EHPTA_BATCHCODE
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_INTEREST
-prompt ==================================
-prompt
-create table EHPTA_CALC_INTEREST
+
+create table NCCW.EHPTA_CALC_INTEREST
 (
   pk_calcinterest CHAR(20) not null,
   pk_custdoc      CHAR(20),
@@ -281,8 +266,8 @@ create table EHPTA_CALC_INTEREST
   pk_busitype     VARCHAR2(20),
   pk_billtype     VARCHAR2(20),
   vapprovenote    VARCHAR2(128),
-  dr              INTEGER,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr              INTEGER default 0,
+  ts              CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1            VARCHAR2(128),
   def2            VARCHAR2(128),
   def3            VARCHAR2(128),
@@ -306,7 +291,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_INTEREST
+alter table NCCW.EHPTA_CALC_INTEREST
   add constraint PK_EHPTA_CALC_INTEREST primary key (PK_CALCINTEREST)
   using index 
   tablespace NNC_DATA01
@@ -322,11 +307,8 @@ alter table EHPTA_CALC_INTEREST
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_INTEREST_B
-prompt ====================================
-prompt
-create table EHPTA_CALC_INTEREST_B
+
+create table NCCW.EHPTA_CALC_INTEREST_B
 (
   pk_calcinterest_b CHAR(20) not null,
   pk_calcinterest   CHAR(20),
@@ -346,8 +328,8 @@ create table EHPTA_CALC_INTEREST_B
   actualmny         NUMBER(32,8),
   memo              VARCHAR2(512),
   calcflag          CHAR(1),
-  dr                INTEGER,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr                INTEGER default 0,
+  ts                CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1              VARCHAR2(128),
   def2              VARCHAR2(128),
   def3              VARCHAR2(128),
@@ -371,7 +353,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_INTEREST_B
+alter table NCCW.EHPTA_CALC_INTEREST_B
   add constraint PK_EHPTA_CALC_INTEREST_B primary key (PK_CALCINTEREST_B)
   using index 
   tablespace NNC_DATA01
@@ -387,11 +369,8 @@ alter table EHPTA_CALC_INTEREST_B
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_REBATES_B
-prompt ===================================
-prompt
-create table EHPTA_CALC_REBATES_B
+
+create table NCCW.EHPTA_CALC_REBATES_B
 (
   pk_rebates   CHAR(20),
   pk_rebates_b CHAR(20) not null,
@@ -446,7 +425,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_REBATES_B
+alter table NCCW.EHPTA_CALC_REBATES_B
   add constraint PK_EHPTA_CALC_REBATES_B primary key (PK_REBATES_B)
   using index 
   tablespace NNC_DATA01
@@ -462,11 +441,8 @@ alter table EHPTA_CALC_REBATES_B
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_REBATES_H
-prompt ===================================
-prompt
-create table EHPTA_CALC_REBATES_H
+
+create table NCCW.EHPTA_CALC_REBATES_H
 (
   pk_rebates   CHAR(20) not null,
   period       VARCHAR2(10),
@@ -480,8 +456,8 @@ create table EHPTA_CALC_REBATES_H
   pk_busitype  VARCHAR2(20),
   pk_billtype  VARCHAR2(20),
   vapprovenote VARCHAR2(128),
-  dr           INTEGER,
-  ts           CHAR(19),
+  dr           INTEGER default 0,
+  ts           CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1         VARCHAR2(128),
   def2         VARCHAR2(128),
   def3         VARCHAR2(128),
@@ -505,7 +481,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_REBATES_H
+alter table NCCW.EHPTA_CALC_REBATES_H
   add constraint PK_EHPTA_CALC_REBATES_H primary key (PK_REBATES)
   using index 
   tablespace NNC_DATA01
@@ -521,11 +497,133 @@ alter table EHPTA_CALC_REBATES_H
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_SETTLEMENT
-prompt ====================================
-prompt
-create table EHPTA_CALC_SETTLEMENT
+
+create table NCCW.EHPTA_CALC_SALE_BALANCE_B
+(
+  pk_sale_balance   CHAR(20),
+  pk_sale_balance_b CHAR(20) not null,
+  pk_cumandoc       CHAR(20),
+  custname          VARCHAR2(64),
+  pk_contract       CHAR(20),
+  concode           VARCHAR2(32),
+  connamed          VARCHAR2(64),
+  firstmny          NUMBER(32,8),
+  currmny           NUMBER(32,8),
+  salemny           NUMBER(32,8),
+  salebalance       NUMBER(32,8),
+  adtype2           NUMBER(32,8),
+  adtype3           NUMBER(32,8),
+  adtype4           NUMBER(32,8),
+  balance           NUMBER(32,8),
+  ts                CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr                INTEGER default 0,
+  def1              VARCHAR2(128),
+  def2              VARCHAR2(128),
+  def3              VARCHAR2(128),
+  def4              VARCHAR2(128),
+  def5              VARCHAR2(128),
+  def6              VARCHAR2(128),
+  def7              VARCHAR2(128),
+  def8              VARCHAR2(128),
+  def9              VARCHAR2(128),
+  def10             VARCHAR2(128),
+  def11             VARCHAR2(128),
+  def12             VARCHAR2(128),
+  def13             VARCHAR2(128),
+  def14             VARCHAR2(128),
+  def15             VARCHAR2(128),
+  def16             VARCHAR2(128),
+  def17             VARCHAR2(128),
+  def18             VARCHAR2(128),
+  def19             VARCHAR2(128),
+  def20             VARCHAR2(128)
+)
+tablespace NNC_DATA01
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 256K
+    next 256K
+    minextents 1
+    maxextents unlimited
+    pctincrease 0
+  );
+alter table NCCW.EHPTA_CALC_SALE_BALANCE_B
+  add constraint PK_EHPTA_CALC_SALE_BALANCE_B primary key (PK_SALE_BALANCE_B)
+  using index 
+  tablespace NNC_DATA01
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 256K
+    next 256K
+    minextents 1
+    maxextents unlimited
+    pctincrease 0
+  );
+
+
+create table NCCW.EHPTA_CALC_SALE_BALANCE_H
+(
+  pk_sale_balance CHAR(20) not null,
+  period          VARCHAR2(20),
+  vbillno         VARCHAR2(32),
+  dmakedate       CHAR(10),
+  voperatorid     CHAR(20),
+  dapprovedate    CHAR(10),
+  vapproveid      CHAR(20),
+  vbillstatus     INTEGER,
+  pk_corp         CHAR(4),
+  pk_busitype     VARCHAR2(20),
+  pk_billtype     VARCHAR2(20),
+  vapprovenote    VARCHAR2(128),
+  dr              INTEGER default 0,
+  ts              CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  def1            VARCHAR2(128),
+  def2            VARCHAR2(128),
+  def3            VARCHAR2(128),
+  def4            VARCHAR2(128),
+  def5            VARCHAR2(128),
+  def6            VARCHAR2(128),
+  def7            VARCHAR2(128),
+  def8            VARCHAR2(128),
+  def9            VARCHAR2(128),
+  def10           VARCHAR2(128)
+)
+tablespace NNC_DATA01
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 256K
+    next 256K
+    minextents 1
+    maxextents unlimited
+    pctincrease 0
+  );
+alter table NCCW.EHPTA_CALC_SALE_BALANCE_H
+  add constraint PK_EHPTA_CALC_SALE_BALANCE_H primary key (PK_SALE_BALANCE)
+  using index 
+  tablespace NNC_DATA01
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 256K
+    next 256K
+    minextents 1
+    maxextents unlimited
+    pctincrease 0
+  );
+
+
+create table NCCW.EHPTA_CALC_SETTLEMENT
 (
   pk_settlement CHAR(20) not null,
   csaleid       CHAR(20),
@@ -548,8 +646,8 @@ create table EHPTA_CALC_SETTLEMENT
   clsmny        NUMBER(32,8),
   settleflag    CHAR(1),
   settledate    CHAR(10),
-  ts            CHAR(19),
-  dr            INTEGER,
+  ts            CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr            INTEGER default 0,
   pk_corp       CHAR(4),
   pk_busitype   CHAR(20),
   pk_billtype   VARCHAR2(20),
@@ -574,7 +672,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_SETTLEMENT
+alter table NCCW.EHPTA_CALC_SETTLEMENT
   add constraint PK_EHPTA_CALC_SETTLEMENT primary key (PK_SETTLEMENT)
   using index 
   tablespace NNC_DATA01
@@ -590,11 +688,8 @@ alter table EHPTA_CALC_SETTLEMENT
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_STORFEE_B
-prompt ===================================
-prompt
-create table EHPTA_CALC_STORFEE_B
+
+create table NCCW.EHPTA_CALC_STORFEE_B
 (
   pk_storfee   CHAR(20),
   pk_storfee_b CHAR(20) not null,
@@ -660,7 +755,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_STORFEE_B
+alter table NCCW.EHPTA_CALC_STORFEE_B
   add constraint PK_EHPTA_CALC_STORFEE_B primary key (PK_STORFEE_B)
   using index 
   tablespace NNC_DATA01
@@ -676,11 +771,8 @@ alter table EHPTA_CALC_STORFEE_B
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_STORFEE_H
-prompt ===================================
-prompt
-create table EHPTA_CALC_STORFEE_H
+
+create table NCCW.EHPTA_CALC_STORFEE_H
 (
   pk_storfee   CHAR(20) not null,
   period       VARCHAR2(10),
@@ -719,7 +811,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_STORFEE_H
+alter table NCCW.EHPTA_CALC_STORFEE_H
   add constraint PK_EHPTA_CALC_STORFEE_H primary key (PK_STORFEE)
   using index 
   tablespace NNC_DATA01
@@ -735,11 +827,8 @@ alter table EHPTA_CALC_STORFEE_H
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_UNDER_TRANSFEE_B
-prompt ==========================================
-prompt
-create table EHPTA_CALC_UNDER_TRANSFEE_B
+
+create table NCCW.EHPTA_CALC_UNDER_TRANSFEE_B
 (
   pk_transfee    CHAR(20),
   pk_transfee_b  CHAR(20) not null,
@@ -761,8 +850,8 @@ create table EHPTA_CALC_UNDER_TRANSFEE_B
   settleflag     CHAR(1),
   settledate     CHAR(10),
   rowno          VARCHAR2(10),
-  dr             INTEGER,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr             INTEGER default 0,
+  ts             CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1           VARCHAR2(128),
   def2           VARCHAR2(128),
   def3           VARCHAR2(128),
@@ -796,7 +885,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_UNDER_TRANSFEE_B
+alter table NCCW.EHPTA_CALC_UNDER_TRANSFEE_B
   add constraint PK_EHPTA_CALC_UNDER_TRANSFEE_B primary key (PK_TRANSFEE_B)
   using index 
   tablespace NNC_DATA01
@@ -812,11 +901,8 @@ alter table EHPTA_CALC_UNDER_TRANSFEE_B
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_UNDER_TRANSFEE_H
-prompt ==========================================
-prompt
-create table EHPTA_CALC_UNDER_TRANSFEE_H
+
+create table NCCW.EHPTA_CALC_UNDER_TRANSFEE_H
 (
   pk_transfee  CHAR(20) not null,
   period       VARCHAR2(10),
@@ -830,8 +916,8 @@ create table EHPTA_CALC_UNDER_TRANSFEE_H
   pk_busitype  VARCHAR2(20),
   pk_billtype  VARCHAR2(20),
   vapprovenote VARCHAR2(128),
-  dr           INTEGER,
-  ts           CHAR(19),
+  dr           INTEGER default 0,
+  ts           CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1         VARCHAR2(128),
   def2         VARCHAR2(128),
   def3         VARCHAR2(128),
@@ -855,7 +941,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_UNDER_TRANSFEE_H
+alter table NCCW.EHPTA_CALC_UNDER_TRANSFEE_H
   add constraint PK_EHPTA_CALC_UNDER_TRANSFEE_H primary key (PK_TRANSFEE)
   using index 
   tablespace NNC_DATA01
@@ -871,11 +957,8 @@ alter table EHPTA_CALC_UNDER_TRANSFEE_H
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_UPPER_TRANSFEE_B
-prompt ==========================================
-prompt
-create table EHPTA_CALC_UPPER_TRANSFEE_B
+
+create table NCCW.EHPTA_CALC_UPPER_TRANSFEE_B
 (
   pk_transfee   CHAR(20),
   pk_transfee_b CHAR(20) not null,
@@ -933,7 +1016,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_UPPER_TRANSFEE_B
+alter table NCCW.EHPTA_CALC_UPPER_TRANSFEE_B
   add constraint PK_EHPTA_CALC_UPPER_TRANSFEE_B primary key (PK_TRANSFEE_B)
   using index 
   tablespace NNC_DATA01
@@ -949,11 +1032,8 @@ alter table EHPTA_CALC_UPPER_TRANSFEE_B
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_CALC_UPPER_TRANSFEE_H
-prompt ==========================================
-prompt
-create table EHPTA_CALC_UPPER_TRANSFEE_H
+
+create table NCCW.EHPTA_CALC_UPPER_TRANSFEE_H
 (
   pk_transfee  CHAR(20) not null,
   period       VARCHAR2(10),
@@ -992,7 +1072,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_CALC_UPPER_TRANSFEE_H
+alter table NCCW.EHPTA_CALC_UPPER_TRANSFEE_H
   add constraint PK_EHPTA_CALC_UPPER_TRANSFEE_H primary key (PK_TRANSFEE)
   using index 
   tablespace NNC_DATA01
@@ -1008,11 +1088,8 @@ alter table EHPTA_CALC_UPPER_TRANSFEE_H
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_HANGINGPRICE
-prompt =================================
-prompt
-create table EHPTA_HANGINGPRICE
+
+create table NCCW.EHPTA_HANGINGPRICE
 (
   pk_hangingprice     CHAR(20) not null,
   maintenancedate     VARCHAR2(20),
@@ -1041,7 +1118,7 @@ create table EHPTA_HANGINGPRICE
   def9                VARCHAR2(100),
   def10               VARCHAR2(100),
   pk_corp             CHAR(4),
-  ts                  CHAR(19),
+  ts                  CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   dr                  INTEGER default 0,
   weihudate           VARCHAR2(64),
   pk_invbasdoc        CHAR(20),
@@ -1054,10 +1131,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_HANGINGPRICE
+alter table NCCW.EHPTA_HANGINGPRICE
   add constraint PK_EHPTA_HANGINGPRICE primary key (PK_HANGINGPRICE)
   using index 
   tablespace NNC_DATA01
@@ -1067,15 +1146,14 @@ alter table EHPTA_HANGINGPRICE
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_MAINTAIN
-prompt =============================
-prompt
-create table EHPTA_MAINTAIN
+
+create table NCCW.EHPTA_MAINTAIN
 (
   pk_maintain  CHAR(20) not null,
   maindate     CHAR(10),
@@ -1096,8 +1174,8 @@ create table EHPTA_MAINTAIN
   pk_busitype  VARCHAR2(20),
   pk_billtype  VARCHAR2(20),
   vbillno      VARCHAR2(32),
-  ts           CHAR(19),
-  dr           INTEGER,
+  ts           CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr           INTEGER default 0,
   def1         VARCHAR2(128),
   def2         VARCHAR2(128),
   def3         VARCHAR2(128),
@@ -1121,7 +1199,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_MAINTAIN
+alter table NCCW.EHPTA_MAINTAIN
   add constraint PK_EHPTA_MAINTAIN primary key (PK_MAINTAIN)
   using index 
   tablespace NNC_DATA01
@@ -1137,11 +1215,8 @@ alter table EHPTA_MAINTAIN
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_PREPOLICY
-prompt ==============================
-prompt
-create table EHPTA_PREPOLICY
+
+create table NCCW.EHPTA_PREPOLICY
 (
   pk_prepolicy CHAR(20) not null,
   pk_contract  CHAR(20),
@@ -1163,10 +1238,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_PREPOLICY
+alter table NCCW.EHPTA_PREPOLICY
   add constraint PK_EHPTA_PREPOLICY primary key (PK_PREPOLICY)
   using index 
   tablespace NNC_DATA01
@@ -1176,15 +1253,14 @@ alter table EHPTA_PREPOLICY
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_PREPOLICY_HISTORY
-prompt ======================================
-prompt
-create table EHPTA_PREPOLICY_HISTORY
+
+create table NCCW.EHPTA_PREPOLICY_HISTORY
 (
   pk_prepolicy_his CHAR(20) not null,
   version_his      INTEGER,
@@ -1194,7 +1270,7 @@ create table EHPTA_PREPOLICY_HISTORY
   lowcomprate      NUMBER(32,8),
   prerate          NUMBER(32,8),
   dr               INTEGER default 0,
-  ts               CHAR(19),
+  ts               CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1             VARCHAR2(128),
   def5             VARCHAR2(128),
   def4             VARCHAR2(128),
@@ -1208,10 +1284,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_PREPOLICY_HISTORY
+alter table NCCW.EHPTA_PREPOLICY_HISTORY
   add constraint PK_EHPTA_PREPOLICY_HISTORY primary key (PK_PREPOLICY_HIS)
   using index 
   tablespace NNC_DATA01
@@ -1221,15 +1299,14 @@ alter table EHPTA_PREPOLICY_HISTORY
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_SALE_CONTRACT
-prompt ==================================
-prompt
-create table EHPTA_SALE_CONTRACT
+
+create table NCCW.EHPTA_SALE_CONTRACT
 (
   pk_contract    CHAR(20) not null,
   vbillno        VARCHAR2(32),
@@ -1284,10 +1361,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_SALE_CONTRACT
+alter table NCCW.EHPTA_SALE_CONTRACT
   add constraint PK_EHPTA_SALE_CONTRACT primary key (PK_CONTRACT)
   using index 
   tablespace NNC_DATA01
@@ -1297,15 +1376,14 @@ alter table EHPTA_SALE_CONTRACT
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_SALE_CONTRACT_B
-prompt ====================================
-prompt
-create table EHPTA_SALE_CONTRACT_B
+
+create table NCCW.EHPTA_SALE_CONTRACT_B
 (
   pk_contract_b CHAR(20) not null,
   pk_contract   CHAR(20),
@@ -1345,10 +1423,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_SALE_CONTRACT_B
+alter table NCCW.EHPTA_SALE_CONTRACT_B
   add constraint PK_EHPTA_SALE_CONTRACT_B primary key (PK_CONTRACT_B)
   using index 
   tablespace NNC_DATA01
@@ -1358,15 +1438,14 @@ alter table EHPTA_SALE_CONTRACT_B
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_SALE_CONTRACT_BS
-prompt =====================================
-prompt
-create table EHPTA_SALE_CONTRACT_BS
+
+create table NCCW.EHPTA_SALE_CONTRACT_BS
 (
   pk_contract_b CHAR(20) not null,
   pk_contract   CHAR(20),
@@ -1402,10 +1481,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_SALE_CONTRACT_BS
+alter table NCCW.EHPTA_SALE_CONTRACT_BS
   add constraint PK_EHPTA_SALE_CONTRACT_BS primary key (PK_CONTRACT_B)
   using index 
   tablespace NNC_DATA01
@@ -1415,15 +1496,14 @@ alter table EHPTA_SALE_CONTRACT_BS
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_SALE_CONTRACT_B_HISTORY
-prompt ============================================
-prompt
-create table EHPTA_SALE_CONTRACT_B_HISTORY
+
+create table NCCW.EHPTA_SALE_CONTRACT_B_HISTORY
 (
   pk_contract_b_his CHAR(20) not null,
   version_his       INTEGER,
@@ -1444,7 +1524,7 @@ create table EHPTA_SALE_CONTRACT_B_HISTORY
   preprice          NUMBER(32,8),
   pk_priceweb       CHAR(20),
   memo              VARCHAR2(512),
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  ts                CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   dr                INTEGER default 0,
   def1              VARCHAR2(128),
   def2              VARCHAR2(128),
@@ -1465,10 +1545,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_SALE_CONTRACT_B_HISTORY
+alter table NCCW.EHPTA_SALE_CONTRACT_B_HISTORY
   add constraint PK_EHPTA_SALE_CONTRACT_B_HISTO primary key (PK_CONTRACT_B_HIS)
   using index 
   tablespace NNC_DATA01
@@ -1478,15 +1560,14 @@ alter table EHPTA_SALE_CONTRACT_B_HISTORY
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_SALE_CONTRACT_HISTORY
-prompt ==========================================
-prompt
-create table EHPTA_SALE_CONTRACT_HISTORY
+
+create table NCCW.EHPTA_SALE_CONTRACT_HISTORY
 (
   pk_contract_his CHAR(20) not null,
   pk_contract     CHAR(20),
@@ -1531,7 +1612,7 @@ create table EHPTA_SALE_CONTRACT_HISTORY
   def8            VARCHAR2(128),
   def9            VARCHAR2(128),
   def10           VARCHAR2(128),
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  ts              CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   dr              INTEGER default 0,
   contprice       NUMBER(32,8)
 )
@@ -1542,10 +1623,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_SALE_CONTRACT_HISTORY
+alter table NCCW.EHPTA_SALE_CONTRACT_HISTORY
   add constraint PK_EHPTA_SALE_CONTRACT_HISTORY primary key (PK_CONTRACT_HIS)
   using index 
   tablespace NNC_DATA01
@@ -1555,15 +1638,14 @@ alter table EHPTA_SALE_CONTRACT_HISTORY
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_STORCONTRACT
-prompt =================================
-prompt
-create table EHPTA_STORCONTRACT
+
+create table NCCW.EHPTA_STORCONTRACT
 (
   pk_storagedoc  CHAR(20) not null,
   vbillno        VARCHAR2(20),
@@ -1583,7 +1665,7 @@ create table EHPTA_STORCONTRACT
   vapprovenote   VARCHAR2(512),
   dapprovedate   CHAR(10),
   dr             INTEGER default 0,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  ts             CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   pk_corp        CHAR(4),
   ty_flag        CHAR(1),
   stopdate       CHAR(10),
@@ -1609,10 +1691,12 @@ tablespace NNC_DATA01
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
-alter table EHPTA_STORCONTRACT
+alter table NCCW.EHPTA_STORCONTRACT
   add constraint PK_EHPTA_STORCONTRACT primary key (PK_STORAGEDOC)
   using index 
   tablespace NNC_DATA01
@@ -1622,15 +1706,14 @@ alter table EHPTA_STORCONTRACT
   storage
   (
     initial 64K
+    next 256K
     minextents 1
     maxextents unlimited
+    pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_STORCONTRACT_B
-prompt ===================================
-prompt
-create table EHPTA_STORCONTRACT_B
+
+create table NCCW.EHPTA_STORCONTRACT_B
 (
   pk_storcontract_b CHAR(20) not null,
   pk_storagedoc     CHAR(20),
@@ -1639,8 +1722,8 @@ create table EHPTA_STORCONTRACT_B
   storccontracttype VARCHAR2(128),
   signprice         NUMBER(32,8),
   memo              VARCHAR2(512),
-  dr                INTEGER,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr                INTEGER default 0,
+  ts                CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1              VARCHAR2(128),
   def2              VARCHAR2(128),
   def3              VARCHAR2(128),
@@ -1659,7 +1742,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_STORCONTRACT_B
+alter table NCCW.EHPTA_STORCONTRACT_B
   add constraint PK_EHPTA_STORCONTRACT_B primary key (PK_STORCONTRACT_B)
   using index 
   tablespace NNC_DATA01
@@ -1675,11 +1758,8 @@ alter table EHPTA_STORCONTRACT_B
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_STORCONTRACT_B_HISTORY
-prompt ===========================================
-prompt
-create table EHPTA_STORCONTRACT_B_HISTORY
+
+create table NCCW.EHPTA_STORCONTRACT_B_HISTORY
 (
   pk_storcontract_b_his CHAR(20) not null,
   pk_storagedoc         CHAR(20),
@@ -1688,8 +1768,8 @@ create table EHPTA_STORCONTRACT_B_HISTORY
   storccontracttype     VARCHAR2(128),
   signprice             NUMBER(32,8),
   memo                  VARCHAR2(512),
-  dr                    INTEGER,
-  ts                    CHAR(19),
+  dr                    INTEGER default 0,
+  ts                    CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1                  VARCHAR2(128),
   def2                  VARCHAR2(128),
   def3                  VARCHAR2(128),
@@ -1709,7 +1789,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_STORCONTRACT_B_HISTORY
+alter table NCCW.EHPTA_STORCONTRACT_B_HISTORY
   add constraint PK_EHPTA_STORCONTRACT_B_HISTOR primary key (PK_STORCONTRACT_B_HIS)
   using index 
   tablespace NNC_DATA01
@@ -1725,11 +1805,8 @@ alter table EHPTA_STORCONTRACT_B_HISTORY
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_STORCONTRACT_HISTORY
-prompt =========================================
-prompt
-create table EHPTA_STORCONTRACT_HISTORY
+
+create table NCCW.EHPTA_STORCONTRACT_HISTORY
 (
   pk_storagedoc_his CHAR(20) not null,
   pk_storagedoc     CHAR(20),
@@ -1752,8 +1829,8 @@ create table EHPTA_STORCONTRACT_HISTORY
   dapprovedate      CHAR(10),
   vapproveid        CHAR(20),
   pk_corp           CHAR(4),
-  dr                INTEGER,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr                INTEGER default 0,
+  ts                CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1              VARCHAR2(128),
   def2              VARCHAR2(128),
   def3              VARCHAR2(128),
@@ -1780,7 +1857,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_STORCONTRACT_HISTORY
+alter table NCCW.EHPTA_STORCONTRACT_HISTORY
   add constraint PK_EHPTA_STORCONTRACT_HISTORY primary key (PK_STORAGEDOC_HIS)
   using index 
   tablespace NNC_DATA01
@@ -1796,11 +1873,8 @@ alter table EHPTA_STORCONTRACT_HISTORY
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_TRANSPORT_CONTRACT
-prompt =======================================
-prompt
-create table EHPTA_TRANSPORT_CONTRACT
+
+create table NCCW.EHPTA_TRANSPORT_CONTRACT
 (
   pk_transport CHAR(20) not null,
   transtype    VARCHAR2(10),
@@ -1821,8 +1895,8 @@ create table EHPTA_TRANSPORT_CONTRACT
   vapproveid   CHAR(20),
   dapprovedate CHAR(10),
   voperatorid  CHAR(20),
-  dr           INTEGER,
-  ts           CHAR(19),
+  dr           INTEGER default 0,
+  ts           CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   dmakedate    CHAR(10),
   vapprovenote VARCHAR2(128),
   def1         VARCHAR2(128),
@@ -1850,7 +1924,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_TRANSPORT_CONTRACT
+alter table NCCW.EHPTA_TRANSPORT_CONTRACT
   add constraint PK_EHPTA_TRANSPORT_CONTRACT primary key (PK_TRANSPORT)
   using index 
   tablespace NNC_DATA01
@@ -1866,11 +1940,8 @@ alter table EHPTA_TRANSPORT_CONTRACT
     pctincrease 0
   );
 
-prompt
-prompt Creating table EHPTA_TRANSPORT_CONTRACT_B
-prompt =========================================
-prompt
-create table EHPTA_TRANSPORT_CONTRACT_B
+
+create table NCCW.EHPTA_TRANSPORT_CONTRACT_B
 (
   pk_transport_b CHAR(20) not null,
   pk_transport   CHAR(20),
@@ -1890,8 +1961,8 @@ create table EHPTA_TRANSPORT_CONTRACT_B
   carfee         NUMBER(32,8),
   transprice     NUMBER(32,8),
   memo           VARCHAR2(128),
-  dr             INTEGER,
-  ts          CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
+  dr             INTEGER default 0,
+  ts             CHAR(19) default to_char(sysdate , 'yyyy-MM-dd HH24:mm:ss'),
   def1           VARCHAR2(128),
   def2           VARCHAR2(128),
   def3           VARCHAR2(128),
@@ -1915,7 +1986,7 @@ tablespace NNC_DATA01
     maxextents unlimited
     pctincrease 0
   );
-alter table EHPTA_TRANSPORT_CONTRACT_B
+alter table NCCW.EHPTA_TRANSPORT_CONTRACT_B
   add constraint PK_EHPTA_TRANSPORT_CONTRACT_B primary key (PK_TRANSPORT_B)
   using index 
   tablespace NNC_DATA01
@@ -1932,4 +2003,3 @@ alter table EHPTA_TRANSPORT_CONTRACT_B
   );
 
 
-spool off

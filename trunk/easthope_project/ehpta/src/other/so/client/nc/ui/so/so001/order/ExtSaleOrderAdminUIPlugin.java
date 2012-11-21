@@ -218,6 +218,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			UFBoolean iscredit = new UFBoolean(temp == null || "".equals(temp) ? "N" : temp.toString());
 			String sqlPart = " ";
 			Object Rebates = null;
+			Object AllRebates = null;
 			try {
 				if("Y".equals(iscredit)) {
 					
@@ -239,7 +240,8 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 					
 					sqlPart += /* "and type in ("+ConvertFunc.change(adjustType)+") " + */ " and ( pk_cumandoc = '"+billVO.getParentVO().getAttributeValue("ccustomerid")+"' or pk_cumandoc is null ) ";
 				
-					Rebates = UAPQueryBS.getInstance().executeQuery(" select nvl(sum(mny),0) mny from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and type = '"+IAdjustType.Rebates+"'", new ColumnProcessor());
+					Rebates = UAPQueryBS.getInstance().executeQuery(" select nvl(sum(mny),0) mny from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and type = '"+IAdjustType.Rebates+"' and def6 = 'Y'", new ColumnProcessor());
+					AllRebates = UAPQueryBS.getInstance().executeQuery(" select nvl(sum(mny),0) mny from vw_pta_sale_contract_balance where pk_contract = '"+conItem.getValueObject()+"' and type = '"+IAdjustType.Rebates+"' ", new ColumnProcessor());
 				}
 				
 			
@@ -263,7 +265,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 						UFDouble rabates = new UFDouble((Rebates == null ? "0.00" : Rebates.toString()));
 						
 //						if(contBalance.doubleValue() <= 0 && rabates.doubleValue() >= contBalance.abs().doubleValue()) {
-							int type = ctx.getToftPanel().showYesNoMessage("合同余额小于本次提货金额。\n合同余额:[ " + contBalance + " ]。\n可用返利额：[ " + rabates + " ]。\n是否继续执行此操作！");
+							int type = ctx.getToftPanel().showYesNoMessage("合同余额小于本次提货金额。\n合同余额:[ " + contBalance + " ]。\n全部返利额：[ " + AllRebates + " ]。\n可用返利额：[ " + rabates + " ]。\n是否继续执行此操作！");
 							if(!(type == UIDialog.ID_YES))
 								throw new BusinessException("本次操作已被取消！");
 //						} else {
