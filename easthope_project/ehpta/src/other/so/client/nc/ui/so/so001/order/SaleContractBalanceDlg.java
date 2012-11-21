@@ -3,6 +3,8 @@ package nc.ui.so.so001.order;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
@@ -129,6 +131,43 @@ public class SaleContractBalanceDlg extends UIDialog{
 						mny = mny.add(addMny);
 					}
 				}
+				
+				Boolean[] checks = new Boolean[]{false , false , false , false };
+				for(Object[] objAry : retObject) {
+					
+					if(objAry[0].equals("货款"))
+						checks[0] = true;
+					
+					if(objAry[0].equals("贴息额"))
+						checks[1] = true;
+					
+					if(objAry[0].equals("挂结价差额"))
+						checks[2] = true;
+					
+					if(objAry[0].equals("返利额"))
+						checks[3] = true;
+					
+				}
+				
+				if(!checks[0])
+					retObject.add(new Object[]{"货款" , new UFDouble(0 , 2)});
+				
+				if(!checks[1])
+					retObject.add(new Object[]{"贴息额" , new UFDouble(0 , 2)});
+				
+				if(!checks[2])
+					retObject.add(new Object[]{"挂结价差额" , new UFDouble(0 , 2)});
+				
+				if(!checks[3])
+					retObject.add(new Object[]{"返利额" , new UFDouble(0 , 2)});
+				
+				Collections.sort(retObject, new Comparator() {
+
+					public int compare(Object before, Object after) {
+						return ((Object[]) after)[0].toString().compareTo(((Object[]) before)[0].toString());
+					}
+					
+				});
 				
 				retObject.add(new Object[]{"合同余额" , new UFDouble(mny.toString() , 2)});
 					

@@ -92,7 +92,7 @@ public class EventHandler extends ManageEventHandler {
 			}
 			
 			if(adjustList == null || adjustList.size() == 0) {
-				getBillUI().showErrorMessage("选中的项中没有有效的记录！");
+				getBillUI().showErrorMessage("请选择返利类型的单据！");
 				return ;
 			}
 			
@@ -142,7 +142,7 @@ public class EventHandler extends ManageEventHandler {
 			}
 			
 			if(adjustList == null || adjustList.size() == 0) {
-				getBillUI().showErrorMessage("选中的项中没有有效的记录！");
+				getBillUI().showErrorMessage("请选择返利类型的单据！");
 				return ;
 			}
 			
