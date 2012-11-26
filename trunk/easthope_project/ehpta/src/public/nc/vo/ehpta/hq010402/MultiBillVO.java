@@ -36,7 +36,8 @@ public class MultiBillVO extends HYBillVO implements IExAggVO {
 	public String[] getTableCodes() {
 
 		return new String[] { "ehpta_sale_contract_b", "ehpta_aidcust",
-				"ehpta_prepolicy" };
+//				"ehpta_prepolicy" // 优惠政策页签去除，这里已经没有用了
+		};
 
 	}
 

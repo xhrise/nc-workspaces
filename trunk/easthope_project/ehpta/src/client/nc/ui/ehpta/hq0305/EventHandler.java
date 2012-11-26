@@ -70,14 +70,14 @@ public class EventHandler extends ManageEventHandler {
 				
 				StringBuilder builder = new StringBuilder();
 				builder.append(" select pk_cumandoc , custname , pk_contract , concode , connamed , sum(firstmny) firstmny , sum(currmny) currmny , sum(salemny) salemny , ");
-				builder.append(" nvl(sum(firstmny) , 0) + nvl(sum(currmny) , 0) - nvl(sum(salemny) , 0) salebalance , ");
 				builder.append(" nvl(sum(adtype2) , 0) adtype2 , nvl(sum(adtype3) , 0) adtype3 , nvl(sum(adtype4) , 0) adtype4 , ");
+				builder.append(" (nvl(sum(firstmny) , 0) + nvl(sum(currmny) , 0) - nvl(sum(salemny) , 0) + nvl(sum(adtype2) , 0) + nvl(sum(adtype3) , 0) + nvl(sum(adtype4) , 0)) salebalance , nvl(sum(adtype41), 0) def1 ,");
 				builder.append(" (nvl(sum(firstmny) , 0) + nvl(sum(currmny) , 0) - nvl(sum(salemny) , 0) +  ");
-				builder.append(" nvl(sum(adtype2) , 0) + nvl(sum(adtype3) , 0) + nvl(sum(adtype4) , 0)) balance ");
+				builder.append("  + nvl(sum(adtype2) , 0) + nvl(sum(adtype3) , 0) + nvl(sum(adtype4) , 0) + nvl(sum(adtype41), 0)) balance ");
 				builder.append(" from ( ");
 				
 				builder.append(" select cuman.pk_cumandoc , cubas.custname , sale.pk_contract , sale.concode , salecont.connamed , 0 firstmny , 0 currmny , ");
-				builder.append(" sum(sale.nheadsummny) salemny , 0 adtype2 , 0 adtype3 , 0 adtype4   ");
+				builder.append(" sum(sale.nheadsummny) salemny , 0 adtype2 , 0 adtype3 , 0 adtype4 , 0 adtype41   ");
 				builder.append(" from so_sale sale , bd_cumandoc cuman , bd_cubasdoc cubas , ehpta_adjust adjust , ehpta_sale_contract salecont ");
 				builder.append(" where sale.ccustomerid = cuman.pk_cumandoc(+) ");
 				builder.append(" and cuman.pk_cubasdoc = cubas.pk_cubasdoc(+) ");
@@ -87,36 +87,39 @@ public class EventHandler extends ManageEventHandler {
 				builder.append(" and (sale.contracttype = '10' or sale.contracttype = '20') ");
 				builder.append(" and nvl(sale.dr , 0) = 0 ");
 				builder.append(" and sale.dbilldate >= '" + beforeDate.toString() + "' and sale.dbilldate <= '" + afterDate.toString() + "'  ");
-				builder.append(" and sale.pk_corp = '" + _getCorp().getPk_corp() + "' ");
+				builder.append(" and sale.pk_corp = '" + _getCorp().getPk_corp() + "' and sale.fstatus = 2 ");
 				builder.append(" group by cuman.pk_cumandoc , cubas.custname , sale.pk_contract , sale.concode , salecont.connamed ");
 				builder.append(" union all  ");
 				
 				builder.append(" select cuman.pk_cumandoc , cubas.custname , adjust.pk_contract , salecont.vbillno , salecont.connamed , 0 firstmny , adjust.mny currmny , ");
-				builder.append(" 0 salemny , 0 adtype2 , 0 adtype3 , 0 adtype4  ");
+				builder.append(" 0 salemny , 0 adtype2 , 0 adtype3 , 0 adtype4 , 0 adtype41  ");
 				builder.append(" from ehpta_adjust adjust , bd_cumandoc cuman , bd_cubasdoc cubas , ehpta_sale_contract salecont");
 				builder.append(" where adjust.pk_cubasdoc = cuman.pk_cumandoc(+) ");
 				builder.append(" and cuman.pk_cubasdoc = cubas.pk_cubasdoc(+) ");
 				builder.append(" and adjust.pk_contract = salecont.pk_contract(+) ");
 				builder.append(" and adjust.type = 1 and nvl(adjust.dr , 0) = 0 and adjust.pk_contract is not null  ");
 				builder.append(" and adjust.adjustdate >= '" + beforeDate.toString() + "' and adjust.adjustdate <= '" + afterDate.toString() + "'  ");
-				builder.append(" and adjust.pk_corp = '" + _getCorp().getPk_corp() + "' ");
+				builder.append(" and adjust.pk_corp = '" + _getCorp().getPk_corp() + "' and adjust.vbillstatus = 1 ");
 				builder.append(" union all  ");
 				
 				builder.append(" select cuman.pk_cumandoc , cubas.custname , adjust.pk_contract , salecont.vbillno , salecont.connamed , 0 firstmny , 0 currmny , ");
 				builder.append(" 0 salemny , decode(adjust.type , 2 , adjust.mny , 0) adtype2 ,  ");
 				builder.append(" decode(adjust.type , 3 , adjust.mny , 0) adtype3 ,  ");
-				builder.append(" decode(adjust.type , 4 , adjust.mny , 0) adtype4  ");
+//				builder.append(" decode(adjust.type , 4 , adjust.mny , 0) adtype4  ");
+				builder.append(" decode(adjust.type, 4, decode(nvl(adjust.def6,'N') , 'Y' , adjust.mny , 0), 0) adtype4, "); // 拆分启用与未启用
+				builder.append(" decode(adjust.type, 4, decode(nvl(adjust.def6,'N') , 'N' , adjust.mny , 0), 0) adtype41 ");
+				
 				builder.append(" from ehpta_adjust adjust , bd_cumandoc cuman , bd_cubasdoc cubas , ehpta_sale_contract salecont ");
 				builder.append(" where adjust.pk_cubasdoc = cuman.pk_cumandoc(+) ");
 				builder.append(" and cuman.pk_cubasdoc = cubas.pk_cubasdoc(+) ");
 				builder.append(" and adjust.pk_contract = salecont.pk_contract(+) ");
 				builder.append(" and adjust.type <> 1 and nvl(adjust.dr , 0) = 0 and adjust.pk_contract is not null  ");
 				builder.append(" and adjust.adjustdate >= '" + beforeDate.toString() + "' and adjust.adjustdate <= '" + afterDate.toString() + "'  ");
-				builder.append(" and adjust.pk_corp = '" + _getCorp().getPk_corp() + "' ");
+				builder.append(" and adjust.pk_corp = '" + _getCorp().getPk_corp() + "' and adjust.vbillstatus = 1 ");
 				builder.append(" union all  ");
 				
 				builder.append(" select balanceb.pk_cumandoc , balanceb.custname , balanceb.pk_contract , balanceb.concode , balanceb.connamed , balanceb.balance firstmny , ");
-				builder.append(" 0 currmny, 0 salemny, 0 adtype2, 0 adtype3, 0 adtype4 ");
+				builder.append(" 0 currmny, 0 salemny, 0 adtype2, 0 adtype3, 0 adtype4 , 0 adtype41 ");
 				builder.append(" from ehpta_calc_sale_balance_b balanceb , ehpta_calc_sale_balance_h balanceh  ");
 				builder.append(" where balanceb.pk_sale_balance = balanceh.pk_sale_balance(+) ");
 				builder.append(" and balanceh.period = '" + upPeriod + "' and balanceh.vbillstatus = " + IBillStatus.CHECKPASS + " and nvl(balanceh.dr , 0) = 0 ");

@@ -67,7 +67,7 @@ public class CHGHQ06TO30 extends VOConversionUI {
 	    		"H_ndiscountrate->100",
 	    		"H_ccalbodyid->1120A8100000000YSLF2", // 库存组织
 	    		"H_csalecorpid->0001A8100000000044PP", // 销售组织
-	    		"B_creceipttype->HQ06" , 
+	    		"B_creceipttype->\"HQ06\"" , 
 	    		"B_ndiscountmny->0" , 
 	    		"B_ndiscountrate->100" , 
 	    		"B_nitemdiscountrate->100" , 
@@ -88,7 +88,7 @@ public class CHGHQ06TO30 extends VOConversionUI {
 	    		"cadvisecalbody->getColValue(bd_calbody,bodyname,pk_calbody,cadvisecalbodyid)",
 //	    		"B_noriginalcurnetprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税净价 （净价 =？ 单价）
 //			    "B_noriginalcurprice->B_taxprice / (1 + B_taxrate / 100)"  // 原币无税单价
-			    
+	    		"B_creceipttype->\"HQ06\"" , 
 	    }; 
 	  }
 

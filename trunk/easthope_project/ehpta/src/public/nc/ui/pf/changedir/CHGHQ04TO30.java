@@ -76,7 +76,7 @@ public class CHGHQ04TO30 extends VOConversionUI {
 	    		"H_ndiscountrate->100",
 	    		"H_ccalbodyid->1120A8100000000YSLF2",
 	    		"H_csalecorpid->0001A8100000000044PP",
-	    		"B_creceipttype->HQ04" , 
+	    		"B_creceipttype->\"HQ04\"" , 
 	    		"B_ndiscountmny->0" , 
 	    		"B_ndiscountrate->100" , 
 	    		"B_nitemdiscountrate->100" , 
@@ -101,6 +101,7 @@ public class CHGHQ04TO30 extends VOConversionUI {
 			    "B_norgqtprc->B_taxprice / (1 + B_taxrate / 100)", //  报价单位无税单价  
 			    "B_nqtprc->B_taxprice / (1 + B_taxrate / 100)",  // 报价单位本币无税单价 
 			    "B_nqtnetprc->B_taxprice / (1 + B_taxrate / 100)", // 报价单位本币无税净价 
+			    "B_creceipttype->\"HQ04\"" , 
 	    }; 
 	  }
 

@@ -70,7 +70,8 @@ public class ClientUICtrl extends AbstractManageController {
 				SaleContractVO.class.getName(),
 				SaleContractBVO.class.getName(),
 				AidcustVO.class.getName(),
-				PrepolicyVO.class.getName() };
+//				PrepolicyVO.class.getName()  // 优惠政策页签去除，这里已经没有用了
+		};
 	}
 
 	public String getBodyCondition() {
