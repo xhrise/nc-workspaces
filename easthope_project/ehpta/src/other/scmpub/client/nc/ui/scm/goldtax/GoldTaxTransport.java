@@ -516,7 +516,7 @@ public class GoldTaxTransport {
 		
 		/** 如果发票中只有一种物料，则直接进行拆分  */
 		if(bodyMap != null && bodyMap.size() == 1) 
-			return splitGoldTax(bodyMap.get(0), taxVO.getParentVO());
+			return splitGoldTax(bodyMap.get(taxBodyVO[0].getInvName() + "_" + taxBodyVO[0].getInvSpec()), taxVO.getParentVO());
 		
 		/** 如果发票中存在多种物料，进行VO整合及拆分 Start */
 		splitMoreGoldTax(bodyMap, taxList, lessTaxBodyList, taxVO);

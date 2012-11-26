@@ -733,7 +733,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 			ctx.getBillCardPanel().setBodyValueAt(contbVOs[0].getPk_contract_b(), 0, "csourcebillbodyid");
 			ctx.getBillCardPanel().setBodyValueAt(contbVOs[0].getPk_contract(), 0, "csourcebillid");
-			
+			ctx.getBillCardPanel().setBodyValueAt("HQ06", 0, "creceipttype");
 //			ctx.getBillCardPanel().execBodyFormula(0, "cinventoryid");
 //			ctx.getBillCardPanel().execBodyFormula(0, "cinventorycode");
 			
