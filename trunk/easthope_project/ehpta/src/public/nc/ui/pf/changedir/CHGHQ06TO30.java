@@ -88,7 +88,6 @@ public class CHGHQ06TO30 extends VOConversionUI {
 	    		"cadvisecalbody->getColValue(bd_calbody,bodyname,pk_calbody,cadvisecalbodyid)",
 //	    		"B_noriginalcurnetprice->B_taxprice / (1 + B_taxrate / 100)",  // 原币无税净价 （净价 =？ 单价）
 //			    "B_noriginalcurprice->B_taxprice / (1 + B_taxrate / 100)"  // 原币无税单价
-	    		"B_creceipttype->\"HQ06\"" , 
 	    }; 
 	  }
 

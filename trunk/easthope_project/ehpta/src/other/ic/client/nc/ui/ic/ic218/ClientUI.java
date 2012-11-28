@@ -19,6 +19,7 @@ import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.FramePanel;
 import nc.ui.pub.beans.MessageDialog;
 import nc.ui.pub.beans.UIDialog;
+import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.bill.BillModel;
@@ -134,6 +135,19 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 		if("noutnum".equals(e.getKey())) 
 			afterSetNoutnum(e);
 		
+	}
+  
+  @Override
+	public boolean beforeEdit(BillEditEvent e) {
+	  
+	  
+	  	if("cprojectname".equals(e.getKey()) && ((BillItem)e.getSource()).getComponent() instanceof UIRefPane) {
+	  		
+	  		((UIRefPane)((BillItem)e.getSource()).getComponent()).setWhereString(" bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename like '´¬Ãû%' and nvl(dr,0)=0)  ");
+	  		
+	  	}
+	  
+		return super.beforeEdit(e);
 	}
   
   /**

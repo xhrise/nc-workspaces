@@ -25,8 +25,6 @@ import nc.vo.ehpta.hq010401.SaleContractVO;
 import nc.vo.ehpta.hq010402.AidcustHistoryVO;
 import nc.vo.ehpta.hq010402.AidcustVO;
 import nc.vo.ehpta.hq010402.MultiBillVO;
-import nc.vo.ehpta.hq010402.PrepolicyHistoryVO;
-import nc.vo.ehpta.hq010402.PrepolicyVO;
 import nc.vo.ehpta.hq010402.SaleContractBHistoryVO;
 import nc.vo.ehpta.hq010402.SaleContractBVO;
 import nc.vo.pub.AggregatedValueObject;
@@ -259,25 +257,25 @@ public class EventHandler extends ManageEventHandler {
 				}
 				
 				
-				PrepolicyHistoryVO[] policyHisVO = new PrepolicyHistoryVO[0];
-				CircularlyAccessibleValueObject[] policyVOs = billVO.getTableVO(getTableCodes()[2]);
-				if(policyVOs != null && policyVOs.length > 0) {
-					policyHisVO = new PrepolicyHistoryVO[policyVOs.length];
-					for(int i = 0 , j = policyVOs.length ; i < j ; i++) {
-						policyHisVO[i] = new PrepolicyHistoryVO();
-						for(String attr : policyVOs[i].getAttributeNames()) {
-							policyHisVO[i].setAttributeValue(attr, policyVOs[i].getAttributeValue(attr));
-						}
-						policyHisVO[i].setAttributeValue("version_his", version);
-					}
-				}
+//				PrepolicyHistoryVO[] policyHisVO = new PrepolicyHistoryVO[0];
+//				CircularlyAccessibleValueObject[] policyVOs = billVO.getTableVO(getTableCodes()[2]);
+//				if(policyVOs != null && policyVOs.length > 0) {
+//					policyHisVO = new PrepolicyHistoryVO[policyVOs.length];
+//					for(int i = 0 , j = policyVOs.length ; i < j ; i++) {
+//						policyHisVO[i] = new PrepolicyHistoryVO();
+//						for(String attr : policyVOs[i].getAttributeNames()) {
+//							policyHisVO[i].setAttributeValue(attr, policyVOs[i].getAttributeValue(attr));
+//						}
+//						policyHisVO[i].setAttributeValue("version_his", version);
+//					}
+//				}
 				
 				Integer contHisCount = (Integer) UAPQueryBS.getInstance().executeQuery("select count(1) from ehpta_sale_contract_history where pk_contract = '"+pk_contract+"' and version = " + version , new ColumnProcessor());
 				if(contHisCount > 0) {
 					
 					try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_b_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
 					try { UAPQueryBS.getInstance().executeQuery("delete ehpta_aidcust_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
-					try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
+//					try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy_history where pk_contract = '"+pk_contract+"' and version_his = " + version ,  null); } catch(Exception e) { }
 					try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_history where pk_contract = '"+pk_contract+"' and version = " + version ,  null); } catch(Exception e) { }
 					
 				}
@@ -285,7 +283,7 @@ public class EventHandler extends ManageEventHandler {
 				
 				HYPubBO_Client.insertAry(contractBHisVO);
 				HYPubBO_Client.insertAry(aidcustHisVO);
-				HYPubBO_Client.insertAry(policyHisVO);
+//				HYPubBO_Client.insertAry(policyHisVO);
 				HYPubBO_Client.insert(contractHisVO);
 				
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
@@ -489,29 +487,29 @@ public class EventHandler extends ManageEventHandler {
 					}
 				}
 				
-				PrepolicyHistoryVO[] policyHisVO = (PrepolicyHistoryVO[]) HYPubBO_Client.queryByCondition(PrepolicyHistoryVO.class, " pk_contract = '"+pk_contract+"' and version_his = " + (version - 1));
-				PrepolicyVO[] policyVO = new PrepolicyVO[0];
-				if(policyHisVO != null && policyHisVO.length > 0) {
-					policyVO = new PrepolicyVO[policyHisVO.length];
-					int i = 0;
-					for(PrepolicyHistoryVO policyhisVO : policyHisVO) {
-						policyVO[i] = new PrepolicyVO();
-						for(String attr : policyVO[i].getAttributeNames()) {
-							policyVO[i].setAttributeValue(attr, policyhisVO.getAttributeValue(attr));
-						}
-						
-						i++;
-					}
-				}
+//				PrepolicyHistoryVO[] policyHisVO = (PrepolicyHistoryVO[]) HYPubBO_Client.queryByCondition(PrepolicyHistoryVO.class, " pk_contract = '"+pk_contract+"' and version_his = " + (version - 1));
+//				PrepolicyVO[] policyVO = new PrepolicyVO[0];
+//				if(policyHisVO != null && policyHisVO.length > 0) {
+//					policyVO = new PrepolicyVO[policyHisVO.length];
+//					int i = 0;
+//					for(PrepolicyHistoryVO policyhisVO : policyHisVO) {
+//						policyVO[i] = new PrepolicyVO();
+//						for(String attr : policyVO[i].getAttributeNames()) {
+//							policyVO[i].setAttributeValue(attr, policyhisVO.getAttributeValue(attr));
+//						}
+//						
+//						i++;
+//					}
+//				}
 				
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_b where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_aidcust where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+//				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract where def2 = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 			
 				try {HYPubBO_Client.insertAry(contractBVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(aidcustVO); } catch(Exception e) { AppDebug.debug(e); }
-				try {HYPubBO_Client.insertAry(policyVO); } catch(Exception e) { AppDebug.debug(e); }
+//				try {HYPubBO_Client.insertAry(policyVO); } catch(Exception e) { AppDebug.debug(e); }
 				try {HYPubBO_Client.insertAry(contractVO); } catch(Exception e) { AppDebug.debug(e); }
 				
 				
