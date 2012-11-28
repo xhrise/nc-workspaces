@@ -33,14 +33,14 @@ public class Delegator extends BDBusinessDelegator {
 			dataHashTable.put("ehpta_aidcust", bodyVOs2);
 		}
 
-		nc.vo.ehpta.hq010402.PrepolicyVO[] bodyVOs3 = (nc.vo.ehpta.hq010402.PrepolicyVO[]) queryByCondition(
-				nc.vo.ehpta.hq010402.PrepolicyVO.class,
-				getBodyCondition(nc.vo.ehpta.hq010402.PrepolicyVO.class,
-						key));
-		if (bodyVOs3 != null && bodyVOs3.length > 0) {
-
-			dataHashTable.put("ehpta_prepolicy", bodyVOs3);
-		}
+//		nc.vo.ehpta.hq010402.PrepolicyVO[] bodyVOs3 = (nc.vo.ehpta.hq010402.PrepolicyVO[]) queryByCondition(
+//				nc.vo.ehpta.hq010402.PrepolicyVO.class,
+//				getBodyCondition(nc.vo.ehpta.hq010402.PrepolicyVO.class,
+//						key));
+//		if (bodyVOs3 != null && bodyVOs3.length > 0) {
+//
+//			dataHashTable.put("ehpta_prepolicy", bodyVOs3);
+//		}
 
 		return dataHashTable;
 
@@ -57,8 +57,8 @@ public class Delegator extends BDBusinessDelegator {
 			return "pk_contract = '" + key + "' and isnull(dr,0)=0 ";
 		if (bodyClass == nc.vo.ehpta.hq010402.AidcustVO.class)
 			return "pk_contract = '" + key + "' and isnull(dr,0)=0 ";
-		if (bodyClass == nc.vo.ehpta.hq010402.PrepolicyVO.class)
-			return "pk_contract = '" + key + "' and isnull(dr,0)=0 ";
+//		if (bodyClass == nc.vo.ehpta.hq010402.PrepolicyVO.class)
+//			return "pk_contract = '" + key + "' and isnull(dr,0)=0 ";
 
 		return null;
 	}

@@ -5,7 +5,6 @@ import nc.ui.trade.business.HYPubBO_Client;
 import nc.vo.ehpta.hq010401.SaleContractVO;
 import nc.vo.ehpta.hq010402.AidcustVO;
 import nc.vo.ehpta.hq010402.MultiBillVO;
-import nc.vo.ehpta.hq010402.PrepolicyVO;
 import nc.vo.ehpta.hq010402.SaleContractBVO;
 import nc.vo.pf.change.IchangeVO;
 import nc.vo.pub.AggregatedValueObject;
@@ -62,7 +61,13 @@ public class SaleContractAfterCHG implements IchangeVO {
 		if(preVO instanceof MultiBillVO && Integer.valueOf(nowVO.getParentVO().getAttributeValue("contracttype").toString()) == 20) {
 			if(preVO.getChildrenVO() == null || preVO.getChildrenVO().length == 0) {
 				
-				AggregatedValueObject aggVO = HYPubBO_Client.queryBillVOByPrimaryKey(new String[] { MultiBillVO.class.getName() , SaleContractVO.class.getName(), SaleContractBVO.class.getName(), AidcustVO.class.getName(), PrepolicyVO.class.getName() }, preVO.getParentVO().getPrimaryKey());
+				AggregatedValueObject aggVO = HYPubBO_Client.queryBillVOByPrimaryKey(new String[] { 
+						MultiBillVO.class.getName() , 
+						SaleContractVO.class.getName(), 
+						SaleContractBVO.class.getName(), 
+						AidcustVO.class.getName(), 
+//						PrepolicyVO.class.getName() 
+				}, preVO.getParentVO().getPrimaryKey());
 				
 				if(aggVO != null && aggVO.getParentVO() != null) {
 					CircularlyAccessibleValueObject[] cavos = ((MultiBillVO)aggVO).getTableVO(((MultiBillVO)aggVO).getDefaultTableCode());
