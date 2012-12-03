@@ -196,6 +196,19 @@ public class ClientUI extends nc.ui.trade.multichild.MultiChildBillManageUI
 		
 	}
 	
+	@Override
+	public void updateButtons() {
+		
+		if(getBillOperate() == IBillOperate.OP_ADD || 
+				getBillOperate() == IBillOperate.OP_EDIT || 
+				getBillOperate() == IBillOperate.OP_REFADD)
+			getButtonManager().getButton(DefaultBillButton.MAKENEWCONTRACT).setEnabled(false);
+		else 
+			getButtonManager().getButton(DefaultBillButton.MAKENEWCONTRACT).setEnabled(true);
+			
+		super.updateButtons();
+	}
+	
 	
 	@Override
 	protected int getExtendStatus(AggregatedValueObject vo) {

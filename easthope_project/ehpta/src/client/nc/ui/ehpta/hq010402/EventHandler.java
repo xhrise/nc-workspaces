@@ -58,7 +58,9 @@ public class EventHandler extends ManageEventHandler {
 	}
 	
 	public final String[] getTableCodes() {
-		return new String[]{"ehpta_sale_contract_b", "ehpta_aidcust", "ehpta_prepolicy"};
+		return new String[]{"ehpta_sale_contract_b", "ehpta_aidcust", 
+				// "ehpta_prepolicy"
+		};
 	}
 	
 	public final String getTableNames( String tableCode) {
@@ -288,7 +290,7 @@ public class EventHandler extends ManageEventHandler {
 				
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract_b where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_aidcust where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
-				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
+//				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_prepolicy where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 				try { UAPQueryBS.getInstance().executeQuery("delete ehpta_sale_contract where pk_contract = '"+pk_contract+"' " ,  null); } catch(Exception e) { }
 				
 			} 
