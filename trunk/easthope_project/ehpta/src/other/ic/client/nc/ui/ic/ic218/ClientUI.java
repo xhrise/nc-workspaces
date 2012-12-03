@@ -22,6 +22,7 @@ import nc.ui.pub.beans.UIDialog;
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
+import nc.ui.pub.bill.BillItemEvent;
 import nc.ui.pub.bill.BillModel;
 import nc.ui.pub.change.PfChangeBO_Client;
 import nc.ui.querytemplate.meta.FilterMeta;
@@ -138,14 +139,29 @@ public class ClientUI extends nc.ui.ic.pub.bill.GeneralBillClientUI {
 	}
   
   @Override
-	public boolean beforeEdit(BillEditEvent e) {
+	public boolean beforeEdit(BillItemEvent e) {
 	  
-	  
-	  	if("cprojectname".equals(e.getKey()) && ((BillItem)e.getSource()).getComponent() instanceof UIRefPane) {
+	  if("cotherwhid".equals(e.getItem().getKey()) && e.getItem().getComponent() instanceof UIRefPane) {
 	  		
-	  		((UIRefPane)((BillItem)e.getSource()).getComponent()).setWhereString(" bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename like '船名%' and nvl(dr,0)=0)  ");
+	  		Object cothercorpid = getBillCardPanel().getHeadItem("cothercorpid").getValueObject();
+	  		Object cothercalbodyid = getBillCardPanel().getHeadItem("cothercalbodyid").getValueObject();
+	  		
+	  		((UIRefPane)e.getItem().getComponent()).setWhereString(" pk_corp='" + (String) cothercorpid + "' and pk_calbody = '"+ (String) cothercalbodyid +"' and memo = 'PTA' ");
 	  		
 	  	}
+	  
+		return super.beforeEdit(e);
+	}
+  
+  @Override
+	public boolean beforeEdit(BillEditEvent e) {
+	  
+	  // 项目档案 - 船名 过滤失败。
+//	  	if("cprojectname".equals(e.getKey()) && ((BillItem)e.getSource()).getComponent() instanceof UIRefPane) {
+//	  		
+//	  		((UIRefPane)((BillItem)e.getSource()).getComponent()).setWhereString(" bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename like '船名%' and nvl(dr,0)=0)  ");
+//	  		
+//	  	}
 	  
 		return super.beforeEdit(e);
 	}
