@@ -5,11 +5,11 @@ import nc.ui.pub.linkoperate.ILinkQueryData;
 public class LinkQueryData implements ILinkQueryData {
 
 	protected String whereSql = "";
-	protected ExtSaleInvoiceUI invUI = null;
+	protected SaleInvoiceUI invUI = null;
 	
-	public LinkQueryData(String whereSql , ExtSaleInvoiceUI invUI) {
+	public LinkQueryData(String whereSql , SaleInvoiceUI saleInvoiceUI) {
 		this.whereSql = whereSql;
-		this.invUI = invUI;
+		this.invUI = saleInvoiceUI;
 	}
 	
 	

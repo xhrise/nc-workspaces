@@ -3,16 +3,12 @@ package nc.ui.ehpta.hq010101;
 import java.util.ArrayList;
 import java.util.List;
 
-import nc.ui.trade.bill.ISingleController;
+import nc.ui.ehpta.pub.valid.Validata;
 import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
-import nc.vo.engine.status.IStatus;
-import nc.vo.engine.status.element.IStatusOperator;
-import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
-import nc.vo.pub.VOStatus;
 
 /**
  * 
@@ -87,6 +83,14 @@ public class EventHandler extends ManageEventHandler {
 			getBillCardPanelWrapper().setCopyedBodyVOs(vos);
 
 		}
+	}
+	
+	@Override
+	protected void onBoSave() throws Exception {
+
+		Validata.saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel(), getBillCardPanelWrapper().getBillVOFromUI(), ((ClientUICtrl)getUIController()).getBodyTableName());
+		
+		super.onBoSave();
 	}
 
 }

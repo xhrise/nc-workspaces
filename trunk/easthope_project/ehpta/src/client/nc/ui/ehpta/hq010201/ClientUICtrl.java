@@ -64,6 +64,18 @@ public class ClientUICtrl extends AbstractManageController {
 		return new String[] { HYBillVO.class.getName(),
 				StorContractVO.class.getName(), StorcontractBVO.class.getName() };
 	}
+	
+	public String[] getTableName() {
+		return new String[] {
+				"ehpta_storcontract" , "ehpta_storcontract_b"
+		};
+	}
+	
+	public String[] getBodyTableName() {
+		return new String[] {
+				"ehpta_storcontract_b"
+		};
+	}
 
 	public String getBodyCondition() {
 		return null;

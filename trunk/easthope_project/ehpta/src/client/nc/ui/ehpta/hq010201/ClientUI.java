@@ -233,16 +233,17 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 	}
 	
 	@Override
-	public void afterUpdate() {
-		super.afterUpdate();
+	public void updateButtons() {
 		
-		updateButtonState();
-	}
-	
-	private void updateButtonState() {
-		
-		if(nowAggVO == null || nowAggVO.getParentVO() == null)
+		if(nowAggVO == null || nowAggVO.getParentVO() == null) {
+			
+			getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(false);
+			getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
+			
+			super.updateButtons();
+			
 			return ;
+		}
 		
 		UFBoolean ty_flag = (UFBoolean) nowAggVO.getParentVO().getAttributeValue("ty_flag");
 		
@@ -257,13 +258,14 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 				getButtonManager().getButton(DefaultBillButton.ENABLED).setEnabled(false);
 				getButtonManager().getButton(DefaultBillButton.DISABLED).setEnabled(true);
 
-			}
+			} 
 		} catch(Exception e ) {
 			AppDebug.debug(e);
 		}
 		
-		updateButtons();
-	
+		nowAggVO = null;
+		
+		super.updateButtons();
 	}
 	
 	@Override
@@ -313,6 +315,10 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 //				setBackground(colorDark);
 
 			try {
+				
+				if(buffData == null || buffData.getVOByRowNo(row) == null) 
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				
 				AggregatedValueObject aggVO = buffData.getVOByRowNo(row);
 				if(Integer.valueOf(aggVO.getParentVO().getAttributeValue("vbillstatus").toString()) == IBillStatus.CHECKPASS) 
 					setBackground(colorDark);

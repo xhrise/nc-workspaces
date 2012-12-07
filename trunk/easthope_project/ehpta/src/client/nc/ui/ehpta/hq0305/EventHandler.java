@@ -13,7 +13,9 @@ import nc.ui.trade.controller.IControllerBase;
 import nc.ui.trade.manage.BillManageUI;
 import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.ehpta.hq0305.SaleBalanceBVO;
+import nc.vo.ehpta.hq0305.SaleBalanceHVO;
 import nc.vo.fp.combase.pub01.IBillStatus;
+import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.lang.UFDate;
 import nc.vo.trade.pub.HYBillVO;
 
@@ -49,17 +51,30 @@ public class EventHandler extends ManageEventHandler {
 	protected final void onBoStatistics() throws Exception {
 		
 		BillItem item = getBillCardPanelWrapper().getBillCardPanel().getHeadItem("period");
-		
+		BillItem primaryKeyItem = getBillCardPanelWrapper().getBillCardPanel().getHeadItem(SaleBalanceHVO.PK_SALE_BALANCE);
 		if(item != null && item.getComponent() instanceof UIRefPane) {
 			
 			String period = ((UIRefPane) item.getComponent()).getRefName();
 			
 			if(period != null && !"".equals(period)) {
 				
-				Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_sale_balance_h where period = '"+period+"' and nvl(dr,0) = 0 ", new ColumnProcessor());
-				if(count > 0) {
-					getBillUI().showWarningMessage("当前期间已经统计，如需重新统计，请删除后再进行统计！");
-					return ;
+				if(primaryKeyItem.getValueObject() == null) {
+					Integer count = (Integer) UAPQueryBS.getInstance().executeQuery("select nvl(count(1),0) from ehpta_calc_sale_balance_h where period = '"+period+"' and nvl(dr,0) = 0 ", new ColumnProcessor());
+					if(count > 0) {
+						getBillUI().showWarningMessage("当前期间已经统计，如需重新统计，请修改该期间的记录，再进行统计！");
+						return ;
+						
+					}
+				} else {
+					
+					AggregatedValueObject formBillVO = getBillCardPanelWrapper().getBillVOFromUI();
+					if(formBillVO != null && formBillVO.getChildrenVO() != null && formBillVO.getChildrenVO().length > 0) {
+						
+						for(int i = 0 , len = formBillVO.getChildrenVO().length ; i < len ; i ++) {
+							super.onBoLineDel();
+						}
+						
+					}
 					
 				}
 				

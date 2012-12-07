@@ -65,7 +65,7 @@ public class SaleInvoiceBtn {
   public final String BTN_ImportTaxCode = "导入税票号";
   
   // add by river for 2012-08-06
-  public final String BTN_ContBalance = "合同余额";
+  public final String BTN_ContBalance = "PTA合同余额";
 
   private ButtonTree bt = null;
 
@@ -476,8 +476,10 @@ public class SaleInvoiceBtn {
    
     // 将合同余额按钮添加到辅助查询里
     // add by river for 2012-08-06
-    m_boContBalance = new ButtonObject("合同余额" , "" , 0 , "合同余额");
-    m_boAssistant.addChildButton(m_boContBalance);
+    // 在按钮权限里添加
+//    m_boContBalance = new ButtonObject("PTA合同余额" , "" , 0 , "PTA合同余额");
+//    m_boAssistant.addChildButton(m_boContBalance);
+
     
     m_boATP = bt.getButton(BTN_ATP);// 可用量
     m_boATP.setVisible(false);

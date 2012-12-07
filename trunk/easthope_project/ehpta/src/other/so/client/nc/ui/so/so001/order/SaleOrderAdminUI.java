@@ -224,6 +224,11 @@ public class SaleOrderAdminUI extends SaleBillUI {
 		boAsstntQry.addChildButton(boOrderExecRpt);
 		boAsstntQry.addChildButton(boCustInfo);
 		boAsstntQry.addChildButton(boPrifit);
+		
+		// 添加 合同余额 按钮
+		// add by river for 2012-07-30
+		// start ..
+		boAsstntQry.addChildButton(new ButtonObject("PTA合同余额" , "" , 0 , "PTA合同余额"));
 
 		//打印
 		boPrntMgr.removeAllChildren();

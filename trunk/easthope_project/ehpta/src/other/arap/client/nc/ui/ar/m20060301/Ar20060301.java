@@ -97,7 +97,7 @@ public class Ar20060301 extends nc.ui.ep.dj.DjPflowPanel {
 
 			else if ("∑¥…Û∫À".equals(bo.getName()))
 				afterOnBoCancleAudit();
-
+ 
 		}
 	}
 

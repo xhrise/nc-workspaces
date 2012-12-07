@@ -52,7 +52,7 @@ public abstract class FiFlowPanel extends ArapBaseEntry{
 	DjCopyBtnStatLisener cpyListener=null;
 	CopyDjAction cpy=new CopyDjAction();
 	ButtonObject[] btns;
-	
+	 
 	public FiFlowPanel(){
 		super();
 		cpyListener=new DjCopyBtnStatLisener();

@@ -31,9 +31,9 @@ public class StorDocRefModel extends AbstractRefModel {
 		
 		setFieldName(new String[] { "²Ö´¢ºÏÍ¬Ö÷¼ü" , "²Ö¿âÖ÷¼ü" , "Ç©Ô¼µ¥Î»Ãû³Æ" , "²Ö¿â±àÂë" , "²Ö¿âÃû³Æ" , "²Ö¿âµØÖ·"});
 		
-		setHiddenFieldCode(new String[] { "pk_storagedoc" });
+//		setHiddenFieldCode(new String[] { "pk_storagedoc" });
 		
-		setTableName(" (select storcont.pk_corp , storcont.pk_storagedoc , stordoc.pk_stordoc , cubas.custcode , cubas.custname , stordoc.storcode , stordoc.storname , stordoc.storaddr from ehpta_storcontract storcont left join bd_stordoc stordoc on stordoc.pk_stordoc = storcont.pk_stordoc left join bd_cubasdoc cubas on cubas.pk_cubasdoc = storcont.signcompany where storcont.vbillstatus = 1 and nvl(stordoc.dr , 0) = 0 and nvl(storcont.dr , 0) = 0) bd_stordoc ");
+		setTableName(" (select storcont.pk_corp , storcont.pk_storagedoc , stordoc.pk_stordoc , cubas.custcode , cubas.custname , stordoc.storcode , stordoc.storname , stordoc.storaddr from ehpta_storcontract storcont left join bd_stordoc stordoc on stordoc.pk_stordoc = storcont.pk_stordoc left join bd_cubasdoc cubas on cubas.pk_cubasdoc = storcont.signcompany where storcont.vbillstatus = 1 and nvl(stordoc.dr , 0) = 0 and nvl(storcont.dr , 0) = 0 union all  (select ehpta_storcontract.pk_corp , ehpta_storcontract.pk_storagedoc , ehpta_storcontract.pk_stordoc , ' ' , ' ' , bd_stordoc.storcode , bd_stordoc.storname , bd_stordoc.storaddr from ehpta_storcontract left join bd_stordoc on bd_stordoc.pk_stordoc = ehpta_storcontract.pk_stordoc where ehpta_storcontract.pk_stordoc = '1120AA1000000012DBNG' and ehpta_storcontract.dr = 9) ) bd_stordoc ");
 		
 		setPkFieldCode("pk_storagedoc");
 		

@@ -72,7 +72,7 @@ public class ArapDjPanel extends nc.ui.pub.beans.UIPanel   {
 	 * 
 	 */
 	private static final long serialVersionUID = 3155012705507415119L;
-
+ 
 	// 即时核销状态：初始 0 ,即时核销 3 ,补差 4
 	public int m_iVitStat = ArapBillWorkPageConst.VITINIT;
 

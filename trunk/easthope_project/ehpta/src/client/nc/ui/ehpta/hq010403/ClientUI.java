@@ -7,6 +7,7 @@ import nc.bs.logging.Logger;
 import nc.ui.ehpta.pub.btn.DefaultBillButton;
 import nc.ui.ehpta.pub.gen.GeneraterBillNO;
 import nc.ui.pub.ClientEnvironment;
+import nc.ui.pub.bill.BillEditEvent;
 import nc.ui.pub.bill.BillItem;
 import nc.ui.pub.linkoperate.ILinkQuery;
 import nc.ui.pub.linkoperate.ILinkQueryData;
@@ -18,6 +19,7 @@ import nc.ui.trade.business.HYPubBO_Client;
 import nc.ui.trade.button.IBillButton;
 import nc.uif.pub.exception.UifException;
 import nc.vo.ehpta.hq010403.AdjustVO;
+import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.SuperVO;
 import nc.vo.trade.button.ButtonVO;
@@ -256,6 +258,59 @@ public class ClientUI extends nc.ui.trade.manage.BillManageUI implements
 			if (item != null)
 				item.setValue(values[i]);
 		}
+	}
+	
+	@Override
+	public void updateButtons() {
+		
+		if(getBillOperate() == IBillOperate.OP_EDIT || 
+				getBillOperate() == IBillOperate.OP_ADD ||
+				getBillOperate() == IBillOperate.OP_REFADD) {
+			if("4".equals(getBillCardPanel().getHeadItem("type").getValueObject())) {
+				getBillCardPanel().getHeadItem("def7").setEdit(true);
+				getBillCardPanel().getHeadItem("def7").setNull(true);
+			} else {
+				getBillCardPanel().getHeadItem("def7").setEdit(false);
+				getBillCardPanel().getHeadItem("def7").setNull(false);
+			}
+		}
+		
+		
+		super.updateButtons();
+	}
+	
+	@Override
+	protected int getExtendStatus(AggregatedValueObject vo) {
+		
+		if(vo != null && vo.getParentVO() != null) {
+			if("4".equals(vo.getParentVO().getAttributeValue(AdjustVO.TYPE))) {
+				getBillCardPanel().getHeadItem("def7").setNull(true);
+			} else {
+				getBillCardPanel().getHeadItem("def7").setValue(null);
+				getBillCardPanel().getHeadItem("def7").setNull(false);
+			}
+			
+		}
+		
+		return super.getExtendStatus(vo);
+	}
+	
+	@Override
+	public void afterEdit(BillEditEvent e) {
+		
+		if("type".equals(e.getKey())) {
+			if("4".equals(getBillCardPanel().getHeadItem("type").getValueObject())) {
+				getBillCardPanel().getHeadItem("def7").setNull(true);
+				getBillCardPanel().getHeadItem("def7").setEdit(true);
+			} else {
+				getBillCardPanel().getHeadItem("def7").setValue(null);
+				getBillCardPanel().getHeadItem("def7").setNull(false);
+				getBillCardPanel().getHeadItem("def7").setEdit(false);
+			}
+				
+		}
+		
+		super.afterEdit(e);
 	}
 	
 }

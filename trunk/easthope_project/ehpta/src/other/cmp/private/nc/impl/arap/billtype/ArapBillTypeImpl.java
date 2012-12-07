@@ -57,7 +57,7 @@ import nc.vo.sxsp.init.IItemUsedQry;
  * <p>
  *   类的主要说明。类设计的目标，完成什么样的功能。
  * </p>
- * <p>
+ * <p> 
  * <Strong>主要的类使用：</Strong>
  *  <ul>
  * 		<li>如何使用该类</li>
