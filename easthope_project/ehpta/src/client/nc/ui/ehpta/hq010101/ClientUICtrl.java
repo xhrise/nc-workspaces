@@ -64,6 +64,18 @@ public class ClientUICtrl extends AbstractManageController {
 				TransportContractVO.class.getName(),
 				TransportContractBVO.class.getName() };
 	}
+	
+	public String[] getTableName() {
+		return new String[] {
+				"ehpta_transport_contract" , "ehpta_transport_contract_b"
+		};
+	}
+	
+	public String[] getBodyTableName() {
+		return new String[] {
+				"ehpta_transport_contract_b"
+		};
+	}
 
 	public String getBodyCondition() {
 		return null;

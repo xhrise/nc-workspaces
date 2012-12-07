@@ -1252,11 +1252,27 @@
 		</ui_extend>
 		<ui_extend>
 			<!--UI扩展 -->
+			<cbilltypecode>30</cbilltypecode>
+			<!--单据类型 -->
+			 <nodecode>HQ010601</nodecode> 
+			<!--节点号 -->
+			<extenduiclassname>nc.ui.so.so001.order.SaleOrderAdminUI</extenduiclassname>
+			<!--被扩展的UI类 -->
+			<uiplugin>
+				<!--UI插件描述 -->
+				<classname>nc.ui.so.so001.order.ExtSaleOrderAdminUIPlugin</classname>
+				<!--UI插件类名 -->
+				<mothed>N</mothed>
+				<!--实现方式 -->
+			</uiplugin>
+		</ui_extend>
+		<ui_extend>
+			<!--UI扩展 -->
 			<cbilltypecode>32</cbilltypecode>
 			<!--单据类型 -->
-			 <nodecode>HQ010701</nodecode> 
+			 <nodecode>40060501</nodecode> 
 			<!--节点号 -->
-			<extenduiclassname>nc.ui.so.so002.ExtSaleInvoiceUI</extenduiclassname>
+			<extenduiclassname>nc.ui.so.so002.SaleInvoiceUI</extenduiclassname>
 			<!--被扩展的UI类 -->
 			<uiplugin>
 				<!--UI插件描述 -->

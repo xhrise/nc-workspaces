@@ -40,7 +40,7 @@ public class Ar2006030X extends nc.ui.ep.dj.DjPflowPanel implements nc.ui.pub.bi
 		this.setIsAloneNode(UFBoolean.TRUE);
 		// setM_Node("2006030101");
 		// setDjlxbm(nc.ui.arap.global.PubData.getDjlxbmByPkcorp(getClientEnvironment().getCorporation().getPrimaryKey(),nc.vo.arap.global.ResMessage.$SysCode_AR));
-		
+		 
 		// Ìí¼ÓafterEdit¼àÌý
 		// add by river for 2012-08-06
 		getArapDjPanel1().getBillCardPanelDj().addBillEditListenerHeadTail(this);

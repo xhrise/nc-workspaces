@@ -75,7 +75,7 @@ import nc.vo.uap.security.AuthenticatorFactory;
  * @author maji
  * @version V6.0
  * @since V6.0
- */
+ */ 
 @SuppressWarnings("restriction")
 public abstract class DjPanel extends AbstractRuntime implements IBusiInfoPanel,
 nc.ui.glpub.IUiPanel {

@@ -1,9 +1,11 @@
 package nc.ui.so.so002;
 
 import java.awt.event.ActionEvent;
+import java.util.Map;
 
 import nc.bs.logging.Logger;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.jdbc.framework.processor.MapProcessor;
 import nc.ui.ehpta.pub.IAdjustType;
 import nc.ui.ehpta.pub.UAPQueryBS;
 import nc.ui.ehpta.pub.convert.ConvertFunc;
@@ -147,7 +149,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		
 		
 		// river
-		if("合同余额".equals(bo.getName())) {
+		if("PTA合同余额".equals(bo.getName())) { 
 			afterOnBoContBalance(bo , ctx);
 			
 		} else if("PTA合并开票".equals(bo.getName())) {
@@ -168,24 +170,43 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		
 		Object[] obj = new Object[4];
 		SaleinvoiceVO billVO = null;
-		if(((ExtSaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((ExtSaleInvoiceUI)ctx.getToftPanel()).CardShow) 
+		if(((SaleInvoiceUI)ctx.getToftPanel()).getShowState() == ((SaleInvoiceUI)ctx.getToftPanel()).CardShow) 
 			billVO = ((SaleInvoiceCardPanel)ctx.getBillCardPanel()).getVO();
 		else 
 			 billVO = ((SaleInvoiceListPanel)ctx.getBillListPanel()).getSelectedVO();
 		
-		obj[0] = (String) billVO.getParentVO().getAttributeValue("pk_contract");
-		obj[0] = obj[0] == null ? "" : obj[0];
 		
 		obj[1] = "";
 		
 		obj[2] = (String) billVO.getParentVO().getAttributeValue("csaleid");
 		obj[2] = obj[2] == null ? "" : obj[2];
 		
-		obj[3] = (String) billVO.getParentVO().getAttributeValue("concode");
-		obj[3] = obj[3] == null ? "" : obj[3];
-			
-		Object iscredit = ((UFBoolean)billVO.getParentVO().getAttributeValue("iscredit")).toString();
+		
 		Object ccustomerid = billVO.getParentVO().getAttributeValue("creceiptcorpid");
+		
+		Map queryMap = (Map) UAPQueryBS.getInstance().executeQuery("select nvl(iscredit , 'N') iscredit , pk_contract , concode from so_saleinvoice where csaleid = '"+obj[2]+"' ", new MapProcessor());
+		
+		Object iscredit = billVO.getParentVO().getAttributeValue("iscredit");
+		if(iscredit == null)
+			iscredit = queryMap.get("iscredit");
+		
+		obj[0] = (String) billVO.getParentVO().getAttributeValue("pk_contract");
+		
+		if(obj[0] == null)
+			obj[0] = queryMap.get("pk_contract");
+		
+		obj[0] = obj[0] == null ? "" : obj[0];
+		
+		obj[1] = "";
+		
+		
+		obj[3] = (String) billVO.getParentVO().getAttributeValue("concode");
+		
+		if(obj[3] == null)
+			obj[3] = queryMap.get("concode");
+		
+		obj[3] = obj[3] == null ? "" : obj[3];
+		
 		
 		String sqlPart = " ";
 		try {
@@ -220,7 +241,7 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 		
 		String[] sqlString = new String[]{
 				"select typename , mny from vw_pta_salecont_invbalance where pk_contract = '"+obj[0]+"' and iscredit = '"+iscredit+"' " + sqlPart ,
-				"select '当前开票金额' , nvl(sum(ntotalsummny) * -1 , 0) from so_saleinvoice where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS = 1 and (saletype = '现货合同' or saletype = '长单合同') and pk_contract = '"+obj[0]+"' and iscredit = '"+iscredit+"'  and creceiptcorpid = '"+ccustomerid+"'" , 
+				"select '当前开票金额' , nvl(sum(ntotalsummny) * -1 , 0) from so_saleinvoice where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS <> 2 and (saletype = '现货合同' or saletype = '长单合同') and pk_contract = '"+obj[0]+"' and iscredit = '"+iscredit+"'  and creceiptcorpid = '"+ccustomerid+"' and csaleid = '"+obj[2]+"'" , 
 		};
 		
 		SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , sqlString);
@@ -243,8 +264,8 @@ public class ExtSaleInvoiceUIPlugin implements IScmUIPlugin {
 			else 
 				whereSql += " and vbillstatus = 1 and pk_contract = '"+pk_contract+"' and nvl(def4 , 'N') = 'N' and nvl(dr,0) = 0 and nvl(type,1) <> 1 ";
 			
-			LinkQueryData data = new LinkQueryData(whereSql == null ? "" : whereSql , (ExtSaleInvoiceUI)ctx.getToftPanel());
-			SFClientUtil.openLinkedQueryDialog("HQ010403", (ExtSaleInvoiceUI)ctx.getToftPanel(), data);
+			LinkQueryData data = new LinkQueryData(whereSql == null ? "" : whereSql , (SaleInvoiceUI)ctx.getToftPanel());
+			SFClientUtil.openLinkedQueryDialog("HQ010403", (SaleInvoiceUI)ctx.getToftPanel(), data);
 
 		}
 		

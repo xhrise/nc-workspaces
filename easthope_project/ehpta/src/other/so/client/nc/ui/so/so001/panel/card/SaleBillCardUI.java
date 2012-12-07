@@ -606,10 +606,18 @@ public abstract class SaleBillCardUI extends SaleBillBomUI implements
 		showHintMessage(nc.ui.ml.NCLangRes.getInstance().getStrByID(
 				"SCMCOMMON", "UPPSCMCommon-000136")/* @res "开始加载模板...." */);
 
-		billtempletVO = getBillCardPanel().getTempletData(getNodeCode(),
+		// modify by river for 2012-12-05
+		// 修改模板为PTA销售模板：销售订单(PTA) ，查询： pub_systemplate ， 
+		// 修改了节点号（第一个参数），需在二次开发工具中添加功能节点默认模板
+		billtempletVO = getBillCardPanel().getTempletData("HQ010601",
 				SO_20.booleanValue() ? null : getBillCardPanel().getBusiType(),
 				getClientEnvironment().getUser().getPrimaryKey(),
 				getCorpPrimaryKey());
+		
+		// river
+//		if(billtempletVO != null) {
+//			billtempletVO.getParentVO().setAttributeValue("strBillTempletName", value);
+//		}
 
 		SOBillCardTools.addExeTs(billtempletVO);
 		BillData bd = new BillData(billtempletVO);
@@ -951,23 +959,32 @@ public abstract class SaleBillCardUI extends SaleBillBomUI implements
 		if (SO_20.booleanValue()) {
 
 			if (billtempletVO == null) {
+//				billtempletVO = getBillCardPanel().getTempletData(
+//						"40060302".equals(getNodeCode()) ? getNodeCode()
+//								: getBillType(), null,
+//						getClientEnvironment().getUser().getPrimaryKey(),
+//						getCorpPrimaryKey());
+				
 				billtempletVO = getBillCardPanel().getTempletData(
-						"40060302".equals(getNodeCode()) ? getNodeCode()
-								: getBillType(), null,
+						"HQ010601", null,
 						getClientEnvironment().getUser().getPrimaryKey(),
 						getCorpPrimaryKey());
 			}
+			
 			SOBillCardTools.addExeTs(billtempletVO);
 			bd = new BillData(billtempletVO);
 
 		} else {
 			if (billtempletVO == null) {
 				billtempletVO = getBillCardPanel().getTempletData(
-						"40060302".equals(getNodeCode()) ? getNodeCode()
-								: getBillType(), busiType,
+						// "40060302".equals(getNodeCode()) ? getNodeCode() : getBillType()
+						"HQ010601"
+								, busiType,
 						getClientEnvironment().getUser().getPrimaryKey(),
 						getCorpPrimaryKey());
 			}
+			
+			
 			SOBillCardTools.addExeTs(billtempletVO);
 			bd = new BillData(billtempletVO);
 		}

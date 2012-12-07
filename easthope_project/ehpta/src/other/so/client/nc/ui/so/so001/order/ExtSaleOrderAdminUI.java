@@ -42,6 +42,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		// 设置表头及表尾的编辑前事件
 		// add by river for 2012-07-23
 		getBillCardPanel().setBillBeforeEditListenerHeadTail(this);
+		
 	}
 	
 	public ExtSaleOrderAdminUI(String pk_corp, String billtype, String busitype, String operator, String id) {
@@ -254,7 +255,7 @@ public class ExtSaleOrderAdminUI extends SaleBillUI implements BillCardBeforeEdi
 		// 添加 合同余额 按钮
 		// add by river for 2012-07-30
 		// start ..
-		boAsstntQry.addChildButton(new ButtonObject("合同余额" , "" , 0 , "合同余额"));
+		boAsstntQry.addChildButton(new ButtonObject("PTA合同余额" , "" , 0 , "PTA合同余额"));
 		// ..end 
 
 		//打印

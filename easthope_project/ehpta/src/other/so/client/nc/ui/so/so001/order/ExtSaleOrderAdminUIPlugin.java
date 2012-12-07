@@ -68,17 +68,25 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	public void beforeButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 
+		
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
 		if("保存".equals(bo.getName())) 
 			beforeOnBoSave(ctx);
 		
 		else if("审核".equals(bo.getName()) || "送审".equals(bo.getName())) {
-			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))
+			if("列表".equals((extClientUI == null ? clientUI : extClientUI).strShowState))
 				throw new BusinessException("列表状态不能进行此操作，请转至卡片界面操作。");
 			
 			beforeOnBoAudit(ctx , bo);
 			
 		} else if("弃审".equals(bo.getName())) {
-			if("列表".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState))
+			if("列表".equals((extClientUI == null ? clientUI : extClientUI).strShowState))
 				throw new BusinessException("列表状态不能进行弃审操作，请转至卡片界面操作。");
 			
 			beforeOnBoCancleAudit(ctx);
@@ -111,6 +119,14 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	protected final void beforeOnBoSave(SCMUIContext ctx) throws BusinessException {
 		BillItem contypeItem = ctx.getBillCardPanel().getBillData().getHeadItem("contracttype");
 		if(contypeItem != null && contypeItem.getValueObject() != null) {
+			
+			ExtSaleOrderAdminUI extClientUI = null;
+			SaleOrderAdminUI clientUI = null;
+			if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+				extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+			else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+				clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+			
 			BillItem conItem = ctx.getBillCardPanel().getBillData().getHeadItem("pk_contract");
 			
 			if(conItem == null || conItem.getValueObject() == null || "".equals(conItem.getValueObject()))
@@ -142,7 +158,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 						Object num = UAPQueryBS.getInstance().executeQuery("select nvl(sum(num),0) from ehpta_sale_contract_bs where pk_contract = '"+conItem.getValueObject()+"' and nvl(dr,0)=0 ", new ColumnProcessor());
 						
 						if(nnumber.doubleValue() > new UFDouble(num.toString()).doubleValue())
-							((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("提货数量大于销售合同总数量");
+							(extClientUI == null ? clientUI : extClientUI).showWarningMessage("提货数量大于销售合同总数量");
 					
 					}
 					
@@ -186,12 +202,12 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 						}
 						
 						if(nnumber.doubleValue() > totalnum.doubleValue())
-							((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("提货数量大于销售合同当前期间执行量");
+							(extClientUI == null ? clientUI : extClientUI).showWarningMessage("提货数量大于销售合同当前期间执行量");
 					}
 					
 					Object nheadsummny =  UAPQueryBS.getInstance().executeQuery("select nvl(sum(nheadsummny),0) from so_sale where pk_contract is not null and nvl(dr,0)=0 and (contracttype = 10 or contracttype = 20 ) and pk_contract = '"+conItem.getValueObject()+"'", new ColumnProcessor());
 					if(sumMny.sub(new UFDouble(nheadsummny.toString())).sub(Double.valueOf(headsummnyItem.getValueObject().toString())).doubleValue() < 0)
-						((ExtSaleOrderAdminUI) ctx.getIctxpanel().getToftPanel()).showWarningMessage("合同余额小于本次提货金额");
+						(extClientUI == null ? clientUI : extClientUI).showWarningMessage("合同余额小于本次提货金额");
 					
 					break;
 				
@@ -206,9 +222,12 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		BillItem contypeItem = ctx.getBillCardPanel().getBillData().getHeadItem("contracttype");
 		if(contypeItem != null && contypeItem.getValueObject() != null) {
 			BillItem conItem = ctx.getBillCardPanel().getBillData().getHeadItem("pk_contract");
-			
-			if(conItem == null || conItem.getValueObject() == null || "".equals(conItem.getValueObject()))
+			Object pk_contract = null;
+			if(conItem == null || conItem.getValueObject() == null || "".equals(conItem.getValueObject())) {
+				
 				throw new BusinessException ("销售合同不能为空！");
+				
+			}
 			
 			AggregatedValueObject billVO = ctx.getBillCardPanel().getBillValueVO(SaleOrderVO.class.getName(), SaleorderHVO.class.getName(), SaleorderBVO.class.getName());
 			if(billVO == null) 
@@ -298,7 +317,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	public void afterButtonClicked(ButtonObject bo, SCMUIContext ctx)
 			throws BusinessException {
 		
-		if("合同余额".equals(bo.getName())) 
+		if("PTA合同余额".equals(bo.getName())) 
 			afterOnBoContBalance(bo, ctx);
 
 		try { 
@@ -316,7 +335,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 	
 	protected final void afterLineExec(SCMUIContext ctx) throws Exception {
 		
-		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
+		AggregatedValueObject  selVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 		
 		if(selVO != null) {
 			UFDouble noriginalcursummny = new UFDouble("0" , 2);
@@ -347,33 +375,69 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		Object[] obj = new Object[4];
 		Object iscredit = false;
 		
-		if("卡片".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState)) {
-			iscredit = ctx.getBillCardPanel().getHeadItem("iscredit").getValueObject();
-			
-			obj[0] =  ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
-			obj[0] = obj[0] == null ? "" : obj[0];
-			
-			obj[1] = "";
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+		if("卡片".equals((extClientUI == null ? clientUI : extClientUI).strShowState)) {
 			
 			obj[2] = (String) ctx.getBillCardPanel().getHeadItem("csaleid").getValueObject();
 			obj[2] = obj[2] == null ? "" : obj[2];
 			
-			obj[3] = (String) ctx.getBillCardPanel().getHeadItem("concode").getValueObject();
-			obj[3] = obj[3] == null ? "" : obj[3];
+			Map queryMap = (Map) UAPQueryBS.getInstance().executeQuery("select nvl(iscredit , 'N') iscredit , pk_contract , concode from so_sale where csaleid = '"+obj[2]+"' ", new MapProcessor());
 			
-		} else { 
+			if(ctx.getBillCardPanel().getHeadItem("iscredit") != null)
+				iscredit = ctx.getBillCardPanel().getHeadItem("iscredit").getValueObject();
+			else 
+				iscredit = queryMap.get("iscredit");
 			
-			iscredit = ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "iscredit");
+			if(ctx.getBillCardPanel().getHeadItem("pk_contract") != null) 
+				obj[0] =  ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
+			else 
+				obj[0] = queryMap.get("pk_contract");
 			
-			obj[0] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "pk_contract");
 			obj[0] = obj[0] == null ? "" : obj[0];
 			
 			obj[1] = "";
 			
+			
+			if(ctx.getBillCardPanel().getHeadItem("concode") != null)
+				obj[3] = (String) ctx.getBillCardPanel().getHeadItem("concode").getValueObject();
+			else 
+				obj[3] = queryMap.get("concode");
+			
+			obj[3] = obj[3] == null ? "" : obj[3];
+			
+		} else { 
+			
 			obj[2] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "csaleid");
 			obj[2] = obj[2] == null ? "" : obj[2];
 			
-			obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
+			Map queryMap = (Map) UAPQueryBS.getInstance().executeQuery("select nvl(iscredit , 'N') iscredit , pk_contract , concode from so_sale where csaleid = '"+obj[2]+"' ", new MapProcessor());
+			
+			if(ctx.getBillListPanel().getHeadItem("iscredit") != null)
+				iscredit = ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "iscredit");
+			else 
+				iscredit = queryMap.get("iscredit");
+				
+			
+			if(ctx.getBillListPanel().getHeadItem("pk_contract") != null)
+				obj[0] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "pk_contract");
+			else 
+				obj[0] = queryMap.get("pk_contract");
+			
+			obj[0] = obj[0] == null ? "" : obj[0];
+			
+			obj[1] = "";
+			
+			if(ctx.getBillListPanel().getHeadItem("concode") != null)
+				obj[3] = (String) ctx.getBillListPanel().getHeadBillModel().getValueAt(num, "concode");
+			else 
+				obj[3] = queryMap.get("concode");
+				
 			obj[3] = obj[3] == null ? "" : obj[3];
 			
 		}
@@ -412,7 +476,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		
 		String[] sqlString = new String[]{
 				" select typename , mny from vw_pta_sale_contract_balance where pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"' " + sqlPart , 
-				" select '当前提货金额' , nvl(sum(nheadsummny) * -1 , 0) from so_sale where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS = 1 and (contracttype = 10 or contracttype = 20) and pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"'  and ccustomerid = '"+ccustomerid+"'  group by pk_contract,iscredit "
+				" select '当前提货金额' , nvl(sum(nheadsummny) * -1 , 0) from so_sale where pk_contract is not null and nvl(dr, 0) = 0 and FSTATUS <> 2 and (contracttype = 10 or contracttype = 20) and pk_contract = '"+obj[0]+"' and iscredit = '"+new UFBoolean(iscredit.toString()).toString()+"'  and ccustomerid = '"+ccustomerid+"' and csaleid = '"+obj[2]+"'  group by pk_contract,iscredit "
 		};
 		
 		SaleContractBalanceDlg balanceDlg = new SaleContractBalanceDlg(ctx.getIctxpanel().getToftPanel() , obj , sqlString);
@@ -453,7 +517,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			
 		} else if("增行".equals(bo.getName())) {
 			
-			AggregatedValueObject  billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+			ExtSaleOrderAdminUI extClientUI = null;
+			SaleOrderAdminUI clientUI = null;
+			if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+				extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+			else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+				clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+			
+//			extClientUI == null ? clientUI : extClientUI
+			
+			AggregatedValueObject  billVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 			
 			if(settlemny != null) {
 				
@@ -505,7 +578,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 
 	protected final void beforeOperModeEdit(BillEditEvent e, SCMUIContext ctx) throws Exception {
 		
-		if("卡片".equals(((ExtSaleOrderAdminUI)ctx.getToftPanel()).strShowState)) {
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
+		if("卡片".equals((extClientUI == null ? clientUI : extClientUI).strShowState)) {
 			((UIRefPane)ctx.getBillCardPanel().getBodyItem("copermodecode").getComponent()).setWhereString(" bd_jobbasfil.pk_jobtype = (select pk_jobtype from bd_jobtype where jobtypename = '作业方式' and nvl(dr,0)=0) ");
 		}
 		
@@ -573,7 +655,7 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		System.out.println(e.getKey());
 		String refpk = ((UIRefPane)ctx.getBillCardPanel().getHeadItem(e.getKey()).getComponent()).getRefPK();
 		Map storMap = (Map) UAPQueryBS.getInstance().executeQuery("select pk_stordoc , storaddr from ehpta_storcontract where pk_storagedoc = '"+refpk+"'", new MapProcessor());
-		Object pk_stordoc= storMap.get("pk_stordoc");
+		Object pk_stordoc= storMap == null ? "" : storMap.get("pk_stordoc");
 		
 		ctx.getBillCardPanel().getHeadItem("storage").setValue(pk_stordoc);
 		ctx.getBillCardPanel().execHeadFormula("storage->getColValue(bd_stordoc , pk_stordoc , pk_stordoc , storage)");
@@ -597,7 +679,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		String storage = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("storage").getComponent()).getRefPK();
 		String estoraddrid = ((UIRefPane)ctx.getBillCardPanel().getHeadItem("estoraddrid").getComponent()).getRefPK();
 		
-		AggregatedValueObject billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
+		AggregatedValueObject billVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 		if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
 			for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row ++) {
 				
@@ -707,23 +798,32 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 		 * 获取到存货相关信息及来源单据的相关信息
 		 */
 		
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
 		Object period = ctx.getBillCardPanel().getHeadItem("period").getValueObject();
 		Object pk_contract = ctx.getBillCardPanel().getHeadItem("pk_contract").getValueObject();
 		SaleContractBVO[] contbVOs = (SaleContractBVO[]) HYPubBO_Client.queryByCondition(SaleContractBVO.class, " pk_contract = '"+pk_contract+"' and ((edate >= '"+period+"' and sdate <= '"+period+"') or sdate = '"+period+"') and nvl(dr,0) = 0 ");
 		if(contbVOs != null && contbVOs.length > 0) {
 			
-			AggregatedValueObject billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+			AggregatedValueObject billVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 			if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
 				int[] rowNos = new int[billVO.getChildrenVO().length];
 				for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row ++ ) {
 					rowNos[row] = row;
 				}
 				
-				((ExtSaleOrderAdminUI)ctx.getToftPanel()).onDelLine(rowNos);
+				(extClientUI == null ? clientUI : extClientUI).onDelLine(rowNos);
 				
 			}
 			
-			((ExtSaleOrderAdminUI)ctx.getToftPanel()).onAddLine();
+			(extClientUI == null ? clientUI : extClientUI).onAddLine();
 			
 //			Object pk_invbasdoc = UAPQueryBS.getInstance().executeQuery("select pk_invbasdoc from bd_invmandoc where pk_invmandoc = '"+contbVOs[0].getPk_invbasdoc()+"'", new ColumnProcessor());
 			
@@ -775,7 +875,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			ctx.getBillCardPanel().getHeadItem("carriersaddr").setValue(null);
 			ctx.getBillCardPanel().getHeadItem("carriersname").setNull(false);
 			
-			AggregatedValueObject billVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+			ExtSaleOrderAdminUI extClientUI = null;
+			SaleOrderAdminUI clientUI = null;
+			if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+				extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+			else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+				clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+			
+//			extClientUI == null ? clientUI : extClientUI
+			
+			AggregatedValueObject billVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 			if(billVO != null && billVO.getChildrenVO() != null && billVO.getChildrenVO().length > 0) {
 				for(int row = 0 , len = billVO.getChildrenVO().length ; row < len ; row++) {
 					ctx.getBillCardPanel().setBodyValueAt(null, row, "ctransmodecode");
@@ -1039,7 +1148,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			}
 		}
 		
-		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
+		AggregatedValueObject  selVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 		
 		if(selVO != null) {
 			UFDouble noriginalcursummny = new UFDouble("0" , 2);
@@ -1089,7 +1207,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			ctx.getBillCardPanel().execBodyFormulas(e.getRow(), formulas);
 		}
 		
-		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
+		AggregatedValueObject  selVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 		
 		if(selVO != null) {
 			UFDouble noriginalcursummny = new UFDouble("0" , 2);
@@ -1132,7 +1259,16 @@ public class ExtSaleOrderAdminUIPlugin implements IScmUIPlugin {
 			}
 		}
 		
-		AggregatedValueObject  selVO = ((ExtSaleOrderAdminUI)ctx.getToftPanel()).getVo();
+		ExtSaleOrderAdminUI extClientUI = null;
+		SaleOrderAdminUI clientUI = null;
+		if (ctx.getToftPanel() instanceof ExtSaleOrderAdminUI)
+			extClientUI = (ExtSaleOrderAdminUI)ctx.getToftPanel();
+		else if(ctx.getToftPanel() instanceof SaleOrderAdminUI)
+			clientUI = (SaleOrderAdminUI)ctx.getToftPanel();
+		
+//		extClientUI == null ? clientUI : extClientUI
+		
+		AggregatedValueObject  selVO = (extClientUI == null ? clientUI : extClientUI).getVo();
 		
 		if(selVO != null) {
 			UFDouble noriginalcursummny = new UFDouble("0" , 2);
