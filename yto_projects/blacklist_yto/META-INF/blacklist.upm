@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<module>
+  <public>
+		<component priority="0" singleton="true" supportAlias="true" remote="true" tx="CMT"  active="true">
+			<interface>nc.itf.yto.blacklist.IblkQueryFunc</interface>
+      		<implementation>nc.impl.yto.blacklist.blkQueryFuncImpl</implementation>
+    </component>
+   </public>
+   <private >
+   
+   </private>
+</module>
