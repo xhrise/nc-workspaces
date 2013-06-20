@@ -51,7 +51,7 @@ public class ClientUICtrl extends AbstractManageController {
 
 	}
 	
-	public String[] getTableName() {
+	public String[] getTableName() { 
 		return new String[] {
 				"hi_psndoc_bad_app_h" , "hi_psndoc_bad_app_b"
 		};

@@ -1,9 +1,10 @@
 package nc.ui.yto.blacklist;
 
-import javax.swing.JOptionPane;
-
 import nc.bs.framework.common.NCLocator;
+import nc.bs.logging.Logger;
+import nc.itf.uap.IUAPQueryBS;
 import nc.itf.yto.blacklist.IblkQueryFunc;
+import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.ui.pub.ClientEnvironment;
 import nc.ui.pub.bill.BillCardPanel;
 import nc.ui.pub.bill.BillEditEvent;
@@ -12,7 +13,6 @@ import nc.ui.trade.manage.ManageEventHandler;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.trade.field.BillField;
 import nc.vo.trade.pub.IBillStatus;
-import nc.vo.yto.business.PsnbasdocVO;
 import nc.vo.yto.business.PsndocVO;
 
 /**
@@ -28,6 +28,10 @@ import nc.vo.yto.business.PsndocVO;
  */
 public class ClientUI extends AbstractClientUI {
 
+	private static final long serialVersionUID = 5150693261999032888L;
+	
+	private final IUAPQueryBS iUAPQueryBS = NCLocator.getInstance().lookup(IUAPQueryBS.class);
+	
 	protected ManageEventHandler createEventHandler() {
 		return new MyEventHandler(this, getUIControl());
 	}
@@ -87,13 +91,13 @@ public class ClientUI extends AbstractClientUI {
 						.getDataSourceName());
 			
 			String pk_psnbasdoc = null;
-			if(psndoc != null) 
+			if(psndoc.length > 0) 
 				pk_psnbasdoc = psndoc[0].getPk_psnbasdoc();
 			
 			if (pk_psnbasdoc != null) {
 				
 
-				PsnbasdocVO psnbas = blkQuery.getPsnbasByPK(pk_psnbasdoc.toString(), this
+				nc.vo.yto.business.PsnbasdocVO psnbas = blkQuery.getPsnbasByPK(pk_psnbasdoc.toString(), this
 						.getClientEnvironment().getConfigAccount()
 						.getDataSourceName());
 				
@@ -102,7 +106,7 @@ public class ClientUI extends AbstractClientUI {
 						.getDataSourceName());
 				
 				if(psn.length > 0) {
-					JOptionPane.showMessageDialog(null, "该人员未离职，不能加入黑名单" , "提示" , JOptionPane.OK_OPTION);
+					showErrorMessage("该人员未离职，不能加入黑名单");
 					
 					panel.setBodyValueAt(null, event.getRow(), "psncode");
 					panel.setBodyValueAt(null, event.getRow(), "psnname");
@@ -117,53 +121,55 @@ public class ClientUI extends AbstractClientUI {
 					
 					return;
 				}
-					
 				
-//				panel.getBodyItem("psnname").setValue(psnbas.getPsnname());
+				Object result = iUAPQueryBS.executeQuery("select count(1) count from hi_psndoc_bad where id = '"+psnbas.getId()+"'", new ColumnProcessor());
+				if(Integer.valueOf(String.valueOf(result)) > 0) { 
+					
+					showErrorMessage("该人员已经存在于黑名单中，无需重复添加！");
+					panel.setBodyValueAt(null, event.getRow(), "psncode");
+					panel.setBodyValueAt(null, event.getRow(), "psnname");
+					panel.setBodyValueAt(null, event.getRow(), "sex");
+					panel.setBodyValueAt(null, event.getRow(), "birthday");
+					panel.setBodyValueAt(null, event.getRow(), "id");
+					panel.setBodyValueAt(null, event.getRow(), "permanentres");
+					panel.setBodyValueAt(null, event.getRow(), "cuserid");
+					panel.setBodyValueAt(null, event.getRow(), "def1");
+					panel.setBodyValueAt(null, event.getRow(), "indate");
+					panel.setBodyValueAt(null, event.getRow(), "pk_corp");
+					
+					return;
+				}
+				
 				panel.setBodyValueAt(psnbas.getPsnname(), event.getRow(), "psnname");
 				
 				String sex = psnbas.getAttributeValue("sex").toString();
 				if(sex.equals("男")) {
-//					panel.getBodyItem("sex").setValue("1");
 					panel.setBodyValueAt("1", event.getRow(), "sex");
 				}
 				else if(sex.equals("女")) {
-//					panel.getBodyItem("sex").setValue("2");
 					panel.setBodyValueAt("2", event.getRow(), "sex");
 				}
 				
-//				panel.getBodyItem("birthday").setValue(psnbas.getBirthdate());
 				panel.setBodyValueAt(psnbas.getBirthdate(), event.getRow(), "birthday");
 				
-//				panel.getBodyItem("id").setValue(psnbas.getId());
 				panel.setBodyValueAt(psnbas.getId(), event.getRow(), "id");
 				
-//				panel.getBodyItem("permanentres").setValue(psnbas.getBasgroupdef18());
-				panel.setBodyValueAt(psnbas.getBasgroupdef18(), event.getRow(), "permanentres");
+				Object docname = iUAPQueryBS.executeQuery("select docname from bd_defdoc where pk_defdoc = '"+psnbas.getPermanreside()+"' ", new ColumnProcessor());
+				panel.setBodyValueAt(docname, event.getRow(), "permanentres");
 				
-//				panel.getBodyItem("cuserid").setValue(this.getClientEnvironment().getUser().getPrimaryKey());
 				panel.setBodyValueAt(this.getClientEnvironment().getUser().getPrimaryKey(), event.getRow(), "cuserid");
 				
 				panel.setBodyValueAt(this.getClientEnvironment().getUser().getUserName(), event.getRow(), "def1");
 				
-//				panel.getBodyItem("indate").setValue(this.getClientEnvironment().getDate());
 				panel.setBodyValueAt(this.getClientEnvironment().getDate(), event.getRow(), "indate");
 				
-//				panel.getBodyItem("pk_corp").setValue(this.getClientEnvironment().getCorporation().getPk_corp());
 				panel.setBodyValueAt(this.getClientEnvironment().getCorporation().getPk_corp(), event.getRow(), "pk_corp");
 				panel.setBodyValueAt(this.getClientEnvironment().getCorporation().getUnitname(), event.getRow(), "def2");
-				
-				
-				
-//				
-//				panel.updateValue();
-//				panel.updateUI();
-				
 
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.error(e.getMessage(), e);
 			
 			panel.setBodyValueAt(null, event.getRow(), "psncode");
 			panel.setBodyValueAt(null, event.getRow(), "psnname");
@@ -177,5 +183,6 @@ public class ClientUI extends AbstractClientUI {
 			panel.setBodyValueAt(null, event.getRow(), "pk_corp");
 		}
 	}
+
 
 }

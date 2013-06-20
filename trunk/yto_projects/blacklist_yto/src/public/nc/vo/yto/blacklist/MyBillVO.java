@@ -17,6 +17,8 @@ import nc.vo.yto.blacklist.HiPsndocBadAppBVO;
  */
 public class  MyBillVO extends HYBillVO {
 
+	private static final long serialVersionUID = 6435007046765840249L;
+
 	public CircularlyAccessibleValueObject[] getChildrenVO() {
 		return (HiPsndocBadAppBVO[]) super.getChildrenVO();
 	}
