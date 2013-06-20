@@ -12,15 +12,14 @@ import nc.vo.pub.BusinessException;
 import nc.vo.uap.pf.PFBusinessException;
 
 /**
- * 备注：ActionVo.getBillTypeName()的保存 的动态执行类。
+ * 备注：blacklist的保存 单据动作执行中的动态执行类的动态执行类。
  * 
- * 创建日期：(2011-8-26)
+ * 创建日期：(2013-6-20)
  * 
  * @author 平台脚本生成
  */
 public class N_blk_WRITE extends AbstractCompiler2 {
 	private java.util.Hashtable m_methodReturnHas = new java.util.Hashtable();
-
 	private Hashtable m_keyHas = null;
 
 	/**
@@ -41,6 +40,15 @@ public class N_blk_WRITE extends AbstractCompiler2 {
 			// ####重要说明：生成的业务组件方法尽量不要进行修改####
 			// 方法说明:公共保存方法
 			// 生成单据号
+
+			nc.vo.pub.CircularlyAccessibleValueObject[] objs = vo.m_preValueVo.getChildrenVO();
+			if(objs != null && objs.length > 0) {
+				for (nc.vo.pub.CircularlyAccessibleValueObject obj : objs) {
+					if (obj.getAttributeValue("cause") == null)
+						throw new BusinessException("加入黑名单原因不能为空！");
+				}
+			}
+			
 			nc.bs.pub.billcodemanage.BillcodeGenerater gene = new nc.bs.pub.billcodemanage.BillcodeGenerater();
 			if (nc.vo.jcom.lang.StringUtil.isEmpty(((String) vo.m_preValueVo
 					.getParentVO().getAttributeValue("vbillno")))) {
@@ -49,9 +57,7 @@ public class N_blk_WRITE extends AbstractCompiler2 {
 				vo.m_preValueVo.getParentVO().setAttributeValue("vbillno",
 						billno);
 			}
-			retObj = runClass("nc.bs.trade.comsave.BillSave", "saveBill",
-					"nc.vo.pub.AggregatedValueObject:01", vo, m_keyHas,
-					m_methodReturnHas);
+			retObj = runClass("nc.bs.trade.comsave.BillSave", "saveBill", "nc.vo.pub.AggregatedValueObject:01", vo, m_keyHas, m_methodReturnHas);
 			// #################################################
 			return retObj;
 		} catch (Exception ex) {
@@ -66,7 +72,7 @@ public class N_blk_WRITE extends AbstractCompiler2 {
 	 * 备注：平台编写原始脚本
 	 */
 	public String getCodeRemark() {
-		return "	//####本脚本必须含有返回值,返回DLG和PNL的组件不允许有返回值####\n	Object retObj  =null;\n	//####重要说明：生成的业务组件方法尽量不要进行修改####\n	//方法说明:公共保存方法\n	// 生成单据号\n	nc.bs.pub.billcodemanage.BillcodeGenerater gene  =\n	new nc.bs.pub.billcodemanage.BillcodeGenerater ();\n	if ( nc.vo.jcom.lang.StringUtil.isEmpty ( ( (String)vo.m_preValueVo.getParentVO ().getAttributeValue ( \"vbillno\")))) {\n		String billno  = gene.getBillCode (vo.m_billType,vo.m_coId,null,null);\n		vo.m_preValueVo.getParentVO ().setAttributeValue ( \"vbillno\",billno);\n	}\n	retObj  =runClassCom@ \"nc.bs.trade.comsave.BillSave\", \"saveBill\", \"nc.vo.pub.AggregatedValueObject:01\"@;\n	//#################################################\n	return retObj;\n";
+		return "	//####本脚本必须含有返回值,返回DLG和PNL的组件不允许有返回值####\n	Object retObj  =null;\n	//####重要说明：生成的业务组件方法尽量不要进行修改####\n	//方法说明:公共保存方法\n	// 生成单据号\n	\n	 nc.vo.pub.CircularlyAccessibleValueObject[] objs = vo.m_preValueVo.getChildrenVO();\n	 for(nc.vo.pub.CircularlyAccessibleValueObject obj : objs) {\n	 	if(obj.getAttributeValue(\"cause\") == null)\n	 		throw new BusinessException(\"加入黑名单原因不能为空！\");\n	}\n	nc.bs.pub.billcodemanage.BillcodeGenerater gene  =\n	new nc.bs.pub.billcodemanage.BillcodeGenerater ();\n	if ( nc.vo.jcom.lang.StringUtil.isEmpty ( ( (String)vo.m_preValueVo.getParentVO ().getAttributeValue ( \"vbillno\")))) {\n		String billno  = gene.getBillCode (vo.m_billType,vo.m_coId,null,null);\n		vo.m_preValueVo.getParentVO ().setAttributeValue ( \"vbillno\",billno);\n	}\n	retObj  =runClassCom@ \"nc.bs.trade.comsave.BillSave\", \"saveBill\", \"nc.vo.pub.AggregatedValueObject:01\"@;\n	//#################################################\n	return retObj;\n";
 	}
 
 	/*

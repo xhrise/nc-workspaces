@@ -26,7 +26,7 @@ public class MyEventHandler extends AbstractMyEventHandler {
 	}
 	
 	@Override
-	protected void onBoSave() throws Exception {
+	protected void onBoSave() throws Exception { 
 		
 		saveValidataIsNull(getBillCardPanelWrapper().getBillCardPanel(), getBillCardPanelWrapper().getBillVOFromUI(), ((ClientUICtrl)getUIController()).getBodyTableName());
 		
